@@ -19,7 +19,7 @@ namespace GiantExtensionLaddersV2
     public class GiantExtensionLaddersV2 : BaseUnityPlugin
     {
         //------- configs
-        public static new MySyncedConfigs Config { get; private set; }
+        internal static MySyncedConfigs mySyncedConfigs;
 
         //------- constants
         private const string tinyLadderAssetbundleName = "TinyLadderAssets";
@@ -98,7 +98,7 @@ namespace GiantExtensionLaddersV2
             mls = base.Logger;
             Instance = this;
 
-            Config = new MySyncedConfigs(base.Config);
+            mySyncedConfigs = new MySyncedConfigs(Config);
 
             mls.LogInfo("loading assetbundles");
             string tinyLadderAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), tinyLadderAssetbundleName);
