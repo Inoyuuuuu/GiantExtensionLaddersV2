@@ -2,6 +2,7 @@
 using BepInEx.Logging;
 using GiantExtensionLaddersV2.Behaviours;
 using GiantExtensionLaddersV2.ConfigStuff;
+using GiantExtensionLaddersV2.Patches;
 using HarmonyLib;
 using LethalLib.Modules;
 using System;
@@ -85,6 +86,10 @@ namespace GiantExtensionLaddersV2
         internal static List<AudioSource> hugeLadderAudioSources = new List<AudioSource>();
         internal static List<InteractTrigger> hugeLadderInteractTriggers = new List<InteractTrigger>();
         internal static List<BoxCollider> hugeLadderBoxColliders = new List<BoxCollider>();
+        
+        internal static Item tinyLadderItem;
+        internal static Item bigLadderItem;
+        internal static Item hugeLadderItem;
 
         public static GiantExtensionLaddersV2 Instance { get; private set; } = null!;
         internal new static ManualLogSource mls { get; private set; } = null!;
@@ -117,9 +122,9 @@ namespace GiantExtensionLaddersV2
             }
 
             mls.LogInfo("loading items from assetbundles");
-            Item tinyLadderItem = tinyLadderBundle.LoadAsset<Item>(tinyLadderItemPropertiesLocation);
-            Item bigLadderItem = bigLadderBundle.LoadAsset<Item>(bigLadderItemPropertiesLocation);
-            Item hugeLadderItem = hugeLadderBundle.LoadAsset<Item>(hugeLadderItemPropertiesLocation);
+            tinyLadderItem = tinyLadderBundle.LoadAsset<Item>(tinyLadderItemPropertiesLocation);
+            bigLadderItem = bigLadderBundle.LoadAsset<Item>(bigLadderItemPropertiesLocation);
+            hugeLadderItem = hugeLadderBundle.LoadAsset<Item>(hugeLadderItemPropertiesLocation);
 
             if (bigLadderItem != null && hugeLadderItem != null && tinyLadderItem != null)
             {
@@ -257,33 +262,25 @@ namespace GiantExtensionLaddersV2
             Utilities.FixMixerGroups(hugeLadderItem.spawnPrefab);
             mls.LogInfo("fixed mixers");
 
-            if (ConfigStuff.MySyncedConfigs.Instance.IS_TINY_LADDER_ENABLED)
-            {
-                TerminalNode tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
-                tinyLadderNode.clearPreviousText = true;
-                tinyLadderNode.displayText = "Awwww... tiny ladder!\n\n";
-                Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_PRICE);
-            }
+            TerminalNode tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            tinyLadderNode.clearPreviousText = true;
+            tinyLadderNode.displayText = "Awwww... tiny ladder!\n\n";
+            Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_PRICE);
 
-            if (ConfigStuff.MySyncedConfigs.Instance.IS_BIG_LADDER_ENABLED)
-            {
-                TerminalNode bigLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
-                bigLadderNode.clearPreviousText = true;
-                bigLadderNode.displayText = "This ladder seems longer than the normal one..\n\n";
-                Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_PRICE);
-            }
+            TerminalNode bigLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            bigLadderNode.clearPreviousText = true;
+            bigLadderNode.displayText = "This ladder seems longer than the normal one..\n\n";
+            Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_PRICE);
 
-            if (ConfigStuff.MySyncedConfigs.Instance.IS_HUGE_LADDER_ENABLED)
-            {
-                TerminalNode hugeLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
-                hugeLadderNode.clearPreviousText = true;
-                hugeLadderNode.displayText = "This ladder seems EVEN longer than the big one..\n\n";
-                Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_PRICE);
-            }
+            TerminalNode hugeLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            hugeLadderNode.clearPreviousText = true;
+            hugeLadderNode.displayText = "This ladder seems EVEN longer than the big one..\n\n";
+            Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_PRICE);
+            
+            Harmony.PatchAll(typeof(LoadLadderConfigsPatch));
 
             mls.LogInfo("items should be in shop.");
             mls.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
-            Patch();
         }
 
         private void buildLadderItem(List<MeshRenderer> meshRenderers, List<Animator> animators, List<Transform> transforms,
@@ -434,7 +431,7 @@ namespace GiantExtensionLaddersV2
         {
             mls.LogDebug("Patching...");
 
-            Harmony.PatchAll();
+            
 
             mls.LogDebug("Finished patching!");
         }

@@ -103,8 +103,8 @@ namespace GiantExtensionLaddersV2.Behaviours
 
         public override void Update()
         {
-            calculateExtensionTimes();
             base.Update();
+            calculateExtensionTimes();
 
             if (playerHeldBy == null && !isHeld && !isHeldByEnemy && reachedFloorTarget && ladderActivated)
             {

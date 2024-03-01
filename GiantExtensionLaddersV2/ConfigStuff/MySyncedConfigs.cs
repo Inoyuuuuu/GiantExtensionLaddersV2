@@ -218,6 +218,8 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
         Synced = false;
         MessageManager.RegisterNamedMessageHandler(MyPluginInfo.PLUGIN_GUID + "_OnReceiveConfigSync", OnReceiveSync);
         RequestSync();
+
+        GiantExtensionLaddersV2.mls.LogInfo("reached init local player patch of csync");
     }
 
     [HarmonyPostfix]
