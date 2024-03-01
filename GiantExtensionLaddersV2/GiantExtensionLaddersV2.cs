@@ -33,7 +33,6 @@ namespace GiantExtensionLaddersV2
         internal static int propertyCounter = 0;
 
         //------- configs TinyLadder
-        private const int TINY_LADDER_ALARM_DURATION = 4;
         private const float TINY_LADDER_MAX_EXTENSION = 10.3f;
         private const float TINY_LADDER_MIN_ROTATION_COLLISION = 60f;
         private const int TINY_LADDER_LINECAST_CHECKS_MULTIPLIER = 2;
@@ -43,7 +42,6 @@ namespace GiantExtensionLaddersV2
         private const bool TINY_LADDER_IS_CLIMBABLE = false;
 
         //------- configs BigLadder
-        private const int BIG_LADDER_ALARM_DURATION = 5;
         private const float BIG_LADDER_MAX_EXTENSION = 17f;
         private const float BIG_LADDER_MIN_ROTATION_COLLISION = 60f;
         private const int BIG_LADDER_LINECAST_CHECKS_MULTIPLIER = 3;
@@ -53,7 +51,6 @@ namespace GiantExtensionLaddersV2
         private const bool BIG_LADDER_IS_CLIMBABLE = true;
 
         //------- configs HugeLadder
-        private const int HUGE_LADDER_ALARM_DURATION = 5;
         private const float HUGE_LADDER_MAX_EXTENSION = 34.4f;
         private const float HUGE_LADDER_MIN_ROTATION_COLLISION = 60f;
         private const int HUGE_LADDER_LINECAST_CHECKS_MULTIPLIER = 4;
@@ -95,10 +92,12 @@ namespace GiantExtensionLaddersV2
 
         private void Awake()
         {
+            Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
             mls = base.Logger;
             Instance = this;
 
             mySyncedConfigs = new MySyncedConfigs(Config);
+            Harmony.PatchAll(typeof(MySyncedConfigs));
 
             mls.LogInfo("loading assetbundles");
             string tinyLadderAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), tinyLadderAssetbundleName);
@@ -161,8 +160,6 @@ namespace GiantExtensionLaddersV2
             tinyLadderScript.itemProperties = tinyLadderItem;
 
             //------- custom properties
-            tinyLadderScript.ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_EXT_TIME - TINY_LADDER_ALARM_DURATION;
-            tinyLadderScript.ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_EXT_TIME;
             tinyLadderScript.maxExtension = TINY_LADDER_MAX_EXTENSION;
             tinyLadderScript.minRotationCollisionCheck = TINY_LADDER_MIN_ROTATION_COLLISION;
             tinyLadderScript.linecastChecksMultiplier = TINY_LADDER_LINECAST_CHECKS_MULTIPLIER;
@@ -170,6 +167,7 @@ namespace GiantExtensionLaddersV2
             tinyLadderScript.ladderHeightMultiplier = TINY_LADDER_HEIGHT_MULTIPLIER;
             tinyLadderScript.ladderRotateSpeedMultiplier = TINY_LADDER_ROTATE_SPEED;
             tinyLadderScript.isClimbable = TINY_LADDER_IS_CLIMBABLE;
+            tinyLadderScript.giantLadderType = GiantLadderType.TINY;
 
             buildLadderItem(tinyLadderMeshRenderers, tinyLadderAnimators, tinyLadderTransforms, tinyLadderAudioClips, tinyLadderAudioSources,
                 tinyLadderInteractTriggers, tinyLadderBoxColliders, tinyLadderScript);
@@ -199,8 +197,6 @@ namespace GiantExtensionLaddersV2
             bigLadderScript.itemProperties = bigLadderItem;
 
             //------- custom properties
-            bigLadderScript.ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_EXT_TIME - BIG_LADDER_ALARM_DURATION;
-            bigLadderScript.ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_EXT_TIME;
             bigLadderScript.maxExtension = BIG_LADDER_MAX_EXTENSION;
             bigLadderScript.minRotationCollisionCheck = BIG_LADDER_MIN_ROTATION_COLLISION;
             bigLadderScript.linecastChecksMultiplier = BIG_LADDER_LINECAST_CHECKS_MULTIPLIER;
@@ -208,6 +204,7 @@ namespace GiantExtensionLaddersV2
             bigLadderScript.ladderHeightMultiplier = BIG_LADDER_HEIGHT_MULTIPLIER;
             bigLadderScript.ladderRotateSpeedMultiplier = BIG_LADDER_ROTATE_SPEED;
             bigLadderScript.isClimbable = BIG_LADDER_IS_CLIMBABLE;
+            bigLadderScript.giantLadderType = GiantLadderType.BIG;
 
             buildLadderItem(bigLadderMeshRenderers, bigLadderAnimators, bigLadderTransforms, bigLadderAudioClips, bigLadderAudioSources,
                 bigLadderInteractTriggers, bigLadderBoxColliders, bigLadderScript);
@@ -237,8 +234,6 @@ namespace GiantExtensionLaddersV2
             hugeLadderScript.itemProperties = hugeLadderItem;
 
             //------- custom properties
-            hugeLadderScript.ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_EXT_TIME - HUGE_LADDER_ALARM_DURATION;
-            hugeLadderScript.ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_EXT_TIME;
             hugeLadderScript.maxExtension = HUGE_LADDER_MAX_EXTENSION;
             hugeLadderScript.minRotationCollisionCheck = HUGE_LADDER_MIN_ROTATION_COLLISION;
             hugeLadderScript.linecastChecksMultiplier = HUGE_LADDER_LINECAST_CHECKS_MULTIPLIER;
@@ -246,6 +241,7 @@ namespace GiantExtensionLaddersV2
             hugeLadderScript.ladderHeightMultiplier = HUGE_LADDER_HEIGHT_MULTIPLIER;
             hugeLadderScript.ladderRotateSpeedMultiplier = HUGE_LADDER_ROTATE_SPEED;
             hugeLadderScript.isClimbable = HUGE_LADDER_IS_CLIMBABLE;
+            hugeLadderScript.giantLadderType = GiantLadderType.HUGE;
 
             buildLadderItem(hugeLadderMeshRenderers, hugeLadderAnimators, hugeLadderTransforms, hugeLadderAudioClips, hugeLadderAudioSources,
                 hugeLadderInteractTriggers, hugeLadderBoxColliders, hugeLadderScript);
@@ -287,6 +283,7 @@ namespace GiantExtensionLaddersV2
 
             mls.LogInfo("items should be in shop.");
             mls.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
+            Patch();
         }
 
         private void buildLadderItem(List<MeshRenderer> meshRenderers, List<Animator> animators, List<Transform> transforms,
@@ -435,8 +432,6 @@ namespace GiantExtensionLaddersV2
 
         internal static void Patch()
         {
-            Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
-
             mls.LogDebug("Patching...");
 
             Harmony.PatchAll();
