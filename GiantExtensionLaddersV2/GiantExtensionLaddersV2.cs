@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using static MonoMod.Cil.RuntimeILReferenceBag.FastDelegateInvokers;
 
 namespace GiantExtensionLaddersV2
 {
@@ -265,17 +266,17 @@ namespace GiantExtensionLaddersV2
             TerminalNode tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             tinyLadderNode.clearPreviousText = true;
             tinyLadderNode.displayText = "Awwww... tiny ladder!\n\n";
-            Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_PRICE);
+            Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, MySyncedConfigs.Instance.TINY_LADDER_PRICE);
 
             TerminalNode bigLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             bigLadderNode.clearPreviousText = true;
-            bigLadderNode.displayText = "This ladder seems longer than the normal one..\n\n";
-            Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_PRICE);
+            bigLadderNode.displayText = "This ladder seems a bit higher than the normal one..\n\n";
+            Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, MySyncedConfigs.Instance.BIG_LADDER_PRICE);
 
             TerminalNode hugeLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             hugeLadderNode.clearPreviousText = true;
-            hugeLadderNode.displayText = "This ladder seems EVEN longer than the big one..\n\n";
-            Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_PRICE);
+            hugeLadderNode.displayText = "This ladder seems EVEN higher than the big one..\n\n";
+            Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, MySyncedConfigs.Instance.HUGE_LADDER_PRICE);
             
             Harmony.PatchAll(typeof(LoadLadderConfigsPatch));
 
@@ -288,6 +289,7 @@ namespace GiantExtensionLaddersV2
             LadderItemScript ladderItemScript)
         {
             propertyCounter = 0;
+            string propertyFoundMsg = " property found";
 
             foreach (MeshRenderer meshRenderer in meshRenderers)
             {
@@ -295,7 +297,7 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.mainObjectRenderer = meshRenderer;
-                    mls.LogInfo("1");
+                    mls.LogDebug("1." + propertyFoundMsg);
                     break;
                 }
             }
@@ -305,13 +307,13 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.ladderAnimator = animator;
-                    mls.LogInfo("2");
+                    mls.LogDebug("2." + propertyFoundMsg);
                 }
                 if (animator.name.Equals("MeshContainer"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderRotateAnimator = animator;
-                    mls.LogInfo("3");
+                    mls.LogDebug("3." + propertyFoundMsg);
                 }
             }
             foreach (Transform transform in transforms)
@@ -320,19 +322,19 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.baseNode = transform;
-                    mls.LogInfo("4");
+                    mls.LogDebug("4." + propertyFoundMsg);
                 }
                 if (transform.name.Equals("TopPosition"))
                 {
                     propertyCounter++;
                     ladderItemScript.topNode = transform;
-                    mls.LogInfo("5");
+                    mls.LogDebug("5." + propertyFoundMsg);
                 }
                 if (transform.name.Equals("MovableNode"))
                 {
                     propertyCounter++;
                     ladderItemScript.moveableNode = transform;
-                    mls.LogInfo("6");
+                    mls.LogDebug("6." + propertyFoundMsg);
                 }
             }
             foreach (AudioClip audioClip in audioClips)
@@ -341,38 +343,39 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.hitRoof = audioClip;
-                    mls.LogInfo("7");
+                    mls.LogDebug("7." + propertyFoundMsg);
                 }
                 if (audioClip.name.Equals("ExtensionLadderHitWall2"))
                 {
                     propertyCounter += 2;
                     ladderItemScript.fullExtend = audioClip;
                     ladderItemScript.hitWall = audioClip;
-                    mls.LogInfo("8 + 9");
+                    mls.LogDebug("8." + propertyFoundMsg);
+                    mls.LogDebug("9." + propertyFoundMsg);
                 }
                 if (audioClip.name.Equals("ExtensionLadderExtend"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderExtendSFX = audioClip;
-                    mls.LogInfo("10");
+                    mls.LogDebug("10." + propertyFoundMsg);
                 }
                 if (audioClip.name.Equals("ExtensionLadderShrink"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderShrinkSFX = audioClip;
-                    mls.LogInfo("11");
+                    mls.LogDebug("11." + propertyFoundMsg);
                 }
                 if (audioClip.name.Equals("ExtensionLadderAlarm"))
                 {
                     propertyCounter++;
                     ladderItemScript.blinkWarningSFX = audioClip;
-                    mls.LogInfo("12");
+                    mls.LogDebug("12." + propertyFoundMsg);
                 }
                 if (audioClip.name.Equals("ExtensionLadderLidOpen"))
                 {
                     propertyCounter++;
                     ladderItemScript.lidOpenSFX = audioClip;
-                    mls.LogInfo("13");
+                    mls.LogDebug("13." + propertyFoundMsg);
                 }
             }
             foreach (AudioSource audioSource in audioSources)
@@ -381,7 +384,7 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.ladderAudio = audioSource;
-                    mls.LogInfo("14");
+                    mls.LogDebug("14." + propertyFoundMsg);
                     break;
                 }
             }
@@ -391,7 +394,7 @@ namespace GiantExtensionLaddersV2
                 {
                     ladderItemScript.ladderScript = interactTrigger;
                     propertyCounter++;
-                    mls.LogInfo("15");
+                    mls.LogDebug("15." + propertyFoundMsg);
                     break;
                 }
             }
@@ -401,48 +404,30 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.interactCollider = boxCollider;
-                    mls.LogInfo("16");
+                    mls.LogDebug("16." + propertyFoundMsg);
                 }
                 if (boxCollider.name.Equals("LadderBridgeCollider"))
                 {
                     propertyCounter++;
                     ladderItemScript.bridgeCollider = boxCollider;
-                    mls.LogInfo("17");
+                    mls.LogDebug("17." + propertyFoundMsg);
                 }
                 if (boxCollider.name.Equals("KillTrigger"))
                 {
                     propertyCounter++;
                     ladderItemScript.killTrigger = boxCollider;
-                    mls.LogInfo("18");
+                    mls.LogDebug("18." + propertyFoundMsg);
                 }
             }
 
             if (propertyCounter == MAX_PROPERTY_AMOUNT)
             {
-                mls.LogInfo("all properties found for script: " + ladderItemScript.name);
+                mls.LogInfo("all properties found for item script: " + ladderItemScript.name);
             }
             else
             {
                 mls.LogInfo("NOT all properties found. Counter: " + propertyCounter);
             }
-        }
-
-        internal static void Patch()
-        {
-            mls.LogDebug("Patching...");
-
-            
-
-            mls.LogDebug("Finished patching!");
-        }
-
-        internal static void Unpatch()
-        {
-            mls.LogDebug("Unpatching...");
-
-            Harmony?.UnpatchSelf();
-
-            mls.LogDebug("Finished unpatching!");
         }
     }
 }

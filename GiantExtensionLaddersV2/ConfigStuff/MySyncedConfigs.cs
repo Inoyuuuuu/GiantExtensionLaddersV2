@@ -76,20 +76,6 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
         HUGE_LADDER_EXT_TIME = cfg.BindSyncedEntry("LadderExtensionTime", "hugeLadderExtensionTime", hugeLadderExtensionTimeBase, "Sets the amount of seconds the huge ladder stays extended");
 
         fixConfigs();
-        initPreSyncValues();
-    }
-
-    private void initPreSyncValues()
-    {
-        waspreSyncTinyLadderEnabled = IS_TINY_LADDER_ENABLED;
-        waspreSyncBigLadderEnabled = IS_BIG_LADDER_ENABLED;
-        waspreSyncHugeLadderEnabled = IS_HUGE_LADDER_ENABLED;
-        preSyncTinyLadderPrice = TINY_LADDER_PRICE;
-        preSyncBigLadderPrice = BIG_LADDER_PRICE;
-        preSyncHugeLadderPrice = HUGE_LADDER_PRICE;
-        preSyncTinyLadderExtTime = TINY_LADDER_EXT_TIME;
-        preSyncdBigLadderExtTime = BIG_LADDER_EXT_TIME;
-        preSyncHugeLadderExtTime = HUGE_LADDER_EXT_TIME;
     }
 
     internal static void RequestSync()

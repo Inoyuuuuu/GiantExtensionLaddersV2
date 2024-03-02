@@ -78,29 +78,6 @@ namespace GiantExtensionLaddersV2.Behaviours
         public float ladderRotateSpeedMultiplier;
         public bool isClimbable = true;
 
-        private void calculateExtensionTimes()
-        {
-            switch (giantLadderType)
-            {
-                case GiantLadderType.TINY:
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_EXT_TIME - 4;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_EXT_TIME;
-                    break;
-                case GiantLadderType.BIG:
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_EXT_TIME - 5;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_EXT_TIME;
-                    break;
-                case GiantLadderType.HUGE:
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_EXT_TIME - 5;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_EXT_TIME;
-                    break;
-                default:
-                    ladderExtensionTime = 25;
-                    ladderAlarmTime = 20;
-                    break;
-            }
-        }
-
         public override void Update()
         {
             base.Update();
@@ -179,6 +156,29 @@ namespace GiantExtensionLaddersV2.Behaviours
                 ladderAnimator.SetBool("openLid", value: false);
                 ladderAnimator.SetBool("extend", value: false);
                 ladderAnimator.SetFloat("extensionAmount", 0f);
+            }
+        }
+
+        private void calculateExtensionTimes()
+        {
+            switch (giantLadderType)
+            {
+                case GiantLadderType.TINY:
+                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_EXT_TIME - 4;
+                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_EXT_TIME;
+                    break;
+                case GiantLadderType.BIG:
+                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_EXT_TIME - 5;
+                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_EXT_TIME;
+                    break;
+                case GiantLadderType.HUGE:
+                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_EXT_TIME - 5;
+                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_EXT_TIME;
+                    break;
+                default:
+                    ladderExtensionTime = 25;
+                    ladderAlarmTime = 20;
+                    break;
             }
         }
 

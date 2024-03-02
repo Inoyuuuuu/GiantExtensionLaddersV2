@@ -16,13 +16,14 @@ namespace GiantExtensionLaddersV2.Patches
     {
         private static float methodUptime = 10f; //this shit lmao. letting this patch run for couple of times since csync takes a bit to fully sync
         private static float updateConfigStart = 5f; //start at 5sec
+        private static bool patchActive = true;
 
         [HarmonyPostfix]
         [HarmonyPatch("Update")]
         [HarmonyPriority(Priority.Last)]
         public static void PatchLaddersConfigs(PlayerControllerB __instance)
         {
-            if (methodUptime > 0)
+            if (patchActive && methodUptime > 0)
             {
                 methodUptime -= Time.deltaTime;
 
@@ -54,18 +55,16 @@ namespace GiantExtensionLaddersV2.Patches
                     {
                         Items.RemoveShopItem(GiantExtensionLaddersV2.hugeLadderItem);
                     }
-
-                    if (methodUptime < 2)
-                    {
-                        GiantExtensionLaddersV2.mls.LogInfo(MySyncedConfigs.preSyncTinyLadderPrice.ToString());
-                        GiantExtensionLaddersV2.mls.LogInfo(MySyncedConfigs.preSyncBigLadderPrice.ToString());
-                        GiantExtensionLaddersV2.mls.LogInfo(MySyncedConfigs.preSyncHugeLadderPrice.ToString());
-                    }
-                } else
-                {
-                    GiantExtensionLaddersV2.mls.LogInfo("finished syncing process");
                 }
-            } 
+            }
+            else if (patchActive && methodUptime <= 0)
+            {
+                GiantExtensionLaddersV2.mls.LogInfo("config sync finished");
+                GiantExtensionLaddersV2.mls.LogInfo("Tiny ladder price is now: " + MySyncedConfigs.Instance.TINY_LADDER_PRICE.Value);
+                GiantExtensionLaddersV2.mls.LogInfo("Big ladder price is now: " + MySyncedConfigs.Instance.BIG_LADDER_PRICE.Value);
+                GiantExtensionLaddersV2.mls.LogInfo("Huge ladder price is now: " + MySyncedConfigs.Instance.HUGE_LADDER_PRICE.Value);
+                patchActive = false;
+            }
         }
     }
 }
