@@ -4,8 +4,11 @@
 **This mod adds new huge Extension Ladders to the store that are way bigger than the lame normal ones!**\
 Ever got stuck on a ladder because it was just not high enough? Well, with almost **twice and even FOUR times** the normal ladder size, these ladders won't let you down!
 
-**Don't like climbing? But I bet you like murder!** \
-No one expects a deadly ladder from above that was placed far away!
+## Features
+> I like using another mod that allows faster climbing. I made one ([Fast Climbing](https://thunderstore.io/c/lethal-company/p/Inoyu/Fast_Climbing/)), but there are a couple of other mods that'll work too.
+- Beeg ladder for climbing higer than usual
+- Huge ladder for climbing even higher
+- Tiny ladder to play with - it could be lethal tho!
 
 ## Images
 ![huge ladder](https://i.imgur.com/zF4HPFv.png)
@@ -16,12 +19,6 @@ No one expects a deadly ladder from above that was placed far away!
 yellow:&nbsp; Normal Extension Ladder \
 blue:  &nbsp; &nbsp; Big Extension Ladder \
 red:   &nbsp; &nbsp; &nbsp; Huge Extension Ladder
-
-## Features
-> I like using another mod that allows faster climbing. I made one ([Fast Climbing](https://thunderstore.io/c/lethal-company/p/Inoyu/Fast_Climbing/)), but there are a couple of other mods that'll work too.
-- Beeg ladder for climbing higer than usual
-- Huge ladder for climbing even higher
-- Tiny ladder to play with - it could be lethal tho!
 
 ## Configs (now synced with lobby-host configs!)
 __The config file is located in "BepInEx\config\inoyu.GiantExtensionLadders.cfg"__
