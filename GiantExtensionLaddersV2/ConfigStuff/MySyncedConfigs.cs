@@ -34,6 +34,16 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
     private const float bigLadderExtensionTimeBase = 25f;
     private const float hugeLadderExtensionTimeBase = 30f;
 
+    internal static bool waspreSyncTinyLadderEnabled;
+    internal static bool waspreSyncBigLadderEnabled;
+    internal static bool waspreSyncHugeLadderEnabled;
+    internal static int preSyncTinyLadderPrice;
+    internal static int preSyncBigLadderPrice;
+    internal static int preSyncHugeLadderPrice;
+    internal static float preSyncTinyLadderExtTime;
+    internal static float preSyncdBigLadderExtTime;
+    internal static float preSyncHugeLadderExtTime;
+
     [DataMember]
     internal SyncedEntry<bool> IS_TINY_LADDER_ENABLED, IS_BIG_LADDER_ENABLED, IS_HUGE_LADDER_ENABLED;
     [DataMember]
@@ -66,6 +76,20 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
         HUGE_LADDER_EXT_TIME = cfg.BindSyncedEntry("LadderExtensionTime", "hugeLadderExtensionTime", hugeLadderExtensionTimeBase, "Sets the amount of seconds the huge ladder stays extended");
 
         fixConfigs();
+        initPreSyncValues();
+    }
+
+    private void initPreSyncValues()
+    {
+        waspreSyncTinyLadderEnabled = IS_TINY_LADDER_ENABLED;
+        waspreSyncBigLadderEnabled = IS_BIG_LADDER_ENABLED;
+        waspreSyncHugeLadderEnabled = IS_HUGE_LADDER_ENABLED;
+        preSyncTinyLadderPrice = TINY_LADDER_PRICE;
+        preSyncBigLadderPrice = BIG_LADDER_PRICE;
+        preSyncHugeLadderPrice = HUGE_LADDER_PRICE;
+        preSyncTinyLadderExtTime = TINY_LADDER_EXT_TIME;
+        preSyncdBigLadderExtTime = BIG_LADDER_EXT_TIME;
+        preSyncHugeLadderExtTime = HUGE_LADDER_EXT_TIME;
     }
 
     internal static void RequestSync()
