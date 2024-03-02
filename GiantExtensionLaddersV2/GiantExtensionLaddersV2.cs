@@ -5,13 +5,11 @@ using GiantExtensionLaddersV2.ConfigStuff;
 using GiantExtensionLaddersV2.Patches;
 using HarmonyLib;
 using LethalLib.Modules;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using static MonoMod.Cil.RuntimeILReferenceBag.FastDelegateInvokers;
 
 namespace GiantExtensionLaddersV2
 {
@@ -31,7 +29,6 @@ namespace GiantExtensionLaddersV2
         private const string bigLadderItemPropertiesLocation = "Assets/extLadderTest/lcLadder/ExtensionLadder_0.asset";
         private const string hugeLadderItemPropertiesLocation = "Assets/extLadderTest/newLongerLadder/ExtensionLadder_0.asset";
         private const int MAX_PROPERTY_AMOUNT = 18;
-
         internal static int propertyCounter = 0;
 
         //------- configs TinyLadder
@@ -103,7 +100,6 @@ namespace GiantExtensionLaddersV2
             Instance = this;
 
             mySyncedConfigs = new MySyncedConfigs(Config);
-            Harmony.PatchAll(typeof(MySyncedConfigs));
 
             mls.LogInfo("loading assetbundles");
             string tinyLadderAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), tinyLadderAssetbundleName);

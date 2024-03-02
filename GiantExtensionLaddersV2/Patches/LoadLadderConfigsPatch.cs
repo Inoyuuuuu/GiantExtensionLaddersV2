@@ -1,13 +1,8 @@
-using BepInEx.Logging;
 using GameNetcodeStuff;
 using GiantExtensionLaddersV2.ConfigStuff;
 using HarmonyLib;
 using LethalLib.Modules;
-using System;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 namespace GiantExtensionLaddersV2.Patches
 {

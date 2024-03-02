@@ -1,19 +1,9 @@
-﻿using BepInEx;
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using BepInEx.Logging;
 using CSync.Lib;
 using CSync.Util;
-using GameNetcodeStuff;
-using HarmonyLib;
-using LethalLib;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using Unity.Collections;
-using Unity.Netcode;
 
 
 namespace GiantExtensionLaddersV2.ConfigStuff;
@@ -53,9 +43,9 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
 
     private static ManualLogSource mlsConfig = Logger.CreateLogSource(MyPluginInfo.PLUGIN_GUID + ".Config");
 
-    internal MySyncedConfigs(ConfigFile cfg)
+    internal MySyncedConfigs(ConfigFile cfg) : base(MyPluginInfo.PLUGIN_NAME)
     {
-        InitInstance(this);
+        ConfigManager.Register(this);
 
         //laddersActive
         IS_TINY_LADDER_ENABLED = cfg.BindSyncedEntry("DeactivateLadders", "isTinyLadderEnabled", true, "Tiny ladder doesn't appear in the shop if instance is set to false.");
@@ -76,67 +66,6 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
         HUGE_LADDER_EXT_TIME = cfg.BindSyncedEntry("LadderExtensionTime", "hugeLadderExtensionTime", hugeLadderExtensionTimeBase, "Sets the amount of seconds the huge ladder stays extended");
 
         fixConfigs();
-    }
-
-    internal static void RequestSync()
-    {
-        if (!IsClient) return;
-
-        using FastBufferWriter stream = new(IntSize, Allocator.Temp);
-
-        // Method `OnRequestSync` will then get called on host.
-        stream.SendMessage($"{MyPluginInfo.PLUGIN_GUID}_OnRequestConfigSync");
-    }
-
-    internal static void OnRequestSync(ulong clientId, FastBufferReader _)
-    {
-        if (!IsHost) return;
-
-        byte[] array = SerializeToBytes(Instance);
-        int value = array.Length;
-
-        using FastBufferWriter stream = new(value + IntSize, Allocator.Temp);
-
-        try
-        {
-            stream.WriteValueSafe(in value, default);
-            stream.WriteBytesSafe(array);
-
-            stream.SendMessage($"{MyPluginInfo.PLUGIN_GUID}_OnReceiveConfigSync", clientId);
-        }
-        catch (Exception e)
-        {
-            mlsConfig.LogError($"Error occurred syncing config with client: {clientId}\n{e}");
-        }
-    }
-
-    internal static void OnReceiveSync(ulong _, FastBufferReader reader)
-    {
-        if (!reader.TryBeginRead(IntSize))
-        {
-            mlsConfig.LogError("Config sync error: Could not begin reading buffer.");
-            return;
-        }
-
-        reader.ReadValueSafe(out int val, default);
-        if (!reader.TryBeginRead(val))
-        {
-            mlsConfig.LogError("Config sync error: Host could not sync.");
-            return;
-        }
-
-        byte[] data = new byte[val];
-        reader.ReadBytesSafe(ref data, val);
-
-        try
-        {
-            SyncInstance(data);
-            mlsConfig.LogInfo("test sync value: " + Instance.TINY_LADDER_PRICE.Value);
-        }
-        catch (Exception e)
-        {
-            mlsConfig.LogError($"Error syncing config instance!\n{e}");
-        }
     }
 
     private void fixConfigs()
@@ -211,31 +140,5 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
             mlsConfig.LogWarning("huge ladder extension time was too high, was set to max value: " + MAX_EXT_TIME);
             mlsConfig.LogWarning("Values over 660 already last longer than a day");
         }
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(PlayerControllerB), "ConnectClientToPlayerObject")]
-    public static void InitializeLocalPlayer()
-    {
-        if (IsHost)
-        {
-            MessageManager.RegisterNamedMessageHandler(MyPluginInfo.PLUGIN_GUID + "_OnRequestConfigSync", OnRequestSync);
-            Synced = true;
-
-            return;
-        }
-
-        Synced = false;
-        MessageManager.RegisterNamedMessageHandler(MyPluginInfo.PLUGIN_GUID + "_OnReceiveConfigSync", OnReceiveSync);
-        RequestSync();
-
-        GiantExtensionLaddersV2.mls.LogInfo("reached init local player patch of csync");
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameNetworkManager), "StartDisconnect")]
-    public static void PlayerLeave()
-    {
-        RevertSync();
     }
 }
