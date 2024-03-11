@@ -11,7 +11,8 @@ namespace GiantExtensionLaddersV2.Patches
     [HarmonyPatch(typeof(InteractTrigger))]
     internal class LadderPlayerSnapPatch
     {
-        private static float USE_OFFSET_THRESHOLD = 1.5f;
+        private static float NEGATIVE_OFFSET_THRESHOLD = 2f;
+        private static float NEGATIVE_OFFSET_BASE_VALUE = 0.25f;
         private static float OFFSET_BASE_VALUE = 0.03f;
         private static int CLOSE_POS_ADDITIONAL_CHECKS = 10;
 
@@ -34,6 +35,9 @@ namespace GiantExtensionLaddersV2.Patches
             if (newPosition.y + offset.y >= __instance.topOfLadderPosition.position.y)
             {
                 offset = offset * 0.8f;
+            } else if (closestPositionToLadder < NEGATIVE_OFFSET_THRESHOLD)
+            {
+                offset = offset + playerController.thisPlayerBody.forward * NEGATIVE_OFFSET_BASE_VALUE;
             }
 
             newPosition = newPosition + offset;
