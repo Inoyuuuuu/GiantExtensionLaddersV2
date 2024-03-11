@@ -4,6 +4,7 @@
     {
         TINY,
         BIG,
-        HUGE
+        HUGE,
+        ULTIMATE
     }
 }

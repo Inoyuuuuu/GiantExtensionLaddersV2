@@ -50,6 +50,15 @@ namespace GiantExtensionLaddersV2.Patches
                     {
                         Items.RemoveShopItem(GiantExtensionLaddersV2.hugeLadderItem);
                     }
+
+                    if (ConfigStuff.MySyncedConfigs.Instance.IS_ULTIMATE_LADDER_ENABLED)
+                    {
+                        Items.UpdateShopItemPrice(GiantExtensionLaddersV2.ultimateLadderItem, ConfigStuff.MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE.Value);
+                    }
+                    else
+                    {
+                        Items.RemoveShopItem(GiantExtensionLaddersV2.ultimateLadderItem);
+                    }
                 }
             }
             else if (patchActive && methodUptime <= 0)
@@ -58,6 +67,8 @@ namespace GiantExtensionLaddersV2.Patches
                 GiantExtensionLaddersV2.mls.LogInfo("Tiny ladder price is now: " + MySyncedConfigs.Instance.TINY_LADDER_PRICE.Value);
                 GiantExtensionLaddersV2.mls.LogInfo("Big ladder price is now: " + MySyncedConfigs.Instance.BIG_LADDER_PRICE.Value);
                 GiantExtensionLaddersV2.mls.LogInfo("Huge ladder price is now: " + MySyncedConfigs.Instance.HUGE_LADDER_PRICE.Value);
+                GiantExtensionLaddersV2.mls.LogInfo("ultimate ladder price is now: " + MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE.Value);
+
                 patchActive = false;
             }
         }

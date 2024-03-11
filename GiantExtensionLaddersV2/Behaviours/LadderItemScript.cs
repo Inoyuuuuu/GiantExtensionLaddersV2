@@ -72,6 +72,8 @@ namespace GiantExtensionLaddersV2.Behaviours
         public float ladderHeightMultiplier; //this is for line 272, where 2.43 * x = ladder height
         public float ladderRotateSpeedMultiplier;
         public bool isClimbable = true;
+        
+        public float stoppedAtAngle = 90f;
 
         public override void Update()
         {
@@ -169,6 +171,10 @@ namespace GiantExtensionLaddersV2.Behaviours
                 case GiantLadderType.HUGE:
                     ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_EXT_TIME - 5;
                     ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_EXT_TIME;
+                    break;
+                case GiantLadderType.ULTIMATE:
+                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.ULTIMATE_LADDER_EXT_TIME - 5;
+                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.ULTIMATE_LADDER_EXT_TIME;
                     break;
                 default:
                     ladderExtensionTime = 25;

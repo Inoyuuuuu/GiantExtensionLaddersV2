@@ -59,7 +59,7 @@
     </ItemGroup>
     <ItemGroup>
       <Reference Include="com.sigurd.csync">
-        <HintPath>C:\Users\inoyu\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\tests\BepInEx\plugins\Sigurd-CSync\CSync\com.sigurd.csync.dll</HintPath>
+        <HintPath>C:\Users\inoyu\Desktop\LC mods\RefStuff\Sigurd-CSync-3.1.1\BepInEx\plugins\CSync\com.sigurd.csync.dll</HintPath>
       </Reference>
     </ItemGroup>
 </Project>

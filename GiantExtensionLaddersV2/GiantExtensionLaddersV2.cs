@@ -24,38 +24,49 @@ namespace GiantExtensionLaddersV2
         private const string tinyLadderAssetbundleName = "TinyLadderAssets";
         private const string bigLadderAssetbundleName = "BigLadderAssets";
         private const string hugeLadderAssetbundleName = "HugeLadderAssets";
+        private const string ultimateLadderAssetbundleName = "UltimateLadderAssets";
         private const string tinyLadderItemPropertiesLocation = "Assets/extLadderTest/tinyLadder/ExtensionLadder_0.asset";
         private const string bigLadderItemPropertiesLocation = "Assets/extLadderTest/lcLadder/ExtensionLadder_0.asset";
         private const string hugeLadderItemPropertiesLocation = "Assets/extLadderTest/newLongerLadder/ExtensionLadder_0.asset";
+        private const string ultimateLadderItemPropertiesLocation = "Assets/extLadderTest/Gigantic ladder/ExtensionLadder_0.asset";
         private const int MAX_PROPERTY_AMOUNT = 18;
         internal static int propertyCounter = 0;
 
         //------- configs TinyLadder
-        private const float TINY_LADDER_MAX_EXTENSION = 10.3f;
+        internal const float TINY_LADDER_MAX_EXTENSION = 10.3f;
         private const float TINY_LADDER_MIN_ROTATION_COLLISION = 60f;
         private const int TINY_LADDER_LINECAST_CHECKS_MULTIPLIER = 2;
         private const int TINY_LADDER_LINECAST_MIN_CHECK_HEIGHT = 2;
         private const float TINY_LADDER_HEIGHT_MULTIPLIER = TINY_LADDER_MAX_EXTENSION / 2.43f; //this is for line 272 in BigLadderScript, where 2.43 * x = ladder height
-        private const float TINY_LADDER_ROTATE_SPEED = 2f;
+        private const float TINY_LADDER_ROTATE_SPEED = 1.5f;
         private const bool TINY_LADDER_IS_CLIMBABLE = false;
 
         //------- configs BigLadder
-        private const float BIG_LADDER_MAX_EXTENSION = 17f;
+        internal const float BIG_LADDER_MAX_EXTENSION = 17f;
         private const float BIG_LADDER_MIN_ROTATION_COLLISION = 60f;
         private const int BIG_LADDER_LINECAST_CHECKS_MULTIPLIER = 3;
-        private const int BIG_LADDER_LINECAST_MIN_CHECK_HEIGHT = 8;
+        private const int BIG_LADDER_LINECAST_MIN_CHECK_HEIGHT = 7;
         private const float BIG_LADDER_HEIGHT_MULTIPLIER = 7f;
         private const float BIG_LADDER_ROTATE_SPEED = 2f;
         private const bool BIG_LADDER_IS_CLIMBABLE = true;
 
         //------- configs HugeLadder
-        private const float HUGE_LADDER_MAX_EXTENSION = 34.4f;
+        internal const float HUGE_LADDER_MAX_EXTENSION = 34.4f;
         private const float HUGE_LADDER_MIN_ROTATION_COLLISION = 60f;
         private const int HUGE_LADDER_LINECAST_CHECKS_MULTIPLIER = 4;
         private const int HUGE_LADDER_LINECAST_MIN_CHECK_HEIGHT = 8;
         private const float HUGE_LADDER_HEIGHT_MULTIPLIER = 14.15f;
         private const float HUGE_LADDER_ROTATE_SPEED = 2f;
         private const bool HUGE_LADDER_IS_CLIMBABLE = true;
+
+        //------- configs UltimateLadder
+        internal const float ULTIMATE_LADDER_MAX_EXTENSION = 68f;
+        private const float ULTIMATE_LADDER_MIN_ROTATION_COLLISION = 60f;
+        private const int ULTIMATE_LADDER_LINECAST_CHECKS_MULTIPLIER = 5;
+        private const int ULTIMATE_LADDER_LINECAST_MIN_CHECK_HEIGHT = 9;
+        private const float ULTIMATE_LADDER_HEIGHT_MULTIPLIER = 27.98f;
+        private const float ULTIMATE_LADDER_ROTATE_SPEED = 2f;
+        private const bool ULTIMATE_LADDER_IS_CLIMBABLE = true;
 
         //------- lists for TinyLadderScript properties
         internal static List<MeshRenderer> tinyLadderMeshRenderers = new List<MeshRenderer>();
@@ -83,12 +94,22 @@ namespace GiantExtensionLaddersV2
         internal static List<AudioSource> hugeLadderAudioSources = new List<AudioSource>();
         internal static List<InteractTrigger> hugeLadderInteractTriggers = new List<InteractTrigger>();
         internal static List<BoxCollider> hugeLadderBoxColliders = new List<BoxCollider>();
-        
+
+        //------- lists for UltimateLadderScript properties
+        internal static List<MeshRenderer> ultimateLadderMeshRenderers = new List<MeshRenderer>();
+        internal static List<Animator> ultimateLadderAnimators = new List<Animator>();
+        internal static List<Transform> ultimateLadderTransforms = new List<Transform>();
+        internal static List<AudioClip> ultimateLadderAudioClips = new List<AudioClip>();
+        internal static List<AudioSource> ultimateLadderAudioSources = new List<AudioSource>();
+        internal static List<InteractTrigger> ultimateLadderInteractTriggers = new List<InteractTrigger>();
+        internal static List<BoxCollider> ultimateLadderBoxColliders = new List<BoxCollider>();
+
         internal static Item tinyLadderItem;
         internal static Item bigLadderItem;
         internal static Item hugeLadderItem;
+        internal static Item ultimateLadderItem;
 
-        public static GiantExtensionLaddersV2 Instance { get; private set; } = null!;
+        internal static GiantExtensionLaddersV2 Instance { get; private set; } = null!;
         internal new static ManualLogSource mls { get; private set; } = null!;
         internal static Harmony? Harmony { get; set; }
 
@@ -104,27 +125,29 @@ namespace GiantExtensionLaddersV2
             string tinyLadderAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), tinyLadderAssetbundleName);
             string bigLadderAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), bigLadderAssetbundleName);
             string hugeLadderAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), hugeLadderAssetbundleName);
+            string ultimateLadderAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ultimateLadderAssetbundleName);
             AssetBundle tinyLadderBundle = AssetBundle.LoadFromFile(tinyLadderAssetDir);
             AssetBundle bigLadderBundle = AssetBundle.LoadFromFile(bigLadderAssetDir);
             AssetBundle hugeLadderBundle = AssetBundle.LoadFromFile(hugeLadderAssetDir);
+            AssetBundle ultimateLadderBundle = AssetBundle.LoadFromFile(ultimateLadderAssetDir);
 
-            if (bigLadderBundle != null && hugeLadderBundle != null && tinyLadderBundle != null)
+            if (bigLadderBundle != null && hugeLadderBundle != null && tinyLadderBundle != null && ultimateLadderBundle != null)
             {
-                mls.LogInfo("successfully loaded two assetbundles from files");
+                mls.LogDebug("successfully loaded all assetbundles from files");
             }
             else
             {
                 mls.LogInfo("failed to load assetbundles");
             }
 
-            mls.LogInfo("loading items from assetbundles");
             tinyLadderItem = tinyLadderBundle.LoadAsset<Item>(tinyLadderItemPropertiesLocation);
             bigLadderItem = bigLadderBundle.LoadAsset<Item>(bigLadderItemPropertiesLocation);
             hugeLadderItem = hugeLadderBundle.LoadAsset<Item>(hugeLadderItemPropertiesLocation);
+            ultimateLadderItem = ultimateLadderBundle.LoadAsset<Item>(ultimateLadderItemPropertiesLocation);
 
-            if (bigLadderItem != null && hugeLadderItem != null && tinyLadderItem != null)
+            if (bigLadderItem != null && hugeLadderItem != null && tinyLadderItem != null && ultimateLadderItem != null)
             {
-                mls.LogInfo("successfully loaded items from assetbundles");
+                mls.LogDebug("successfully loaded all items from assetbundles");
             }
             else
             {
@@ -134,6 +157,7 @@ namespace GiantExtensionLaddersV2
             GameObject tinyLadderItemPrefab = tinyLadderItem.spawnPrefab;
             GameObject bigLadderItemPrefab = bigLadderItem.spawnPrefab;
             GameObject hugeLadderItemPrefab = hugeLadderItem.spawnPrefab;
+            GameObject ultimateLadderItemPrefab = ultimateLadderItem.spawnPrefab;
 
             //----- build tiny ladder item
             mls.LogInfo("attempting to build the tiny ladder");
@@ -149,18 +173,17 @@ namespace GiantExtensionLaddersV2
 
             if (tinyLadderItemPrefab.GetComponent<LadderItemScript>() == null)
             {
-                mls.LogInfo("tinyLadderItemPrefab failed");
+                mls.LogDebug("tinyLadderItemPrefab failed");
             }
             else
             {
-                mls.LogInfo("tinyLadderItemPrefab okay");
+                mls.LogDebug("tinyLadderItemPrefab okay");
             }
 
             tinyLadderScript.grabbable = true;
             tinyLadderScript.grabbableToEnemies = true;
             tinyLadderScript.itemProperties = tinyLadderItem;
 
-            //------- custom properties
             tinyLadderScript.maxExtension = TINY_LADDER_MAX_EXTENSION;
             tinyLadderScript.minRotationCollisionCheck = TINY_LADDER_MIN_ROTATION_COLLISION;
             tinyLadderScript.linecastChecksMultiplier = TINY_LADDER_LINECAST_CHECKS_MULTIPLIER;
@@ -184,20 +207,20 @@ namespace GiantExtensionLaddersV2
             bigLadderBoxColliders = bigLadderItemPrefab.GetComponentsInChildren<BoxCollider>().ToList();
 
             LadderItemScript bigLadderScript = bigLadderItemPrefab.AddComponent<LadderItemScript>();
+
             if (bigLadderItemPrefab.GetComponent<LadderItemScript>() == null)
             {
-                mls.LogInfo("bigLadderScript failed");
+                mls.LogDebug("bigLadderScript failed");
             }
             else
             {
-                mls.LogInfo("bigLadderScript okay");
+                mls.LogDebug("bigLadderScript okay");
             }
 
             bigLadderScript.grabbable = true;
             bigLadderScript.grabbableToEnemies = true;
             bigLadderScript.itemProperties = bigLadderItem;
 
-            //------- custom properties
             bigLadderScript.maxExtension = BIG_LADDER_MAX_EXTENSION;
             bigLadderScript.minRotationCollisionCheck = BIG_LADDER_MIN_ROTATION_COLLISION;
             bigLadderScript.linecastChecksMultiplier = BIG_LADDER_LINECAST_CHECKS_MULTIPLIER;
@@ -221,20 +244,20 @@ namespace GiantExtensionLaddersV2
             hugeLadderBoxColliders = hugeLadderItemPrefab.GetComponentsInChildren<BoxCollider>().ToList();
 
             LadderItemScript hugeLadderScript = hugeLadderItemPrefab.AddComponent<LadderItemScript>();
+
             if (hugeLadderItemPrefab.GetComponent<LadderItemScript>() == null)
             {
-                mls.LogInfo("hugeLadderScript failed");
+                mls.LogDebug("hugeLadderScript failed");
             }
             else
             {
-                mls.LogInfo("hugeLadderScript okay");
+                mls.LogDebug("hugeLadderScript okay");
             }
 
             hugeLadderScript.grabbable = true;
             hugeLadderScript.grabbableToEnemies = true;
             hugeLadderScript.itemProperties = hugeLadderItem;
 
-            //------- custom properties
             hugeLadderScript.maxExtension = HUGE_LADDER_MAX_EXTENSION;
             hugeLadderScript.minRotationCollisionCheck = HUGE_LADDER_MIN_ROTATION_COLLISION;
             hugeLadderScript.linecastChecksMultiplier = HUGE_LADDER_LINECAST_CHECKS_MULTIPLIER;
@@ -247,15 +270,54 @@ namespace GiantExtensionLaddersV2
             buildLadderItem(hugeLadderMeshRenderers, hugeLadderAnimators, hugeLadderTransforms, hugeLadderAudioClips, hugeLadderAudioSources,
                 hugeLadderInteractTriggers, hugeLadderBoxColliders, hugeLadderScript);
 
+            //----- build ultimate ladder item
+            mls.LogInfo("attempting to build the ultimate ladder");
+            ultimateLadderMeshRenderers = ultimateLadderItemPrefab.GetComponentsInChildren<MeshRenderer>().ToList();
+            ultimateLadderAnimators = ultimateLadderItemPrefab.GetComponentsInChildren<Animator>().ToList();
+            ultimateLadderTransforms = ultimateLadderItemPrefab.GetComponentsInChildren<Transform>().ToList();
+            ultimateLadderAudioClips = ultimateLadderBundle.LoadAllAssets<AudioClip>().ToList();
+            ultimateLadderAudioSources = ultimateLadderItemPrefab.GetComponentsInChildren<AudioSource>().ToList();
+            ultimateLadderInteractTriggers = ultimateLadderItemPrefab.GetComponentsInChildren<InteractTrigger>().ToList();
+            ultimateLadderBoxColliders = ultimateLadderItemPrefab.GetComponentsInChildren<BoxCollider>().ToList();
+
+            LadderItemScript ultimateLadderScript = ultimateLadderItemPrefab.AddComponent<LadderItemScript>();
+            
+            if (ultimateLadderItemPrefab.GetComponent<LadderItemScript>() == null)
+            {
+                mls.LogDebug("ultimateLadderScript failed");
+            }
+            else
+            {
+                mls.LogDebug("ultimateLadderScript okay");
+            }
+
+            ultimateLadderScript.grabbable = true;
+            ultimateLadderScript.grabbableToEnemies = true;
+            ultimateLadderScript.itemProperties = ultimateLadderItem;
+
+            ultimateLadderScript.maxExtension = ULTIMATE_LADDER_MAX_EXTENSION;
+            ultimateLadderScript.minRotationCollisionCheck = ULTIMATE_LADDER_MIN_ROTATION_COLLISION;
+            ultimateLadderScript.linecastChecksMultiplier = ULTIMATE_LADDER_LINECAST_CHECKS_MULTIPLIER;
+            ultimateLadderScript.linecastMinCheckHeight = ULTIMATE_LADDER_LINECAST_MIN_CHECK_HEIGHT;
+            ultimateLadderScript.ladderHeightMultiplier = ULTIMATE_LADDER_HEIGHT_MULTIPLIER;
+            ultimateLadderScript.ladderRotateSpeedMultiplier = ULTIMATE_LADDER_ROTATE_SPEED;
+            ultimateLadderScript.isClimbable = ULTIMATE_LADDER_IS_CLIMBABLE;
+            ultimateLadderScript.giantLadderType = GiantLadderType.ULTIMATE;
+
+            buildLadderItem(ultimateLadderMeshRenderers, ultimateLadderAnimators, ultimateLadderTransforms, ultimateLadderAudioClips, ultimateLadderAudioSources, 
+                ultimateLadderInteractTriggers, ultimateLadderBoxColliders, ultimateLadderScript);
+
             //-------- register items
             NetworkPrefabs.RegisterNetworkPrefab(tinyLadderItem.spawnPrefab);
             NetworkPrefabs.RegisterNetworkPrefab(bigLadderItem.spawnPrefab);
             NetworkPrefabs.RegisterNetworkPrefab(hugeLadderItem.spawnPrefab);
+            NetworkPrefabs.RegisterNetworkPrefab(ultimateLadderItem.spawnPrefab);
             mls.LogInfo("registered network prefabs");
 
             Utilities.FixMixerGroups(tinyLadderItem.spawnPrefab);
             Utilities.FixMixerGroups(bigLadderItem.spawnPrefab);
             Utilities.FixMixerGroups(hugeLadderItem.spawnPrefab);
+            Utilities.FixMixerGroups(ultimateLadderItem.spawnPrefab);
             mls.LogInfo("fixed mixers");
 
             TerminalNode tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
@@ -272,8 +334,13 @@ namespace GiantExtensionLaddersV2
             hugeLadderNode.clearPreviousText = true;
             hugeLadderNode.displayText = "This ladder seems EVEN higher than the big one..\n\n";
             Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, MySyncedConfigs.Instance.HUGE_LADDER_PRICE);
-            
-            Harmony.PatchAll(typeof(LoadLadderConfigsPatch));
+
+            TerminalNode ultimateLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            ultimateLadderNode.clearPreviousText = true;
+            ultimateLadderNode.displayText = "Not the tiny, not the big, not the huge, THIS IS THE ULTIMATE EXTENSION LADDER!\n\n";
+            Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE);
+
+            Harmony.PatchAll();
 
             mls.LogInfo("items should be in shop.");
             mls.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
