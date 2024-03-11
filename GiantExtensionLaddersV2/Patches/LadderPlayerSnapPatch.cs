@@ -11,10 +11,13 @@ namespace GiantExtensionLaddersV2.Patches
     [HarmonyPatch(typeof(InteractTrigger))]
     internal class LadderPlayerSnapPatch
     {
-        private static float NEGATIVE_OFFSET_THRESHOLD = 2f;
-        private static float NEGATIVE_OFFSET_BASE_VALUE = 0.25f;
-        private static float OFFSET_BASE_VALUE = 0.03f;
-        private static int CLOSE_POS_ADDITIONAL_CHECKS = 10;
+        private const float NEGATIVE_OFFSET_THRESHOLD = 2f;
+        private const float NEGATIVE_OFFSET_BASE_VALUE = 0.25f;
+        private const float OFFSET_BASE_VALUE = 0.035f;
+        private const float BIGGER_LADDER_SIZE_START = 20f;
+        private const int CLOSE_POS_ADDITIONAL_CHECKS = 10;
+        private const int LADDER_BOT_RESET_AMOUNT = 2;
+        private const int LADDER_TOP_RESET_AMOUNT = 5;
 
         [HarmonyPrefix]
         [HarmonyPatch("ladderClimbAnimation")]
@@ -28,14 +31,17 @@ namespace GiantExtensionLaddersV2.Patches
 
             Vector3 newPosition = __instance.bottomOfLadderPosition.position + closestPositionToLadder * normalLDV;
 
+            //------------- ladder correction correction lmao
+            float ladderSize = Vector3.Distance(__instance.topOfLadderPosition.position, __instance.bottomOfLadderPosition.position);
+
             Vector3 offset = new Vector3(0, OFFSET_BASE_VALUE, 0);
             offset = offset * closestPositionToLadder;
             GiantExtensionLaddersV2.mls.LogDebug("player pos offset: " + offset.ToString());
 
-            if (newPosition.y + offset.y >= __instance.topOfLadderPosition.position.y)
+            if (newPosition.y + offset.y >= __instance.topOfLadderPosition.position.y && closestPositionToLadder > LADDER_TOP_RESET_AMOUNT)
             {
-                offset = offset * 0.8f;
-            } else if (closestPositionToLadder < NEGATIVE_OFFSET_THRESHOLD)
+                newPosition = __instance.bottomOfLadderPosition.position + (closestPositionToLadder - LADDER_TOP_RESET_AMOUNT) * normalLDV;
+            } else if (closestPositionToLadder < LADDER_BOT_RESET_AMOUNT && ladderSize >= BIGGER_LADDER_SIZE_START)
             {
                 offset = offset + playerController.thisPlayerBody.forward * NEGATIVE_OFFSET_BASE_VALUE;
             }
