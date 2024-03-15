@@ -297,7 +297,6 @@ namespace GiantExtensionLaddersV2
             LadderItemScript ladderItemScript)
         {
             propertyCounter = 0;
-            string propertyFoundMsg = " property found";
 
             foreach (MeshRenderer meshRenderer in meshRenderers)
             {
@@ -305,7 +304,7 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.mainObjectRenderer = meshRenderer;
-                    mls.LogDebug("1." + propertyFoundMsg);
+                    mls.LogDebug("1. component: LadderBox");
                     break;
                 }
             }
@@ -315,13 +314,13 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.ladderAnimator = animator;
-                    mls.LogDebug("2." + propertyFoundMsg);
+                    mls.LogDebug("2.  AnimContainer");
                 }
                 if (animator.name.Equals("MeshContainer"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderRotateAnimator = animator;
-                    mls.LogDebug("3." + propertyFoundMsg);
+                    mls.LogDebug("3. component: MeshContainer");
                 }
             }
             foreach (Transform transform in transforms)
@@ -330,19 +329,19 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.baseNode = transform;
-                    mls.LogDebug("4." + propertyFoundMsg);
+                    mls.LogDebug("4. component: Base");
                 }
                 if (transform.name.Equals("TopPosition"))
                 {
                     propertyCounter++;
                     ladderItemScript.topNode = transform;
-                    mls.LogDebug("5." + propertyFoundMsg);
+                    mls.LogDebug("5.component: TopPosition");
                 }
                 if (transform.name.Equals("MovableNode"))
                 {
                     propertyCounter++;
                     ladderItemScript.moveableNode = transform;
-                    mls.LogDebug("6." + propertyFoundMsg);
+                    mls.LogDebug("6. component: MovableNode");
                 }
             }
             foreach (AudioClip audioClip in audioClips)
@@ -351,39 +350,39 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.hitRoof = audioClip;
-                    mls.LogDebug("7." + propertyFoundMsg);
+                    mls.LogDebug("7. component: ExtensionLadderHitWall");
                 }
                 if (audioClip.name.Equals("ExtensionLadderHitWall2"))
                 {
                     propertyCounter += 2;
                     ladderItemScript.fullExtend = audioClip;
                     ladderItemScript.hitWall = audioClip;
-                    mls.LogDebug("8." + propertyFoundMsg);
-                    mls.LogDebug("9." + propertyFoundMsg);
+                    mls.LogDebug("8. component: ExtensionLadderHitWall2");
+                    mls.LogDebug("9. component: ExtensionLadderHitWall2 (for 2nd audio clip)");
                 }
                 if (audioClip.name.Equals("ExtensionLadderExtend"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderExtendSFX = audioClip;
-                    mls.LogDebug("10." + propertyFoundMsg);
+                    mls.LogDebug("10. component: ExtensionLadderExtend");
                 }
                 if (audioClip.name.Equals("ExtensionLadderShrink"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderShrinkSFX = audioClip;
-                    mls.LogDebug("11." + propertyFoundMsg);
+                    mls.LogDebug("11. component: ExtensionLadderShrink");
                 }
                 if (audioClip.name.Equals("ExtensionLadderAlarm"))
                 {
                     propertyCounter++;
                     ladderItemScript.blinkWarningSFX = audioClip;
-                    mls.LogDebug("12." + propertyFoundMsg);
+                    mls.LogDebug("12. component: ExtensionLadderAlarm");
                 }
                 if (audioClip.name.Equals("ExtensionLadderLidOpen"))
                 {
                     propertyCounter++;
                     ladderItemScript.lidOpenSFX = audioClip;
-                    mls.LogDebug("13." + propertyFoundMsg);
+                    mls.LogDebug("13. component: ExtensionLadderLidOpen");
                 }
             }
             foreach (AudioSource audioSource in audioSources)
@@ -392,7 +391,7 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.ladderAudio = audioSource;
-                    mls.LogDebug("14." + propertyFoundMsg);
+                    mls.LogDebug("14. component: LadderAudio");
                     break;
                 }
             }
@@ -402,7 +401,7 @@ namespace GiantExtensionLaddersV2
                 {
                     ladderItemScript.ladderScript = interactTrigger;
                     propertyCounter++;
-                    mls.LogDebug("15." + propertyFoundMsg);
+                    mls.LogDebug("15. component: ExtLadderTrigger (interactTrigger)");
                     break;
                 }
             }
@@ -412,29 +411,29 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.interactCollider = boxCollider;
-                    mls.LogDebug("16." + propertyFoundMsg);
+                    mls.LogDebug("16. component: ExtLadderTrigger (boxCollider)");
                 }
                 if (boxCollider.name.Equals("LadderBridgeCollider"))
                 {
                     propertyCounter++;
                     ladderItemScript.bridgeCollider = boxCollider;
-                    mls.LogDebug("17." + propertyFoundMsg);
+                    mls.LogDebug("17. component: LadderBridgeCollider");
                 }
                 if (boxCollider.name.Equals("KillTrigger"))
                 {
                     propertyCounter++;
                     ladderItemScript.killTrigger = boxCollider;
-                    mls.LogDebug("18." + propertyFoundMsg);
+                    mls.LogDebug("18. component: KillTrigger");
                 }
             }
 
             if (propertyCounter == MAX_PROPERTY_AMOUNT)
             {
-                mls.LogInfo("all properties found for item script: " + ladderItemScript.name);
+                mls.LogDebug("every component was found for item script: " + ladderItemScript.name);
             }
             else
             {
-                mls.LogInfo("NOT all properties found. Counter: " + propertyCounter);
+                mls.LogError($"Some Components of {ladderItemScript.name} are missing!");
             }
         }
     }

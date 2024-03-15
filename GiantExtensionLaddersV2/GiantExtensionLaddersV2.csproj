@@ -5,7 +5,7 @@
         <AssemblyName>GiantExtensionLadders</AssemblyName>
         <Product>GiantExtensionLaddersV2</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>2.1.0</Version>
+        <Version>2.1.1</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->
@@ -46,7 +46,7 @@
         <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" PrivateAssets="all" />
         <PackageReference Include="LethalCompany.GameLibs.Steam" Version="*-*" PrivateAssets="all" />
-        <PackageReference Include="Owen3H.BepInEx.CSync" Version="2.2.2" />
+        <PackageReference Include="Owen3H.BepInEx.CSync" Version="2.2.4" />
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" PrivateAssets="all" />
     </ItemGroup>
 
