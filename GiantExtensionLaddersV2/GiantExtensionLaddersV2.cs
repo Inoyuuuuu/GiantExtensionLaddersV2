@@ -5,6 +5,7 @@ using GiantExtensionLaddersV2.ConfigStuff;
 using GiantExtensionLaddersV2.Patches;
 using HarmonyLib;
 using LethalLib.Modules;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
