@@ -34,17 +34,12 @@ namespace GiantExtensionLaddersV2.Patches
                     GiantExtensionLaddersV2.mls.LogInfo("changing tiny ladder");
                     __instance.topOfLadderPosition.position = new Vector3(__instance.topOfLadderPosition.position.x, playerController.thisPlayerBody.position.y + 2f, __instance.topOfLadderPosition.position.z);
                     __instance.bottomOfLadderPosition.position = new Vector3(__instance.bottomOfLadderPosition.position.x, playerController.thisPlayerBody.position.y - 0.1f, __instance.bottomOfLadderPosition.position.z);
-                }
-                
-                if (ladderItemScript.giantLadderType == GiantLadderType.HUGE)
-                {
                     isPlayerOnTinyLadder = true;
-                } else
+                }
+                else
                 {
                     isPlayerOnTinyLadder = false;
                 }
-
-
 
                 //------------- snapping to correct ladder position
                 Vector3 ladderDirectionVector = __instance.topOfLadderPosition.position - __instance.bottomOfLadderPosition.position;
