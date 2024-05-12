@@ -20,6 +20,8 @@ namespace GiantExtensionLaddersV2.Patches
         private const int LADDER_BOT_RESET_AMOUNT = 2;
         private const int LADDER_TOP_RESET_AMOUNT = 5;
 
+        internal static bool isPlayerOnTinyLadder = false;
+
         [HarmonyPrefix]
         [HarmonyPatch("ladderClimbAnimation")]
         public static void PatchLadderPlayerSnap(InteractTrigger __instance, ref PlayerControllerB playerController)
@@ -30,41 +32,55 @@ namespace GiantExtensionLaddersV2.Patches
                 if (ladderItemScript.giantLadderType == GiantLadderType.TINY)
                 {
                     GiantExtensionLaddersV2.mls.LogInfo("changing tiny ladder");
-                    __instance.topOfLadderPosition.position = new Vector3(__instance.topOfLadderPosition.position.x, __instance.topOfLadderPosition.position.y + 1.5f, __instance.topOfLadderPosition.position.z);
-                    __instance.bottomOfLadderPosition.position = new Vector3(__instance.bottomOfLadderPosition.position.x, playerController.thisPlayerBody.position.y - 0.05f, __instance.bottomOfLadderPosition.position.z);
+                    __instance.topOfLadderPosition.position = new Vector3(__instance.topOfLadderPosition.position.x, playerController.thisPlayerBody.position.y + 2f, __instance.topOfLadderPosition.position.z);
+                    __instance.bottomOfLadderPosition.position = new Vector3(__instance.bottomOfLadderPosition.position.x, playerController.thisPlayerBody.position.y - 0.1f, __instance.bottomOfLadderPosition.position.z);
                 }
-                else
+                
+                if (ladderItemScript.giantLadderType == GiantLadderType.HUGE)
                 {
-                    Vector3 ladderDirectionVector = __instance.topOfLadderPosition.position - __instance.bottomOfLadderPosition.position;
-                    Vector3 normalLDV = Vector3.Normalize(ladderDirectionVector);
-
-                    float closestPositionToLadder = GetVector3CloseToLadder(__instance.bottomOfLadderPosition.position,
-                        __instance.topOfLadderPosition.position, normalLDV, playerController.thisPlayerBody.position);
-
-                    Vector3 newPosition = __instance.bottomOfLadderPosition.position + closestPositionToLadder * normalLDV;
-
-                    //------------- ladder correction correction lmao
-                    float ladderSize = Vector3.Distance(__instance.topOfLadderPosition.position, __instance.bottomOfLadderPosition.position);
-
-                    Vector3 offset = new Vector3(0, OFFSET_BASE_VALUE, 0);
-                    offset = offset * closestPositionToLadder;
-                    GiantExtensionLaddersV2.mls.LogDebug("player pos offset: " + offset.ToString());
-
-                    if (newPosition.y + offset.y >= __instance.topOfLadderPosition.position.y && closestPositionToLadder > LADDER_TOP_RESET_AMOUNT)
-                    {
-                        newPosition = __instance.bottomOfLadderPosition.position + (closestPositionToLadder - LADDER_TOP_RESET_AMOUNT) * normalLDV;
-                    }
-                    else if (closestPositionToLadder < LADDER_BOT_RESET_AMOUNT && ladderSize >= BIGGER_LADDER_SIZE_START)
-                    {
-                        offset = offset + playerController.thisPlayerBody.forward * NEGATIVE_OFFSET_BASE_VALUE;
-                    }
-
-                    newPosition = newPosition + offset;
-                    __instance.ladderPlayerPositionNode.position = newPosition;
-
-                    GiantExtensionLaddersV2.mls.LogDebug("new player pos node: " + __instance.playerPositionNode.position.ToString());
-
+                    isPlayerOnTinyLadder = true;
+                } else
+                {
+                    isPlayerOnTinyLadder = false;
                 }
+
+
+
+                //------------- snapping to correct ladder position
+                Vector3 ladderDirectionVector = __instance.topOfLadderPosition.position - __instance.bottomOfLadderPosition.position;
+                Vector3 normalLDV = Vector3.Normalize(ladderDirectionVector);
+
+                float closestPositionToLadder = GetVector3CloseToLadder(__instance.bottomOfLadderPosition.position,
+                    __instance.topOfLadderPosition.position, normalLDV, playerController.thisPlayerBody.position);
+
+                Vector3 newPosition = __instance.bottomOfLadderPosition.position + closestPositionToLadder * normalLDV;
+
+                //------------- ladder climbing angle correction correction (pain)
+                float ladderSize = Vector3.Distance(__instance.topOfLadderPosition.position, __instance.bottomOfLadderPosition.position);
+
+                Vector3 offset = new Vector3(0, OFFSET_BASE_VALUE, 0);
+                offset = offset * closestPositionToLadder;
+                GiantExtensionLaddersV2.mls.LogDebug("player pos offset: " + offset.ToString());
+
+                
+                if (newPosition.y + offset.y >= __instance.topOfLadderPosition.position.y && closestPositionToLadder > LADDER_TOP_RESET_AMOUNT)
+                {
+                    newPosition = __instance.bottomOfLadderPosition.position + (closestPositionToLadder - LADDER_TOP_RESET_AMOUNT) * normalLDV;
+                }
+                else if (closestPositionToLadder < LADDER_BOT_RESET_AMOUNT && ladderSize >= BIGGER_LADDER_SIZE_START)
+                {
+                    offset = offset + playerController.thisPlayerBody.forward * NEGATIVE_OFFSET_BASE_VALUE;
+                }
+
+                newPosition = newPosition + offset;
+                __instance.ladderPlayerPositionNode.position = newPosition;
+                
+
+                
+
+                GiantExtensionLaddersV2.mls.LogDebug("new player pos node: " + __instance.playerPositionNode.position.ToString());
+
+               
             }
             else
             {

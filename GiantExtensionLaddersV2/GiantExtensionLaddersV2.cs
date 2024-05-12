@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using GameNetcodeStuff;
 using GiantExtensionLaddersV2.Behaviours;
 using GiantExtensionLaddersV2.ConfigStuff;
 using GiantExtensionLaddersV2.Patches;
