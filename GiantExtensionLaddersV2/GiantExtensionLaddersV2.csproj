@@ -5,7 +5,7 @@
         <AssemblyName>GiantExtensionLadders</AssemblyName>
         <Product>GiantExtensionLaddersV2</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>2.1.1</Version>
+        <Version>2.2.0</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->
