@@ -9,10 +9,9 @@ namespace GiantExtensionLaddersV2.Patches
     [HarmonyPatch(typeof(PlayerControllerB))]
     internal class TinyLadderClimbingSpeedPatch
     {
-        private static float normalClimbSpeedValue;
-        private static bool isNormalClimbSpeedValueSet = false;
-        private static bool wasClimbSpeedResetDone = false;
-        private const float CLIMB_SPEED_MULTIPLIER = 0.2f;
+        private static float defaultClimbSpeed;
+        private static bool isDefaultClimbSpeedSet = false;
+        private const float CLIMB_SPEED_MULTIPLIER = 0.22f;
 
 
         [HarmonyPatch("Update")]
@@ -20,25 +19,21 @@ namespace GiantExtensionLaddersV2.Patches
         [HarmonyPostfix]
         static void crankThatClimbingSpeed(PlayerControllerB __instance)
         {
-            if (!isNormalClimbSpeedValueSet)
+            if (!isDefaultClimbSpeedSet)
             {   
-                normalClimbSpeedValue = __instance.climbSpeed;
-                isNormalClimbSpeedValueSet = true;
+                defaultClimbSpeed = __instance.climbSpeed;
+                isDefaultClimbSpeedSet = true;
             }
 
-
-            if (LadderPlayerSnapPatch.isPlayerOnTinyLadder && __instance.isPlayerControlled && __instance.isClimbingLadder)
+            if (LadderPlayerSnapPatch.isPlayerOnTinyLadder)
             {
-                wasClimbSpeedResetDone = false;
-                __instance.climbSpeed = normalClimbSpeedValue * CLIMB_SPEED_MULTIPLIER;
-            }
-            else
-            {
-                if (!wasClimbSpeedResetDone)
+                if (__instance.isPlayerControlled && __instance.isClimbingLadder)
                 {
-                    __instance.climbSpeed = normalClimbSpeedValue;
-                    wasClimbSpeedResetDone = true;
-                    GiantExtensionLaddersV2.mls.LogInfo("resetClimbSpeed");
+                    __instance.climbSpeed = defaultClimbSpeed * CLIMB_SPEED_MULTIPLIER;
+                }
+                else
+                {
+                    __instance.climbSpeed = defaultClimbSpeed;
                 }
             }
         }
