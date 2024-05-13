@@ -11,11 +11,12 @@ namespace GiantExtensionLaddersV2.Patches
     {
         private static float normalClimbSpeedValue;
         private static bool isNormalClimbSpeedValueSet = false;
-        private const float CLIMB_SPEED_MULTIPLIER = 0.1f;
+        private static bool wasClimbSpeedResetDone = false;
+        private const float CLIMB_SPEED_MULTIPLIER = 0.2f;
 
 
         [HarmonyPatch("Update")]
-        [HarmonyPriority(Priority.Last)]
+        [HarmonyPriority(Priority.Low)]
         [HarmonyPostfix]
         static void crankThatClimbingSpeed(PlayerControllerB __instance)
         {
@@ -28,11 +29,17 @@ namespace GiantExtensionLaddersV2.Patches
 
             if (LadderPlayerSnapPatch.isPlayerOnTinyLadder && __instance.isPlayerControlled && __instance.isClimbingLadder)
             {
+                wasClimbSpeedResetDone = false;
                 __instance.climbSpeed = normalClimbSpeedValue * CLIMB_SPEED_MULTIPLIER;
             }
             else
             {
-                __instance.climbSpeed = normalClimbSpeedValue;
+                if (!wasClimbSpeedResetDone)
+                {
+                    __instance.climbSpeed = normalClimbSpeedValue;
+                    wasClimbSpeedResetDone = true;
+                    GiantExtensionLaddersV2.mls.LogInfo("resetClimbSpeed");
+                }
             }
         }
     }
