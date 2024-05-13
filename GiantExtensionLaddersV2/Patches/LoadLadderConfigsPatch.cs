@@ -50,7 +50,6 @@ namespace GiantExtensionLaddersV2.Patches
         private static void evaluatePatch()
         {
             bool isPatchSuccess = true;
-            //List<Items.ShopItem> shopItems = Items.shopItems;
 
             foreach (var shopItem in Items.shopItems)
             {
