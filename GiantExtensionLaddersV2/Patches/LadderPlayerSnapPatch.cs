@@ -31,10 +31,17 @@ namespace GiantExtensionLaddersV2.Patches
             {
                 if (ladderItemScript.giantLadderType == GiantLadderType.TINY)
                 {
-                    GiantExtensionLaddersV2.mls.LogInfo("changing tiny ladder");
-                    __instance.topOfLadderPosition.position = new Vector3(__instance.topOfLadderPosition.position.x, playerController.thisPlayerBody.position.y + 2f, __instance.topOfLadderPosition.position.z);
-                    __instance.bottomOfLadderPosition.position = new Vector3(__instance.bottomOfLadderPosition.position.x, playerController.thisPlayerBody.position.y - 0.1f, __instance.bottomOfLadderPosition.position.z);
+                    GiantExtensionLaddersV2.mls.LogInfo("old playerpos " + playerController.thisPlayerBody.position.ToString());
+                    GiantExtensionLaddersV2.mls.LogInfo("old tiny ladder toppos " + __instance.topOfLadderPosition.position.ToString());
+                    GiantExtensionLaddersV2.mls.LogInfo("old tiny ladder botpos " + __instance.topOfLadderPosition.position.ToString());
+
+                    __instance.topOfLadderPosition.position = new Vector3(__instance.topOfLadderPosition.position.x, playerController.thisPlayerBody.position.y + 3.5f, __instance.topOfLadderPosition.position.z);
+                    __instance.bottomOfLadderPosition.position = new Vector3(__instance.bottomOfLadderPosition.position.x, playerController.thisPlayerBody.position.y - 0.2f, __instance.bottomOfLadderPosition.position.z);
                     isPlayerOnTinyLadder = true;
+
+                    GiantExtensionLaddersV2.mls.LogInfo("new playerpos " + playerController.thisPlayerBody.position.ToString());
+                    GiantExtensionLaddersV2.mls.LogInfo("new tiny ladder toppos " + __instance.topOfLadderPosition.position.ToString());
+                    GiantExtensionLaddersV2.mls.LogInfo("new tiny ladder botpos " + __instance.topOfLadderPosition.position.ToString());
                 }
                 else
                 {
@@ -69,18 +76,16 @@ namespace GiantExtensionLaddersV2.Patches
 
                 newPosition = newPosition + offset;
                 __instance.ladderPlayerPositionNode.position = newPosition;
-                
-
-                
 
                 GiantExtensionLaddersV2.mls.LogDebug("new player pos node: " + __instance.playerPositionNode.position.ToString());
+                GiantExtensionLaddersV2.mls.LogInfo("change toppos? " + __instance.topOfLadderPosition.position.ToString());
+                GiantExtensionLaddersV2.mls.LogInfo("change botpos? " + __instance.topOfLadderPosition.position.ToString());
 
-               
             }
             else
             {
                 GiantExtensionLaddersV2.mls.LogInfo("was not a ladder from this mod");
-
+                isPlayerOnTinyLadder = false;
             }
         }
 

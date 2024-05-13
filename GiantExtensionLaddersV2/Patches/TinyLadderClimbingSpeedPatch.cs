@@ -20,7 +20,7 @@ namespace GiantExtensionLaddersV2.Patches
         static void crankThatClimbingSpeed(PlayerControllerB __instance)
         {
             if (!isNormalClimbSpeedValueSet)
-            {
+            {   
                 normalClimbSpeedValue = __instance.climbSpeed;
                 isNormalClimbSpeedValueSet = true;
             }
