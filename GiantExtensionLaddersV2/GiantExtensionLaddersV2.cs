@@ -32,15 +32,15 @@ namespace GiantExtensionLaddersV2
         private const string bigLadderItemPropertiesLocation = "Assets/extLadderTest/lcLadder/ExtensionLadder_0.asset";
         private const string hugeLadderItemPropertiesLocation = "Assets/extLadderTest/newLongerLadder/ExtensionLadder_0.asset";
         private const string ultimateLadderItemPropertiesLocation = "Assets/extLadderTest/Gigantic ladder/ExtensionLadder_0.asset";
-        private const int MAX_PROPERTY_AMOUNT = 18;
+        private const int MAX_PROPERTY_AMOUNT = 19;
         internal static int propertyCounter = 0;
 
         private const float HEIGHT_DIVIDE_CONST = 2.43f;
 
-        internal LadderObject tinyLadder = new LadderObject(10.3f, 60f, 2, 2, 10.3f / HEIGHT_DIVIDE_CONST, 1.5f, false, GiantLadderType.TINY);
-        internal LadderObject bigLadder = new LadderObject(17f, 60f, 3, 7, 7f, 2f, true, GiantLadderType.BIG);
-        internal LadderObject hugeLadder = new LadderObject(34.4f, 60f, 4, 8, 14.15f, 2f, true, GiantLadderType.HUGE);
-        internal LadderObject ultimateLadder = new LadderObject(68f, 60f, 5, 9, 27.98f, 2f, true, GiantLadderType.ULTIMATE);
+        internal LadderObject tinyLadder = new LadderObject(10.3f, 60f, 2, 2, 10.3f / HEIGHT_DIVIDE_CONST, 0.15f, false, GiantLadderType.TINY);
+        internal LadderObject bigLadder = new LadderObject(17f, 60f, 3, 7, 7f, 0.15f, true, GiantLadderType.BIG);
+        internal LadderObject hugeLadder = new LadderObject(34.4f, 60f, 4, 8, 14.15f, 0.2f, true, GiantLadderType.HUGE);
+        internal LadderObject ultimateLadder = new LadderObject(68f, 60f, 5, 9, 27.98f, 0.25f, true, GiantLadderType.ULTIMATE);
 
         internal static Item tinyLadderItem;
         internal static Item bigLadderItem;
@@ -124,7 +124,7 @@ namespace GiantExtensionLaddersV2
             tinyLadderScript.itemProperties = tinyLadderItem;
 
             tinyLadderScript.maxExtension = tinyLadder.LADDER_MAX_EXTENSION;
-            tinyLadderScript.minRotationCollisionCheck = tinyLadder.LADDER_MIN_ROTATION_COLLISION;
+            tinyLadderScript.minInteractableRotation = tinyLadder.LADDER_MIN_ROTATION_COLLISION;
             tinyLadderScript.linecastChecksMultiplier = tinyLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
             tinyLadderScript.linecastMinCheckHeight = tinyLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
             tinyLadderScript.ladderHeightMultiplier = tinyLadder.LADDER_HEIGHT_MULTIPLIER;
@@ -164,7 +164,7 @@ namespace GiantExtensionLaddersV2
             bigLadderScript.itemProperties = bigLadderItem;
 
             bigLadderScript.maxExtension = bigLadder.LADDER_MAX_EXTENSION;
-            bigLadderScript.minRotationCollisionCheck = bigLadder.LADDER_MIN_ROTATION_COLLISION;
+            bigLadderScript.minInteractableRotation = bigLadder.LADDER_MIN_ROTATION_COLLISION;
             bigLadderScript.linecastChecksMultiplier = bigLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
             bigLadderScript.linecastMinCheckHeight = bigLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
             bigLadderScript.ladderHeightMultiplier = bigLadder.LADDER_HEIGHT_MULTIPLIER;
@@ -204,7 +204,7 @@ namespace GiantExtensionLaddersV2
             hugeLadderScript.itemProperties = hugeLadderItem;
 
             hugeLadderScript.maxExtension = hugeLadder.LADDER_MAX_EXTENSION;
-            hugeLadderScript.minRotationCollisionCheck = hugeLadder.LADDER_MIN_ROTATION_COLLISION;
+            hugeLadderScript.minInteractableRotation = hugeLadder.LADDER_MIN_ROTATION_COLLISION;
             hugeLadderScript.linecastChecksMultiplier = hugeLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
             hugeLadderScript.linecastMinCheckHeight = hugeLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
             hugeLadderScript.ladderHeightMultiplier = hugeLadder.LADDER_HEIGHT_MULTIPLIER;
@@ -244,7 +244,7 @@ namespace GiantExtensionLaddersV2
             ultimateLadderScript.itemProperties = ultimateLadderItem;
 
             ultimateLadderScript.maxExtension = ultimateLadder.LADDER_MAX_EXTENSION;
-            ultimateLadderScript.minRotationCollisionCheck = ultimateLadder.LADDER_MIN_ROTATION_COLLISION;
+            ultimateLadderScript.minInteractableRotation = ultimateLadder.LADDER_MIN_ROTATION_COLLISION;
             ultimateLadderScript.linecastChecksMultiplier = ultimateLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
             ultimateLadderScript.linecastMinCheckHeight = ultimateLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
             ultimateLadderScript.ladderHeightMultiplier = ultimateLadder.LADDER_HEIGHT_MULTIPLIER;
@@ -338,6 +338,12 @@ namespace GiantExtensionLaddersV2
                     propertyCounter++;
                     ladderItemScript.topNode = transform;
                     mls.LogDebug("5.component: TopPosition");
+                }
+                if (transform.name.Equals("TopCollisionNode"))
+                {
+                    propertyCounter++;
+                    ladderItemScript.topCollisionNode = transform;
+                    mls.LogDebug("19.component: TopCollisionNode");
                 }
                 if (transform.name.Equals("MovableNode"))
                 {
