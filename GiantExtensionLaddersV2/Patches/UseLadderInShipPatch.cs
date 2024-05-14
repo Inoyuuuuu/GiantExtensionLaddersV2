@@ -23,10 +23,8 @@ namespace GiantExtensionLaddersV2.Patches
 
             if (ladderItemScript != null && component != null && component.isInHangarShipRoom)
             {
-                if (ladderItemScript.giantLadderType == GiantLadderType.HUGE)
+                if (ladderItemScript.giantLadderType == GiantLadderType.TINY)
                 {
-                    GiantExtensionLaddersV2.mls.LogInfo("changed loc");
-
                     changedPlayerLocation = true;
                     component.isInHangarShipRoom = false;
                 }
@@ -42,7 +40,6 @@ namespace GiantExtensionLaddersV2.Patches
 
             if (component != null && changedPlayerLocation)
             {
-                GiantExtensionLaddersV2.mls.LogInfo("reset loc");
                     component.isInHangarShipRoom = true;
                     changedPlayerLocation = false;
             }
