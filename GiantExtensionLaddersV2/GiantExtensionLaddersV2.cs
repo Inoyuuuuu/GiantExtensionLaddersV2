@@ -130,6 +130,7 @@ namespace GiantExtensionLaddersV2
             tinyLadderScript.ladderHeightMultiplier = tinyLadder.LADDER_HEIGHT_MULTIPLIER;
             tinyLadderScript.ladderRotateSpeedMultiplier = tinyLadder.LADDER_ROTATE_SPEED;
             tinyLadderScript.isClimbable = true;
+            tinyLadderScript.isClimbableInShip = true;
             tinyLadderScript.giantLadderType = tinyLadder.ladderType;
 
             buildLadderItem(tinyLadder.meshRenderers, tinyLadder.animators, tinyLadder.transforms, tinyLadder.audioClips, tinyLadder.audioSources,

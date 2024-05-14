@@ -12,7 +12,9 @@ namespace GiantExtensionLaddersV2.Patches
     internal class UseLadderInShipPatch
     {
 
-        private static bool changedPlayerLocation = false;
+        internal static bool changedPlayerLocation = false;
+        internal static PlayerControllerB playerWithChangedLocation;
+        private const float minPlayerSizeForTinyLadder = 0.25f;
 
         [HarmonyPatch(nameof(InteractTrigger.Interact))]
         [HarmonyPrefix]
@@ -20,28 +22,40 @@ namespace GiantExtensionLaddersV2.Patches
         {
             LadderItemScript ladderItemScript = __instance.GetComponentInParent<LadderItemScript>();
             PlayerControllerB component = playerTransform.GetComponent<PlayerControllerB>();
-
-            if (ladderItemScript != null && component != null && component.isInHangarShipRoom)
+                    //tiny ladder is climbable outside ship if player is small
+            if (ladderItemScript != null && component != null && !component.isInHangarShipRoom)
             {
-                if (ladderItemScript.giantLadderType == GiantLadderType.TINY)
+                if (ladderItemScript.giantLadderType == GiantLadderType.TINY && component.thisPlayerBody.localScale.y > minPlayerSizeForTinyLadder)
                 {
                     changedPlayerLocation = true;
+                    component.isInHangarShipRoom = true;
+                    playerWithChangedLocation = component;
+                }
+            }       //tiny ladder is climbable in ship if player is small
+            else if (ladderItemScript != null && component != null && component.isInHangarShipRoom)
+            {
+                if (ladderItemScript.giantLadderType == GiantLadderType.TINY && component.thisPlayerBody.localScale.y <= minPlayerSizeForTinyLadder)
+                {
+                    GiantExtensionLaddersV2.mls.LogInfo("player scale is: " + component.thisPlayerBody.localScale.y);
+
+                    changedPlayerLocation = true;
                     component.isInHangarShipRoom = false;
+                    playerWithChangedLocation = component;
                 }
             }
         }
 
-        [HarmonyPatch(nameof(InteractTrigger.Interact))]
+        [HarmonyPatch("Update")]
         [HarmonyPriority(Priority.VeryHigh)]
         [HarmonyPrefix]
-        public static void ResetPlayerIsInShipPatch(InteractTrigger __instance, ref Transform playerTransform)
+        public static void ResetPlayerIsInShipPatch()
         {
-            PlayerControllerB component = playerTransform.GetComponent<PlayerControllerB>();
 
-            if (component != null && changedPlayerLocation)
+            if (playerWithChangedLocation != null && changedPlayerLocation)
             {
-                    component.isInHangarShipRoom = true;
-                    changedPlayerLocation = false;
+                playerWithChangedLocation.isInHangarShipRoom = !playerWithChangedLocation.isInHangarShipRoom;
+                changedPlayerLocation = false;
+                playerWithChangedLocation = null;
             }
         }
     }
