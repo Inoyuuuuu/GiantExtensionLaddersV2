@@ -21,29 +21,30 @@ namespace GiantExtensionLaddersV2.Patches
             LadderItemScript ladderItemScript = __instance.GetComponentInParent<LadderItemScript>();
             PlayerControllerB component = playerTransform.GetComponent<PlayerControllerB>();
 
-            if (ladderItemScript != null && component != null && ladderItemScript.giantLadderType == GiantLadderType.HUGE)
+            if (ladderItemScript != null && component != null && component.isInHangarShipRoom)
             {
-                if (component.isInHangarShipRoom)
+                if (ladderItemScript.giantLadderType == GiantLadderType.HUGE)
                 {
-                    component.isInHangarShipRoom = false;
+                    GiantExtensionLaddersV2.mls.LogInfo("changed loc");
+
                     changedPlayerLocation = true;
+                    component.isInHangarShipRoom = false;
                 }
             }
         }
 
         [HarmonyPatch(nameof(InteractTrigger.Interact))]
-        [HarmonyPostfix]
+        [HarmonyPriority(Priority.VeryHigh)]
+        [HarmonyPrefix]
         public static void ResetPlayerIsInShipPatch(InteractTrigger __instance, ref Transform playerTransform)
         {
             PlayerControllerB component = playerTransform.GetComponent<PlayerControllerB>();
 
             if (component != null && changedPlayerLocation)
             {
-                if (component.isInHangarShipRoom)
-                {
+                GiantExtensionLaddersV2.mls.LogInfo("reset loc");
                     component.isInHangarShipRoom = true;
                     changedPlayerLocation = false;
-                }
             }
         }
     }

@@ -38,8 +38,9 @@ namespace GiantExtensionLaddersV2.Patches
                 {
                     isPlayerOnTinyLadder = false;
                 }
-                    //------------- snapping to correct ladder position
-                    Vector3 ladderDirectionVector = __instance.topOfLadderPosition.position - __instance.bottomOfLadderPosition.position;
+
+                //------------- snapping to correct ladder position
+                Vector3 ladderDirectionVector = __instance.topOfLadderPosition.position - __instance.bottomOfLadderPosition.position;
                     Vector3 normalLDV = Vector3.Normalize(ladderDirectionVector);
 
                     float closestPositionToLadder = GetVector3CloseToLadder(__instance.bottomOfLadderPosition.position,

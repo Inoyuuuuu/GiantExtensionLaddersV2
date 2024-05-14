@@ -75,6 +75,7 @@ namespace GiantExtensionLaddersV2.Behaviours
         public Transform topCollisionNode;
         
         public float stoppedAtAngle = 90f;
+        private const float RAYCAST_DISTANCE_CORRECTION = 4f;
 
         public override void Update()
         {
@@ -221,19 +222,20 @@ namespace GiantExtensionLaddersV2.Behaviours
             ladderAudio.Play();
             float currentNormalizedTime2 = 0f;
             float speedMultiplier2 = 0.1f;
+            GiantExtensionLaddersV2.mls.LogInfo("lme: " + ladderMaxExtension);
+            GiantExtensionLaddersV2.mls.LogInfo("lbn: " + baseNode.transform.position.y);
+            GiantExtensionLaddersV2.mls.LogInfo("tcn: " + topCollisionNode.position.y);
 
-            GiantExtensionLaddersV2.mls.LogInfo("lme " + ladderMaxExtension + " lea normal: " + ladderExtendAmountNormalized);
+            ladderMaxExtension += baseNode.transform.position.y + RAYCAST_DISTANCE_CORRECTION;
 
-            while (currentNormalizedTime2 < ladderExtendAmountNormalized && topCollisionNode.position.y < ladderMaxExtension)
+            while (currentNormalizedTime2 < 2 && topCollisionNode.position.y < ladderMaxExtension)
             {
-                GiantExtensionLaddersV2.mls.LogInfo("topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension: " + ladderMaxExtension);
-
+                GiantExtensionLaddersV2.mls.LogInfo("currentNormalizedTime2: " + currentNormalizedTime2 + " topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension pos y: " + ladderMaxExtension);
                 speedMultiplier2 += Time.deltaTime * 2f;
-                currentNormalizedTime2 = Mathf.Min(currentNormalizedTime2 + Time.deltaTime * speedMultiplier2, ladderExtendAmountNormalized);
+                currentNormalizedTime2 = Mathf.Min(currentNormalizedTime2 + Time.deltaTime * speedMultiplier2, 2);
                 ladderAnimator.SetFloat("extensionAmount", currentNormalizedTime2);
                 yield return null;
             }
-            GiantExtensionLaddersV2.mls.LogInfo("1 topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension: " + ladderMaxExtension);
 
             extendAmount = currentNormalizedTime2;
             interactCollider.enabled = true;
@@ -241,10 +243,10 @@ namespace GiantExtensionLaddersV2.Behaviours
             killTrigger.enabled = false;
             ladderAudio.Stop();
 
-            GiantExtensionLaddersV2.mls.LogInfo("2 topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension: " + ladderMaxExtension);
-
             if (ladderExtendAmountNormalized == 1f)
             {
+                GiantExtensionLaddersV2.mls.LogInfo("DID NOT HIT ROOF");
+
                 ladderAudio.transform.position = baseNode.transform.position + baseNode.transform.up * maxExtension;
                 ladderAudio.PlayOneShot(fullExtend, 0.7f);
                 WalkieTalkie.TransmitOneShotAudio(ladderAudio, fullExtend, 0.7f);
@@ -252,6 +254,8 @@ namespace GiantExtensionLaddersV2.Behaviours
             }
             else
             {
+                GiantExtensionLaddersV2.mls.LogInfo("HIT ROOF");
+
                 ladderAudio.transform.position = baseNode.transform.position + baseNode.transform.up * (ladderExtendAmountNormalized * maxExtension);
                 ladderAudio.PlayOneShot(hitRoof);
                 WalkieTalkie.TransmitOneShotAudio(ladderAudio, hitRoof);
@@ -259,20 +263,14 @@ namespace GiantExtensionLaddersV2.Behaviours
             }
             yield return new WaitForSeconds(0.4f);
 
-            GiantExtensionLaddersV2.mls.LogInfo("3 topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension: " + ladderMaxExtension);
-
             ladderAudio.clip = ladderFallSFX;
             ladderAudio.Play();
             ladderAudio.volume = 0f;
             speedMultiplier2 = ladderRotateSpeedMultiplier;
             currentNormalizedTime2 = 0f;
 
-            GiantExtensionLaddersV2.mls.LogInfo("4 topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension: " + ladderMaxExtension);
-
             while (currentNormalizedTime2 < ladderRotateAmountNormalized)
             {
-                GiantExtensionLaddersV2.mls.LogInfo("rotat topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension: " + ladderMaxExtension);
-
                 speedMultiplier2 += Time.deltaTime * 2f;
                 currentNormalizedTime2 = Mathf.Min(currentNormalizedTime2 + Time.deltaTime * speedMultiplier2, ladderRotateAmountNormalized);
                 if (ladderExtendAmountNormalized > 0.6f && currentNormalizedTime2 > 0.5f)
@@ -283,7 +281,6 @@ namespace GiantExtensionLaddersV2.Behaviours
                 ladderRotateAnimator.SetFloat("rotationAmount", currentNormalizedTime2);
                 yield return null;
             }
-            GiantExtensionLaddersV2.mls.LogInfo("5 topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension: " + ladderMaxExtension);
 
             rotateAmount = ladderRotateAmountNormalized;
             ladderAudio.volume = 1f;
@@ -291,9 +288,6 @@ namespace GiantExtensionLaddersV2.Behaviours
             ladderAudio.transform.position = moveableNode.transform.position;
             ladderAudio.PlayOneShot(hitWall, Mathf.Min(ladderRotateAmountNormalized + 0.3f, 1f));
             RoundManager.Instance.PlayAudibleNoise(ladderAudio.transform.position, 18f, 0.7f, 0, isInShipRoom);
-
-            GiantExtensionLaddersV2.mls.LogInfo("6 topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension: " + ladderMaxExtension);
-
 
             if (isClimbable && ladderRotateAmountNormalized * 90f < minInteractableRotation)
             {
@@ -305,9 +299,6 @@ namespace GiantExtensionLaddersV2.Behaviours
                 bridgeCollider.enabled = true;
             }
             killTrigger.enabled = false;
-
-            GiantExtensionLaddersV2.mls.LogInfo("7 topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension: " + ladderMaxExtension);
-
         }
 
         private float GetLadderExtensionDistance()
