@@ -22,7 +22,8 @@ namespace GiantExtensionLaddersV2.Patches
         {
             LadderItemScript ladderItemScript = __instance.GetComponentInParent<LadderItemScript>();
             PlayerControllerB component = playerTransform.GetComponent<PlayerControllerB>();
-                    //tiny ladder is climbable outside ship if player is small
+            
+            //tiny ladder is climbable outside ship if player is small
             if (ladderItemScript != null && component != null && !component.isInHangarShipRoom)
             {
                 if (ladderItemScript.giantLadderType == GiantLadderType.TINY && component.thisPlayerBody.localScale.y > minPlayerSizeForTinyLadder)
@@ -54,6 +55,9 @@ namespace GiantExtensionLaddersV2.Patches
             if (playerWithChangedLocation != null && changedPlayerLocation)
             {
                 playerWithChangedLocation.isInHangarShipRoom = !playerWithChangedLocation.isInHangarShipRoom;
+
+                GiantExtensionLaddersV2.mls.LogInfo("changed player loc to: " + playerWithChangedLocation.isInHangarShipRoom);
+
                 changedPlayerLocation = false;
                 playerWithChangedLocation = null;
             }

@@ -11,7 +11,7 @@ namespace GiantExtensionLaddersV2.Patches
     {
         private static float defaultClimbSpeed;
         private static bool isDefaultClimbSpeedSet = false;
-        private const float CLIMB_SPEED_MULTIPLIER = 0.22f;
+        private const float CLIMB_SPEED_MULTIPLIER = 0.25f;
 
 
         [HarmonyPatch("Update")]
@@ -20,21 +20,22 @@ namespace GiantExtensionLaddersV2.Patches
         static void crankThatClimbingSpeed(PlayerControllerB __instance)
         {
             if (!isDefaultClimbSpeedSet)
-            {   
+            {
                 defaultClimbSpeed = __instance.climbSpeed;
                 isDefaultClimbSpeedSet = true;
             }
 
-            if (LadderPlayerSnapPatch.isPlayerOnTinyLadder)
+            if (GiantExtensionLaddersV2.isPlayerOnTinyLadder)
             {
                 if (__instance.isPlayerControlled && __instance.isClimbingLadder)
                 {
                     __instance.climbSpeed = defaultClimbSpeed * CLIMB_SPEED_MULTIPLIER;
                 }
-                else
-                {
-                    __instance.climbSpeed = defaultClimbSpeed;
-                }
+
+            }
+            else
+            {
+                __instance.climbSpeed = defaultClimbSpeed;
             }
         }
     }

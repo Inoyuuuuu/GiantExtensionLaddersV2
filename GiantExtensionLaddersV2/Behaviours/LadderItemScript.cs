@@ -314,7 +314,10 @@ namespace GiantExtensionLaddersV2.Behaviours
         {
             if (Physics.Raycast(baseNode.transform.position, Vector3.up, out hit, maxExtension, layerMask, QueryTriggerInteraction.Ignore))
             {
-                return hit.distance;
+                if (this.isInShipRoom || this.isInFactory)
+                {
+                    return hit.distance;
+                }
             }
             return maxExtension;
         }

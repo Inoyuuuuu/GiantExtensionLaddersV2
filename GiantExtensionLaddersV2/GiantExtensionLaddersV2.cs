@@ -47,6 +47,8 @@ namespace GiantExtensionLaddersV2
         internal static Item hugeLadderItem;
         internal static Item ultimateLadderItem;
 
+        public static bool isPlayerOnTinyLadder = false;
+
         internal static GiantExtensionLaddersV2 Instance { get; private set; } = null!;
         internal static ManualLogSource mls { get; private set; } = null!;
         internal static Harmony? Harmony { get; set; }

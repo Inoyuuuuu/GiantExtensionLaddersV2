@@ -21,23 +21,27 @@ namespace GiantExtensionLaddersV2.Patches
         private const int LADDER_BOT_RESET_AMOUNT = 2;
         private const int LADDER_TOP_RESET_AMOUNT = 5;
 
-        internal static bool isPlayerOnTinyLadder = false;
+        private static float defaultClimbSpeed = 4;
+        private static bool isDefaultClimbSpeedSet = false;
+        private const float CLIMB_SPEED_MULTIPLIER = 0.25f;
 
         [HarmonyPrefix]
         [HarmonyPatch("ladderClimbAnimation")]
         public static void PatchLadderPlayerSnap(InteractTrigger __instance, ref PlayerControllerB playerController)
         {
+
             LadderItemScript ladderItemScript = __instance.GetComponentInParent<LadderItemScript>();
+
             if (ladderItemScript != null)
             {
                 if (ladderItemScript.giantLadderType == GiantLadderType.TINY)
                 {
                     __instance.bottomOfLadderPosition.position = new Vector3(__instance.bottomOfLadderPosition.position.x, playerController.thisPlayerBody.position.y - 0.2f, __instance.bottomOfLadderPosition.position.z);
-                    isPlayerOnTinyLadder = true;
+                    GiantExtensionLaddersV2.isPlayerOnTinyLadder = true;
                 }
                 else
                 {
-                    isPlayerOnTinyLadder = false;
+                    GiantExtensionLaddersV2.isPlayerOnTinyLadder = false;
                 }
 
                 //------------- snapping to correct ladder position
@@ -49,25 +53,26 @@ namespace GiantExtensionLaddersV2.Patches
 
                 Vector3 newPosition = __instance.bottomOfLadderPosition.position + closestPositionToLadder * normalLDV;
 
+
                 //------------- ladder climbing angle correction correction + player offset on climb start (pain)
-                float ladderSize = Vector3.Distance(__instance.topOfLadderPosition.position, __instance.bottomOfLadderPosition.position);
-
-                Vector3 offset = new Vector3(0, OFFSET_BASE_VALUE, 0);
-                offset = offset * closestPositionToLadder;
-                GiantExtensionLaddersV2.mls.LogDebug("player pos offset: " + offset.ToString());
-
-
-                if (newPosition.y + offset.y >= __instance.topOfLadderPosition.position.y && closestPositionToLadder > LADDER_TOP_RESET_AMOUNT)
-                {
-                    newPosition = __instance.bottomOfLadderPosition.position + (closestPositionToLadder - LADDER_TOP_RESET_AMOUNT) * normalLDV;
-                }
-                else if (closestPositionToLadder < LADDER_BOT_RESET_AMOUNT && ladderSize >= BIGGER_LADDER_SIZE_START)
-                {
-                    offset = offset + playerController.thisPlayerBody.forward * NEGATIVE_OFFSET_BASE_VALUE;
-                }
 
                 if (ladderItemScript.giantLadderType != GiantLadderType.TINY)
                 {
+                    float ladderSize = Vector3.Distance(__instance.topOfLadderPosition.position, __instance.bottomOfLadderPosition.position);
+
+                    Vector3 offset = new Vector3(0, OFFSET_BASE_VALUE, 0);
+                    offset = offset * closestPositionToLadder;
+                    GiantExtensionLaddersV2.mls.LogDebug("player pos offset: " + offset.ToString());
+
+                    if (newPosition.y + offset.y >= __instance.topOfLadderPosition.position.y && closestPositionToLadder > LADDER_TOP_RESET_AMOUNT)
+                    {
+                        newPosition = __instance.bottomOfLadderPosition.position + (closestPositionToLadder - LADDER_TOP_RESET_AMOUNT) * normalLDV;
+                    }
+                    else if (closestPositionToLadder < LADDER_BOT_RESET_AMOUNT && ladderSize >= BIGGER_LADDER_SIZE_START)
+                    {
+                        offset = offset + playerController.thisPlayerBody.forward * NEGATIVE_OFFSET_BASE_VALUE;
+                    }
+
                     newPosition = newPosition + offset;
 
                 }
@@ -78,7 +83,7 @@ namespace GiantExtensionLaddersV2.Patches
             else
             {
                 GiantExtensionLaddersV2.mls.LogDebug("target ladder is not a ladder from this mod");
-                isPlayerOnTinyLadder = false;
+                GiantExtensionLaddersV2.isPlayerOnTinyLadder = false;
             }
         }
 
