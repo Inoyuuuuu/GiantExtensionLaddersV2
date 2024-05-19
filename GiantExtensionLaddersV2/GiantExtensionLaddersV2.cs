@@ -37,7 +37,7 @@ namespace GiantExtensionLaddersV2
 
         private const float HEIGHT_DIVIDE_CONST = 2.43f;
 
-        internal LadderObject tinyLadder = new LadderObject(10.3f, 60f, 2, 2, 10.3f / HEIGHT_DIVIDE_CONST, 0.15f, false, GiantLadderType.TINY);
+        internal LadderObject tinyLadder = new LadderObject(10.3f, 75f, 2, 2, 10.3f / HEIGHT_DIVIDE_CONST, 0.15f, false, GiantLadderType.TINY);
         internal LadderObject bigLadder = new LadderObject(17f, 60f, 3, 7, 7f, 0.15f, true, GiantLadderType.BIG);
         internal LadderObject hugeLadder = new LadderObject(34.4f, 60f, 4, 8, 14.15f, 0.2f, true, GiantLadderType.HUGE);
         internal LadderObject ultimateLadder = new LadderObject(68f, 60f, 5, 9, 27.98f, 0.25f, true, GiantLadderType.ULTIMATE);
@@ -47,7 +47,7 @@ namespace GiantExtensionLaddersV2
         internal static Item hugeLadderItem;
         internal static Item ultimateLadderItem;
 
-        public static bool isPlayerOnTinyLadder = false;
+        internal static bool isPlayerOnTinyLadder = false;
 
         internal static GiantExtensionLaddersV2 Instance { get; private set; } = null!;
         internal static ManualLogSource mls { get; private set; } = null!;
@@ -126,7 +126,7 @@ namespace GiantExtensionLaddersV2
             tinyLadderScript.itemProperties = tinyLadderItem;
 
             tinyLadderScript.maxExtension = tinyLadder.LADDER_MAX_EXTENSION;
-            tinyLadderScript.minInteractableRotation = tinyLadder.LADDER_MIN_ROTATION_COLLISION;
+            tinyLadderScript.minInteractableRotation = tinyLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
             tinyLadderScript.linecastChecksMultiplier = tinyLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
             tinyLadderScript.linecastMinCheckHeight = tinyLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
             tinyLadderScript.ladderHeightMultiplier = tinyLadder.LADDER_HEIGHT_MULTIPLIER;
@@ -137,6 +137,8 @@ namespace GiantExtensionLaddersV2
 
             buildLadderItem(tinyLadder.meshRenderers, tinyLadder.animators, tinyLadder.transforms, tinyLadder.audioClips, tinyLadder.audioSources,
                 tinyLadder.interactTriggers, tinyLadder.boxColliders, tinyLadderScript);
+
+            tinyLadderItem.canBeGrabbedBeforeGameStart = true;
 
             //----- build big ladder item
             mls.LogInfo("attempting to build the big ladder");
@@ -167,7 +169,7 @@ namespace GiantExtensionLaddersV2
             bigLadderScript.itemProperties = bigLadderItem;
 
             bigLadderScript.maxExtension = bigLadder.LADDER_MAX_EXTENSION;
-            bigLadderScript.minInteractableRotation = bigLadder.LADDER_MIN_ROTATION_COLLISION;
+            bigLadderScript.minInteractableRotation = bigLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
             bigLadderScript.linecastChecksMultiplier = bigLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
             bigLadderScript.linecastMinCheckHeight = bigLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
             bigLadderScript.ladderHeightMultiplier = bigLadder.LADDER_HEIGHT_MULTIPLIER;
@@ -207,7 +209,7 @@ namespace GiantExtensionLaddersV2
             hugeLadderScript.itemProperties = hugeLadderItem;
 
             hugeLadderScript.maxExtension = hugeLadder.LADDER_MAX_EXTENSION;
-            hugeLadderScript.minInteractableRotation = hugeLadder.LADDER_MIN_ROTATION_COLLISION;
+            hugeLadderScript.minInteractableRotation = hugeLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
             hugeLadderScript.linecastChecksMultiplier = hugeLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
             hugeLadderScript.linecastMinCheckHeight = hugeLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
             hugeLadderScript.ladderHeightMultiplier = hugeLadder.LADDER_HEIGHT_MULTIPLIER;
@@ -247,7 +249,7 @@ namespace GiantExtensionLaddersV2
             ultimateLadderScript.itemProperties = ultimateLadderItem;
 
             ultimateLadderScript.maxExtension = ultimateLadder.LADDER_MAX_EXTENSION;
-            ultimateLadderScript.minInteractableRotation = ultimateLadder.LADDER_MIN_ROTATION_COLLISION;
+            ultimateLadderScript.minInteractableRotation = ultimateLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
             ultimateLadderScript.linecastChecksMultiplier = ultimateLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
             ultimateLadderScript.linecastMinCheckHeight = ultimateLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
             ultimateLadderScript.ladderHeightMultiplier = ultimateLadder.LADDER_HEIGHT_MULTIPLIER;

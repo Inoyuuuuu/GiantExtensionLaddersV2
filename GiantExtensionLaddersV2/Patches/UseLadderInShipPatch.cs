@@ -13,7 +13,7 @@ namespace GiantExtensionLaddersV2.Patches
     {
 
         internal static bool changedPlayerLocation = false;
-        internal static PlayerControllerB playerWithChangedLocation;
+        internal static PlayerControllerB playerWithChangedLocation = null;
         private const float minPlayerSizeForTinyLadder = 0.25f;
 
         [HarmonyPatch(nameof(InteractTrigger.Interact))]
@@ -37,8 +37,6 @@ namespace GiantExtensionLaddersV2.Patches
             {
                 if (ladderItemScript.giantLadderType == GiantLadderType.TINY && component.thisPlayerBody.localScale.y <= minPlayerSizeForTinyLadder)
                 {
-                    GiantExtensionLaddersV2.mls.LogInfo("player scale is: " + component.thisPlayerBody.localScale.y);
-
                     changedPlayerLocation = true;
                     component.isInHangarShipRoom = false;
                     playerWithChangedLocation = component;
@@ -55,9 +53,6 @@ namespace GiantExtensionLaddersV2.Patches
             if (playerWithChangedLocation != null && changedPlayerLocation)
             {
                 playerWithChangedLocation.isInHangarShipRoom = !playerWithChangedLocation.isInHangarShipRoom;
-
-                GiantExtensionLaddersV2.mls.LogInfo("changed player loc to: " + playerWithChangedLocation.isInHangarShipRoom);
-
                 changedPlayerLocation = false;
                 playerWithChangedLocation = null;
             }

@@ -242,7 +242,7 @@ namespace GiantExtensionLaddersV2.Behaviours
 
             while (currentNormalizedTime2 < 2 && topCollisionNode.position.y < ladderMaxExtension)
             {
-                GiantExtensionLaddersV2.mls.LogDebug("currentNormalizedTime2: " + currentNormalizedTime2 + " topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension pos y: " + ladderMaxExtension);
+                //GiantExtensionLaddersV2.mls.LogDebug("currentNormalizedTime2: " + currentNormalizedTime2 + " topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension pos y: " + ladderMaxExtension);
                 
                 speedMultiplier2 += Time.deltaTime * 2f;
                 currentNormalizedTime2 = Mathf.Min(currentNormalizedTime2 + Time.deltaTime * speedMultiplier2, 2);
