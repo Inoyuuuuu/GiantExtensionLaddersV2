@@ -1,4 +1,4 @@
-﻿using GameNetcodeStuff;
+using GameNetcodeStuff;
 using GiantExtensionLaddersV2.Behaviours;
 using HarmonyLib;
 using System;
