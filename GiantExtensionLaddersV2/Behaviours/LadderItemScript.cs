@@ -23,7 +23,7 @@ namespace GiantExtensionLaddersV2.Behaviours
 
         private bool ladderBlinkWarning;
 
-        //private bool ladderShrunkAutomatically;
+        private bool ladderShrunkAutomatically;
 
         private AudioClip ladderFallSFX;
 
@@ -140,8 +140,10 @@ namespace GiantExtensionLaddersV2.Behaviours
                 ladderAudio.PlayOneShot(ladderShrinkSFX);
                 ladderActivated = false;
             }
-
-            killTrigger.enabled = false;
+            if (killTrigger != null)
+            {
+                killTrigger.enabled = false;
+            }
             ladderScript.interactable = false;
 
             if (GameNetworkManager.Instance.localPlayerController != null && GameNetworkManager.Instance.localPlayerController.currentTriggerInAnimationWith == ladderScript)
@@ -234,9 +236,6 @@ namespace GiantExtensionLaddersV2.Behaviours
             ladderAudio.Play();
             float currentNormalizedTime2 = 0f;
             float speedMultiplier2 = 0.1f;
-
-            GiantExtensionLaddersV2.mls.LogDebug("ladderMaxExtension: " + ladderMaxExtension);
-            GiantExtensionLaddersV2.mls.LogDebug("ladderBaseNodePos: " + baseNode.transform.position.y);
 
             ladderMaxExtension += baseNode.transform.position.y + RAYCAST_DISTANCE_CORRECTION;
 

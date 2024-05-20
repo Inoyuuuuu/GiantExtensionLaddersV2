@@ -95,11 +95,11 @@ namespace GiantExtensionLaddersV2.Patches
                 __instance.ladderPlayerPositionNode.position = newPosition;
                 playerController.thisPlayerBody.position = newPosition;
 
-                GiantExtensionLaddersV2.mls.LogDebug("new player snapping pos node: " + __instance.playerPositionNode.position.ToString());
+                //GiantExtensionLaddersV2.mls.LogDebug("new player snapping pos node: " + __instance.playerPositionNode.position.ToString());
             }
             else
             {
-                GiantExtensionLaddersV2.mls.LogDebug("target ladder is not a ladder from this mod");
+                //GiantExtensionLaddersV2.mls.LogDebug("target ladder is not a ladder from this mod");
                 GiantExtensionLaddersV2.isPlayerOnTinyLadder = false;
             }
         }
@@ -117,11 +117,11 @@ namespace GiantExtensionLaddersV2.Patches
                 newPosition = bottomPos + i * normalizedLDV;
                 currentDistance = Vector3.Distance(playerVector, newPosition);
 
-                GiantExtensionLaddersV2.mls.LogDebug(
-                    "currentMultiplier: " + i 
-                    + " mulitplierWLD: " + mulitplierWithLowestDistance
-                    + " currentDistance: " + currentDistance 
-                    + " lowestDistance: " + lowestDistance);
+                //GiantExtensionLaddersV2.mls.LogDebug(
+                //    "currentMultiplier: " + i 
+                //    + " mulitplierWLD: " + mulitplierWithLowestDistance
+                //    + " currentDistance: " + currentDistance 
+                //    + " lowestDistance: " + lowestDistance);
 
                 if (currentDistance < lowestDistance)
                 {
@@ -129,7 +129,7 @@ namespace GiantExtensionLaddersV2.Patches
                     mulitplierWithLowestDistance = i;
                 } else
                 {
-                    GiantExtensionLaddersV2.mls.LogDebug("found closest distance to ladder: " + mulitplierWithLowestDistance);
+                    //GiantExtensionLaddersV2.mls.LogDebug("found closest distance to ladder: " + mulitplierWithLowestDistance);
                     return mulitplierWithLowestDistance;
                 }
             }

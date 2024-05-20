@@ -53,30 +53,21 @@ namespace GiantExtensionLaddersV2.Patches
 
             foreach (var shopItem in Items.shopItems)
             {
-                GiantExtensionLaddersV2.mls.LogDebug("current item: " + shopItem.item.spawnPrefab.name);
 
                 if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.tinyLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.TINY_LADDER_PRICE.Value)
                 {
-                    GiantExtensionLaddersV2.mls.LogDebug("tiny ladder client item price: " + shopItem.item.creditsWorth + " host item price: " + MySyncedConfigs.Instance.TINY_LADDER_PRICE.Value);
-
                     isPatchSuccess = false;
                 }
                 else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.bigLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.BIG_LADDER_PRICE.Value)
                 {
-                    GiantExtensionLaddersV2.mls.LogDebug("big ladder client item price: " + shopItem.item.creditsWorth + " host item price: " + MySyncedConfigs.Instance.BIG_LADDER_PRICE.Value);
-
                     isPatchSuccess = false;
                 }
                 else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.hugeLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.HUGE_LADDER_PRICE.Value)
                 {
-                    GiantExtensionLaddersV2.mls.LogDebug("huge ladder client item price: " + shopItem.item.creditsWorth + " host item price: " + MySyncedConfigs.Instance.HUGE_LADDER_PRICE.Value);
-
                     isPatchSuccess = false;
                 }
                 else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.ultimateLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE.Value)
                 {
-                    GiantExtensionLaddersV2.mls.LogDebug("ultimate ladder client item price: " + shopItem.item.creditsWorth + " host item price: " + MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE.Value);
-
                     isPatchSuccess = false;
                 }
             }

@@ -47,6 +47,8 @@ namespace GiantExtensionLaddersV2
         internal static Item hugeLadderItem;
         internal static Item ultimateLadderItem;
 
+        internal static bool isBuildSuccess = true;
+
         internal static bool isPlayerOnTinyLadder = false;
 
         internal static GiantExtensionLaddersV2 Instance { get; private set; } = null!;
@@ -72,11 +74,7 @@ namespace GiantExtensionLaddersV2
             AssetBundle hugeLadderBundle = AssetBundle.LoadFromFile(hugeLadderAssetDir);
             AssetBundle ultimateLadderBundle = AssetBundle.LoadFromFile(ultimateLadderAssetDir);
 
-            if (bigLadderBundle != null && hugeLadderBundle != null && tinyLadderBundle != null && ultimateLadderBundle != null)
-            {
-                mls.LogDebug("successfully loaded all assetbundles from files");
-            }
-            else
+            if (bigLadderBundle == null || hugeLadderBundle == null || tinyLadderBundle == null || ultimateLadderBundle == null)
             {
                 mls.LogError("failed to load assetbundles");
                 return;
@@ -87,18 +85,14 @@ namespace GiantExtensionLaddersV2
             hugeLadderItem = hugeLadderBundle.LoadAsset<Item>(hugeLadderItemPropertiesLocation);
             ultimateLadderItem = ultimateLadderBundle.LoadAsset<Item>(ultimateLadderItemPropertiesLocation);
 
-            if (bigLadderItem != null && hugeLadderItem != null && tinyLadderItem != null && ultimateLadderItem != null)
-            {
-                mls.LogDebug("successfully loaded all items from assetbundles");
-            }
-            else
+            if (bigLadderItem == null || hugeLadderItem == null || tinyLadderItem == null || ultimateLadderItem == null)
             {
                 mls.LogError("failed to load items from item assetbundles");
                 return;
             }
 
             //----- build tiny ladder item
-            mls.LogInfo("attempting to build the tiny ladder");
+            mls.LogInfo("building tiny ladder...");
             tinyLadder.ladderPrefab = tinyLadderItem.spawnPrefab;
 
             tinyLadder.meshRenderers = tinyLadder.ladderPrefab.GetComponentsInChildren<MeshRenderer>().ToList();
@@ -115,10 +109,6 @@ namespace GiantExtensionLaddersV2
             {
                 mls.LogError("tinyLadderItemPrefab failed");
                 return;
-            }
-            else
-            {
-                mls.LogDebug("tinyLadderItemPrefab okay");
             }
 
             tinyLadderScript.grabbable = true;
@@ -141,7 +131,7 @@ namespace GiantExtensionLaddersV2
             tinyLadderItem.canBeGrabbedBeforeGameStart = true;
 
             //----- build big ladder item
-            mls.LogInfo("attempting to build the big ladder");
+            mls.LogInfo("building big ladder...");
             bigLadder.ladderPrefab = bigLadderItem.spawnPrefab;
 
             bigLadder.meshRenderers = bigLadder.ladderPrefab.GetComponentsInChildren<MeshRenderer>().ToList();
@@ -158,10 +148,6 @@ namespace GiantExtensionLaddersV2
             {
                 mls.LogError("bigLadderScript failed");
                 return;
-            }
-            else
-            {
-                mls.LogDebug("bigLadderScript okay");
             }
 
             bigLadderScript.grabbable = true;
@@ -181,7 +167,7 @@ namespace GiantExtensionLaddersV2
                 bigLadder.interactTriggers, bigLadder.boxColliders, bigLadderScript);
 
             //----- build huge ladder item
-            mls.LogInfo("attempting to build the huge ladder");
+            mls.LogInfo("building huge ladder...");
             hugeLadder.ladderPrefab = hugeLadderItem.spawnPrefab;
 
             hugeLadder.meshRenderers = hugeLadder.ladderPrefab.GetComponentsInChildren<MeshRenderer>().ToList();
@@ -198,10 +184,6 @@ namespace GiantExtensionLaddersV2
             {
                 mls.LogError("hugeLadderScript failed");
                 return;
-            }
-            else
-            {
-                mls.LogDebug("hugeLadderScript okay");
             }
 
             hugeLadderScript.grabbable = true;
@@ -221,7 +203,7 @@ namespace GiantExtensionLaddersV2
                 hugeLadder.interactTriggers, hugeLadder.boxColliders, hugeLadderScript);
 
             //----- build ultimate ladder item
-            mls.LogInfo("attempting to build the ultimate ladder");
+            mls.LogInfo("building ultimate ladder...");
             ultimateLadder.ladderPrefab = ultimateLadderItem.spawnPrefab;
 
             ultimateLadder.meshRenderers = ultimateLadder.ladderPrefab.GetComponentsInChildren<MeshRenderer>().ToList();
@@ -238,10 +220,6 @@ namespace GiantExtensionLaddersV2
             {
                 mls.LogError("ultimateLadderScript failed");
                 return;
-            }
-            else
-            {
-                mls.LogDebug("ultimateLadderScript okay");
             }
 
             ultimateLadderScript.grabbable = true;
@@ -260,22 +238,26 @@ namespace GiantExtensionLaddersV2
             buildLadderItem(ultimateLadder.meshRenderers, ultimateLadder.animators, ultimateLadder.transforms, ultimateLadder.audioClips, ultimateLadder.audioSources,
                 ultimateLadder.interactTriggers, ultimateLadder.boxColliders, ultimateLadderScript);
 
+            if (!isBuildSuccess)
+            {
+                mls.LogError("Ran into a problem finding all ladder components on some ladders. If you see this, please add it as an issue on this mod's GitHub page.");
+                return;
+            }
+
             //-------- register items
             NetworkPrefabs.RegisterNetworkPrefab(tinyLadderItem.spawnPrefab);
             NetworkPrefabs.RegisterNetworkPrefab(bigLadderItem.spawnPrefab);
             NetworkPrefabs.RegisterNetworkPrefab(hugeLadderItem.spawnPrefab);
             NetworkPrefabs.RegisterNetworkPrefab(ultimateLadderItem.spawnPrefab);
-            mls.LogInfo("registered network prefabs");
 
             Utilities.FixMixerGroups(tinyLadderItem.spawnPrefab);
             Utilities.FixMixerGroups(bigLadderItem.spawnPrefab);
             Utilities.FixMixerGroups(hugeLadderItem.spawnPrefab);
             Utilities.FixMixerGroups(ultimateLadderItem.spawnPrefab);
-            mls.LogInfo("fixed mixers");
 
             TerminalNode tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             tinyLadderNode.clearPreviousText = true;
-            tinyLadderNode.displayText = "Awwww... tiny ladder!\n\n";
+            tinyLadderNode.displayText = "Awwww... tiny ladder! Can be used if the person climbing is also tiny!\n\n";
             Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, MySyncedConfigs.Instance.TINY_LADDER_PRICE);
 
             TerminalNode bigLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
@@ -290,13 +272,13 @@ namespace GiantExtensionLaddersV2
 
             TerminalNode ultimateLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             ultimateLadderNode.clearPreviousText = true;
-            ultimateLadderNode.displayText = "Not the tiny, not the big, not the huge, THIS IS THE ULTIMATE EXTENSION LADDER!\n\n";
+            ultimateLadderNode.displayText = "Not the tiny, not the big, not the huge, with 68m in height THIS IS THE ULTIMATE EXTENSION LADDER!\n\n";
             Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE);
 
             Harmony.PatchAll();
 
-            mls.LogInfo("items should be in shop.");
-            mls.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
+            mls.LogInfo("builds completed and items should be in shop.");
+            mls.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has fully loaded!");
         }
 
         private void buildLadderItem(List<MeshRenderer> meshRenderers, List<Animator> animators, List<Transform> transforms,
@@ -311,7 +293,7 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.mainObjectRenderer = meshRenderer;
-                    mls.LogDebug("1. component: LadderBox");
+                    //mls.LogDebug("1. component: LadderBox");
                     break;
                 }
             }
@@ -321,13 +303,13 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.ladderAnimator = animator;
-                    mls.LogDebug("2.  AnimContainer");
+                    //mls.LogDebug("2.  AnimContainer");
                 }
                 if (animator.name.Equals("MeshContainer"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderRotateAnimator = animator;
-                    mls.LogDebug("3. component: MeshContainer");
+                    //mls.LogDebug("3. component: MeshContainer");
                 }
             }
             foreach (Transform transform in transforms)
@@ -336,25 +318,25 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.baseNode = transform;
-                    mls.LogDebug("4. component: Base");
+                    //mls.LogDebug("4. component: Base");
                 }
                 if (transform.name.Equals("TopPosition"))
                 {
                     propertyCounter++;
                     ladderItemScript.topNode = transform;
-                    mls.LogDebug("5.component: TopPosition");
+                    //mls.LogDebug("5.component: TopPosition");
                 }
                 if (transform.name.Equals("TopCollisionNode"))
                 {
                     propertyCounter++;
                     ladderItemScript.topCollisionNode = transform;
-                    mls.LogDebug("19.component: TopCollisionNode");
+                    //mls.LogDebug("19.component: TopCollisionNode");
                 }
                 if (transform.name.Equals("MovableNode"))
                 {
                     propertyCounter++;
                     ladderItemScript.moveableNode = transform;
-                    mls.LogDebug("6. component: MovableNode");
+                    //mls.LogDebug("6. component: MovableNode");
                 }
             }
             foreach (AudioClip audioClip in audioClips)
@@ -363,39 +345,39 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.hitRoof = audioClip;
-                    mls.LogDebug("7. component: ExtensionLadderHitWall");
+                    //mls.LogDebug("7. component: ExtensionLadderHitWall");
                 }
                 if (audioClip.name.Equals("ExtensionLadderHitWall2"))
                 {
                     propertyCounter += 2;
                     ladderItemScript.fullExtend = audioClip;
                     ladderItemScript.hitWall = audioClip;
-                    mls.LogDebug("8. component: ExtensionLadderHitWall2");
-                    mls.LogDebug("9. component: ExtensionLadderHitWall2 (for 2nd audio clip)");
+                    //mls.LogDebug("8. component: ExtensionLadderHitWall2");
+                    //mls.LogDebug("9. component: ExtensionLadderHitWall2 (for 2nd audio clip)");
                 }
                 if (audioClip.name.Equals("ExtensionLadderExtend"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderExtendSFX = audioClip;
-                    mls.LogDebug("10. component: ExtensionLadderExtend");
+                    //mls.LogDebug("10. component: ExtensionLadderExtend");
                 }
                 if (audioClip.name.Equals("ExtensionLadderShrink"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderShrinkSFX = audioClip;
-                    mls.LogDebug("11. component: ExtensionLadderShrink");
+                    //mls.LogDebug("11. component: ExtensionLadderShrink");
                 }
                 if (audioClip.name.Equals("ExtensionLadderAlarm"))
                 {
                     propertyCounter++;
                     ladderItemScript.blinkWarningSFX = audioClip;
-                    mls.LogDebug("12. component: ExtensionLadderAlarm");
+                    //mls.LogDebug("12. component: ExtensionLadderAlarm");
                 }
                 if (audioClip.name.Equals("ExtensionLadderLidOpen"))
                 {
                     propertyCounter++;
                     ladderItemScript.lidOpenSFX = audioClip;
-                    mls.LogDebug("13. component: ExtensionLadderLidOpen");
+                    //mls.LogDebug("13. component: ExtensionLadderLidOpen");
                 }
             }
             foreach (AudioSource audioSource in audioSources)
@@ -404,7 +386,7 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.ladderAudio = audioSource;
-                    mls.LogDebug("14. component: LadderAudio");
+                    //mls.LogDebug("14. component: LadderAudio");
                     break;
                 }
             }
@@ -414,7 +396,7 @@ namespace GiantExtensionLaddersV2
                 {
                     ladderItemScript.ladderScript = interactTrigger;
                     propertyCounter++;
-                    mls.LogDebug("15. component: ExtLadderTrigger (interactTrigger)");
+                    //mls.LogDebug("15. component: ExtLadderTrigger (interactTrigger)");
                     break;
                 }
             }
@@ -424,19 +406,19 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.interactCollider = boxCollider;
-                    mls.LogDebug("16. component: ExtLadderTrigger (boxCollider)");
+                    //mls.LogDebug("16. component: ExtLadderTrigger (boxCollider)");
                 }
                 if (boxCollider.name.Equals("LadderBridgeCollider"))
                 {
                     propertyCounter++;
                     ladderItemScript.bridgeCollider = boxCollider;
-                    mls.LogDebug("17. component: LadderBridgeCollider");
+                    //mls.LogDebug("17. component: LadderBridgeCollider");
                 }
                 if (boxCollider.name.Equals("KillTrigger"))
                 {
                     propertyCounter++;
                     ladderItemScript.killTrigger = boxCollider;
-                    mls.LogDebug("18. component: KillTrigger");
+                    //mls.LogDebug("18. component: KillTrigger");
                 }
             }
 
@@ -447,6 +429,7 @@ namespace GiantExtensionLaddersV2
             else
             {
                 mls.LogError($"Some Components of {ladderItemScript.name} are missing!");
+                isBuildSuccess = false;
             }
         }
     }
