@@ -17,7 +17,7 @@ namespace GiantExtensionLaddersV2
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency("evaisa.lethallib", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("io.github.CSync", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("io.github.CSync", BepInDependency.DependencyFlags.HardDependency)]
     public class GiantExtensionLaddersV2 : BaseUnityPlugin
     {
         //------- configs
