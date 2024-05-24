@@ -262,17 +262,17 @@ namespace GiantExtensionLaddersV2
 
             TerminalNode bigLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             bigLadderNode.clearPreviousText = true;
-            bigLadderNode.displayText = "This ladder seems a bit higher than the normal one..\n\n";
+            bigLadderNode.displayText = "This ladder is 17m high, thats about 1,75x height of the standard ladder.\n\n";
             Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, MySyncedConfigs.Instance.BIG_LADDER_PRICE);
 
             TerminalNode hugeLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             hugeLadderNode.clearPreviousText = true;
-            hugeLadderNode.displayText = "This ladder seems EVEN higher than the big one..\n\n";
+            hugeLadderNode.displayText = "This ladder is 34m high, thats about 3,5x height of the standard ladder.\n\n";
             Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, MySyncedConfigs.Instance.HUGE_LADDER_PRICE);
 
             TerminalNode ultimateLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             ultimateLadderNode.clearPreviousText = true;
-            ultimateLadderNode.displayText = "Not the tiny, not the big, not the huge, with 68m in height THIS IS THE ULTIMATE EXTENSION LADDER!\n\n";
+            ultimateLadderNode.displayText = "This ladder is 68m high, thats about 7x height of the standard ladder.\n\n";
             Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE);
 
             Harmony.PatchAll();
