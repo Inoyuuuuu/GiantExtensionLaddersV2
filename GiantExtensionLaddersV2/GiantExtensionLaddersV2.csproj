@@ -5,7 +5,7 @@
         <AssemblyName>inoyu.GiantExtensionLadders</AssemblyName>
         <Product>GiantExtensionLaddersV2</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>2.3.0</Version>
+        <Version>2.3.1</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->

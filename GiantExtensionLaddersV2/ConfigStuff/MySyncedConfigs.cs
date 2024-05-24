@@ -13,7 +13,7 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
 {
 
     private const int MIN_LADDER_PRICE = 1;
-    private const int MAX_LADDER_PRICE = 999;
+    private const int MAX_LADDER_PRICE = 99999;
     private const float MIN_EXT_TIME = 3f;
     private const float MAX_EXT_TIME = 999f;
 
