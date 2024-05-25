@@ -88,7 +88,8 @@ namespace GiantExtensionLaddersV2.Behaviours
                 if (isInShipRoom)
                 {
                     isClimbable = false;
-                } else
+                } 
+                else
                 {
                     isClimbable = true;
                 }
