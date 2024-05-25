@@ -77,6 +77,7 @@ namespace GiantExtensionLaddersV2.Behaviours
 
         public float stoppedAtAngle = 90f;
         private const float RAYCAST_DISTANCE_CORRECTION = 4f;
+        private bool isOnAnotherLadder = false;
 
         public override void Update()
         {
@@ -88,7 +89,7 @@ namespace GiantExtensionLaddersV2.Behaviours
                 if (isInShipRoom)
                 {
                     isClimbable = false;
-                } 
+                }
                 else
                 {
                     isClimbable = true;
@@ -97,6 +98,22 @@ namespace GiantExtensionLaddersV2.Behaviours
 
             if (playerHeldBy == null && !isHeld && !isHeldByEnemy && reachedFloorTarget && ladderActivated)
             {
+
+                if (Physics.Raycast(base.transform.position, Vector3.down, out var hitInfo, 80f, 268437760, QueryTriggerInteraction.Ignore))
+                {
+                    if (hitInfo.collider.GetComponentInParent<LadderItemScript>() != null)
+                    {
+                        isOnAnotherLadder = true;
+                    }
+                    else
+                    {
+                        if (isOnAnotherLadder)
+                        {
+                            FallToGround();
+                        }
+                        isOnAnotherLadder = false;
+                    }
+                }
 
                 if (!ladderAnimationBegun)
                 {
