@@ -37,10 +37,10 @@ namespace GiantExtensionLaddersV2
 
         private const float HEIGHT_DIVIDE_CONST = 2.43f;
 
-        internal LadderObject tinyLadder = new LadderObject(10.3f, 75f, 2, 2, 10.3f / HEIGHT_DIVIDE_CONST, 0.15f, false, GiantLadderType.TINY);
-        internal LadderObject bigLadder = new LadderObject(17f, 60f, 3, 7, 7f, 0.15f, true, GiantLadderType.BIG);
-        internal LadderObject hugeLadder = new LadderObject(34.4f, 60f, 4, 8, 14.15f, 0.2f, true, GiantLadderType.HUGE);
-        internal LadderObject ultimateLadder = new LadderObject(68f, 60f, 5, 9, 27.98f, 0.25f, true, GiantLadderType.ULTIMATE);
+        internal LadderObject tinyLadder = new LadderObject(10.3f, 75f, 0.15f, false, GiantLadderType.TINY);
+        internal LadderObject bigLadder = new LadderObject(17f, 60f, 0.15f, true, GiantLadderType.BIG);
+        internal LadderObject hugeLadder = new LadderObject(34.4f, 60f, 0.2f, true, GiantLadderType.HUGE);
+        internal LadderObject ultimateLadder = new LadderObject(68f, 60f, 0.25f, true, GiantLadderType.ULTIMATE);
 
         internal static Item tinyLadderItem;
         internal static Item bigLadderItem;
@@ -117,9 +117,6 @@ namespace GiantExtensionLaddersV2
 
             tinyLadderScript.maxExtension = tinyLadder.LADDER_MAX_EXTENSION;
             tinyLadderScript.minInteractableRotation = tinyLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
-            tinyLadderScript.linecastChecksMultiplier = tinyLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
-            tinyLadderScript.linecastMinCheckHeight = tinyLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
-            tinyLadderScript.ladderHeightMultiplier = tinyLadder.LADDER_HEIGHT_MULTIPLIER;
             tinyLadderScript.ladderRotateSpeedMultiplier = tinyLadder.LADDER_ROTATE_SPEED;
             tinyLadderScript.isClimbable = true;
             tinyLadderScript.isClimbableInShip = true;
@@ -156,9 +153,6 @@ namespace GiantExtensionLaddersV2
 
             bigLadderScript.maxExtension = bigLadder.LADDER_MAX_EXTENSION;
             bigLadderScript.minInteractableRotation = bigLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
-            bigLadderScript.linecastChecksMultiplier = bigLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
-            bigLadderScript.linecastMinCheckHeight = bigLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
-            bigLadderScript.ladderHeightMultiplier = bigLadder.LADDER_HEIGHT_MULTIPLIER;
             bigLadderScript.ladderRotateSpeedMultiplier = bigLadder.LADDER_ROTATE_SPEED;
             bigLadderScript.isClimbable = bigLadder.LADDER_IS_CLIMBABLE;
             bigLadderScript.giantLadderType = bigLadder.ladderType;
@@ -192,9 +186,6 @@ namespace GiantExtensionLaddersV2
 
             hugeLadderScript.maxExtension = hugeLadder.LADDER_MAX_EXTENSION;
             hugeLadderScript.minInteractableRotation = hugeLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
-            hugeLadderScript.linecastChecksMultiplier = hugeLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
-            hugeLadderScript.linecastMinCheckHeight = hugeLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
-            hugeLadderScript.ladderHeightMultiplier = hugeLadder.LADDER_HEIGHT_MULTIPLIER;
             hugeLadderScript.ladderRotateSpeedMultiplier = hugeLadder.LADDER_ROTATE_SPEED;
             hugeLadderScript.isClimbable = hugeLadder.LADDER_IS_CLIMBABLE;
             hugeLadderScript.giantLadderType = hugeLadder.ladderType;
@@ -228,9 +219,6 @@ namespace GiantExtensionLaddersV2
 
             ultimateLadderScript.maxExtension = ultimateLadder.LADDER_MAX_EXTENSION;
             ultimateLadderScript.minInteractableRotation = ultimateLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
-            ultimateLadderScript.linecastChecksMultiplier = ultimateLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
-            ultimateLadderScript.linecastMinCheckHeight = ultimateLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
-            ultimateLadderScript.ladderHeightMultiplier = ultimateLadder.LADDER_HEIGHT_MULTIPLIER;
             ultimateLadderScript.ladderRotateSpeedMultiplier = ultimateLadder.LADDER_ROTATE_SPEED;
             ultimateLadderScript.isClimbable = ultimateLadder.LADDER_IS_CLIMBABLE;
             ultimateLadderScript.giantLadderType = ultimateLadder.ladderType;

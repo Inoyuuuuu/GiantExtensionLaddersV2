@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace GiantExtensionLaddersV2.Behaviours
@@ -67,17 +68,20 @@ namespace GiantExtensionLaddersV2.Behaviours
         public float ladderExtensionTime;
         public float maxExtension;
         public float minInteractableRotation;
-        public int linecastChecksMultiplier;
-        public int linecastMinCheckHeight;
-        public float ladderHeightMultiplier; //this is for line 272, where 2.43 * x = ladder height
         public float ladderRotateSpeedMultiplier;
         public bool isClimbable = true;
         public bool isClimbableInShip = false;
         public Transform topCollisionNode;
 
-        public float stoppedAtAngle = 90f;
         private const float RAYCAST_DISTANCE_CORRECTION = 4f;
         private bool isOnAnotherLadder = false;
+
+        //rotation collision detection
+        private const int checkpointsPerTenMeters = 5;
+        private const int minAmountOfChecksPerCheckpoints = 50;
+        private const float amountOfChecksMulitplier = 1.2f;
+        private const float minDegrees = 9f;
+        private const int checkUntilCheckpointNumber = 2;
 
         public override void Update()
         {
@@ -339,35 +343,55 @@ namespace GiantExtensionLaddersV2.Behaviours
             return maxExtension;
         }
 
-        //------- Gets the intersection point between objects and ladder
         private float GetLadderRotationDegrees(float topOfLadder)
         {
-            float num = 90f;
-            for (float num2 = ladderHeightMultiplier * linecastChecksMultiplier; num2 >= linecastMinCheckHeight; num2--)
+            int amountOfLadderCheckpoints = (int) Math.Ceiling((maxExtension / 10) * checkpointsPerTenMeters);
+            float ladderSectionsLength = maxExtension / amountOfLadderCheckpoints;
+
+            int amountOfChecksPerCheckpoint = minAmountOfChecksPerCheckpoints;
+            float rotationAmountBetweenChecks = 90f / amountOfChecksPerCheckpoint;
+
+            float currentLowestDegree = 90f; //lowest degree where collision occured
+
+            //big for-loop is for checks on each checkpoint, starting from top to bottom
+            for (int currentCheckPointNumber = amountOfLadderCheckpoints; currentCheckPointNumber > checkUntilCheckpointNumber; currentCheckPointNumber--)
             {
-                float y = (2.43f / linecastChecksMultiplier) * (float)num2;
-                moveableNode.transform.localPosition = new Vector3(0f, y, 0f);
+                amountOfChecksPerCheckpoint = minAmountOfChecksPerCheckpoints;
+                amountOfChecksPerCheckpoint += (int) (amountOfChecksMulitplier * currentCheckPointNumber);
+                rotationAmountBetweenChecks = 90f / amountOfChecksPerCheckpoint;
+
+                //sets current checkpoint position and resets the rotation of base node.
+                //MovableNode is a position along the ladder frame, base node is a parent of MovableNode located at the ladderbox
+                float yPositionOnTheLadder = ladderSectionsLength * (float)currentCheckPointNumber;
+                moveableNode.transform.localPosition = new Vector3(0f, yPositionOnTheLadder, 0f);
                 baseNode.localEulerAngles = Vector3.zero;
-                for (int i = 1; i < 40; i++)
+
+                //for-loop: all checks for collision on a single checkpoint
+                for (int i = 2; i < amountOfChecksPerCheckpoint; i++)
                 {
-                    Vector3 position = moveableNode.transform.position;
-                    baseNode.localEulerAngles = new Vector3((float)(-i / 2) * 4.5f, 0f, 0f);
-                    if (Physics.Linecast(position, moveableNode.transform.position, layerMask, QueryTriggerInteraction.Ignore))
+                    //position before and after rotating one step
+                    Vector3 checkpointPosition = moveableNode.transform.position;
+                    baseNode.localEulerAngles = new Vector3((float)(-i) * rotationAmountBetweenChecks, 0f, 0f);
+                    Vector3 checkpointPositionAfterOneRotationStep = moveableNode.transform.position;
+
+                    //if collision between those points is detected, store previous rotation amount and go to next checkpoint
+                    if (Physics.Linecast(checkpointPosition, checkpointPositionAfterOneRotationStep, layerMask, QueryTriggerInteraction.Ignore))
                     {
-                        float num3 = (float)((i / 2) - 1) * 4.5f;
-                        if (num3 < num)
+                        float previousRotationAmount = (float)(i - 2) * rotationAmountBetweenChecks;
+                        if (previousRotationAmount < currentLowestDegree)
                         {
-                            num = num3;
+                            currentLowestDegree = previousRotationAmount;
                         }
                         break;
                     }
                 }
-                if (num <= 8f)
+
+                if (currentLowestDegree < minDegrees)
                 {
                     break;
                 }
             }
-            return 0f - num;
+            return -currentLowestDegree;
         }
 
         public override void DiscardItem()
