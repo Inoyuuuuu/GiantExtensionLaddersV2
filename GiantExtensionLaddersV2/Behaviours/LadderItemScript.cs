@@ -75,13 +75,20 @@ namespace GiantExtensionLaddersV2.Behaviours
 
         private const float RAYCAST_DISTANCE_CORRECTION = 4f;
         private bool isOnAnotherLadder = false;
+        private bool isLeaningOnAnotherLadder = false;
 
         //rotation collision detection
+        private float ladderExtendAmountNormalized = 0f;
+
         private const int checkpointsPerTenMeters = 5;
         private const int minAmountOfChecksPerCheckpoints = 50;
         private const float amountOfChecksMulitplier = 1.2f;
         private const float minDegrees = 9f;
         private const int checkUntilCheckpointNumber = 2;
+
+        private Vector3 linecastStart = Vector3.zero;
+        private Vector3 linecastEnd = Vector3.zero;
+
 
         public override void Update()
         {
@@ -126,6 +133,20 @@ namespace GiantExtensionLaddersV2.Behaviours
                 }
                 else if (ladderAnimationBegun)
                 {
+
+                    if (Physics.Linecast(linecastStart, linecastEnd, out var linecastHitInfo, layerMask, QueryTriggerInteraction.Ignore))
+                    {
+                        if (hitInfo.collider.GetComponentInParent<LadderItemScript>() != null)
+                        {
+                            isLeaningOnAnotherLadder = true;
+                        } 
+                        else
+                        {
+                            isLeaningOnAnotherLadder = false;
+                            LadderRotateAnimation(ladderExtendAmountNormalized);
+                        }
+                    }
+
                     ladderTimer += Time.deltaTime;
                     if (!ladderBlinkWarning && ladderTimer > ladderAlarmTime)
                     {
@@ -252,10 +273,11 @@ namespace GiantExtensionLaddersV2.Behaviours
 
             ladderAnimator.SetBool("extend", value: true);
             float ladderMaxExtension = GetLadderExtensionDistance();
-            float ladderExtendAmountNormalized = ladderMaxExtension / maxExtension;
-            float ladderRotateAmountNormalized = Mathf.Clamp(GetLadderRotationDegrees(ladderExtendAmountNormalized) / -90f, 0f, 0.99f);
+            ladderExtendAmountNormalized = ladderMaxExtension / maxExtension;
+
             ladderAudio.clip = ladderExtendSFX;
             ladderAudio.Play();
+
             float currentNormalizedTime2 = 0f;
             float speedMultiplier2 = 0.1f;
 
@@ -296,8 +318,16 @@ namespace GiantExtensionLaddersV2.Behaviours
             ladderAudio.clip = ladderFallSFX;
             ladderAudio.Play();
             ladderAudio.volume = 0f;
-            speedMultiplier2 = ladderRotateSpeedMultiplier;
-            currentNormalizedTime2 = 0f;
+
+            LadderRotateAnimation(ladderExtendAmountNormalized);
+
+        }
+
+        private IEnumerator LadderRotateAnimation(float ladderExtendAmountNormalized)
+        {
+            float ladderRotateAmountNormalized = Mathf.Clamp(GetLadderRotationDegrees(ladderExtendAmountNormalized) / -90f, 0f, 0.99f);
+            float speedMultiplier2 = ladderRotateSpeedMultiplier;
+            float currentNormalizedTime2 = 0f;
 
             while (currentNormalizedTime2 < ladderRotateAmountNormalized)
             {
@@ -330,6 +360,7 @@ namespace GiantExtensionLaddersV2.Behaviours
             }
             killTrigger.enabled = false;
         }
+
 
         private float GetLadderExtensionDistance()
         {
@@ -377,10 +408,14 @@ namespace GiantExtensionLaddersV2.Behaviours
                     //if collision between those points is detected, store previous rotation amount and go to next checkpoint
                     if (Physics.Linecast(checkpointPosition, checkpointPositionAfterOneRotationStep, layerMask, QueryTriggerInteraction.Ignore))
                     {
+
                         float previousRotationAmount = (float)(i - 2) * rotationAmountBetweenChecks;
                         if (previousRotationAmount < currentLowestDegree)
                         {
                             currentLowestDegree = previousRotationAmount;
+
+                            linecastStart = checkpointPosition;
+                            linecastEnd = checkpointPositionAfterOneRotationStep;
                         }
                         break;
                     }
