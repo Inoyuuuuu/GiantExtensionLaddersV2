@@ -87,11 +87,7 @@ namespace GiantExtensionLaddersV2.Patches
                 GiantExtensionLaddersV2.mls.LogInfo("Config sync success! All settings should now be synced with the host's settings.");
                 GiantExtensionLaddersV2.mls.LogInfo("Updating sales...");
 
-                Terminal terminal = UnityEngine.Object.FindObjectOfType<Terminal>();
-                if (terminal != null)
-                {
-                    terminal.SetItemSales();
-                }
+                UnityEngine.Object.FindObjectOfType<Terminal>().SetItemSales();
             }
             else if (isFirstPatch)
             {
@@ -106,7 +102,6 @@ namespace GiantExtensionLaddersV2.Patches
 
         private static void syncLadderPrices()
         {
-
             if (MySyncedConfigs.Instance.IS_TINY_LADDER_ENABLED)
             {
                 Items.UpdateShopItemPrice(GiantExtensionLaddersV2.tinyLadderItem, MySyncedConfigs.Instance.TINY_LADDER_PRICE.Value);

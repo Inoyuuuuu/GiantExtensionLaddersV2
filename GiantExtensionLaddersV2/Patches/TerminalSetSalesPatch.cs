@@ -2,6 +2,7 @@
 using LethalLib.Modules;
 using System.Collections.Generic;
 using UnityEngine;
+using static LethalLib.Modules.Items;
 
 namespace GiantExtensionLaddersV2.Patches
 {
@@ -32,18 +33,20 @@ namespace GiantExtensionLaddersV2.Patches
                 }
             }
 
-            for (int i = 0; i < removedItemsIndexes.Count; i++)
-            {
-                Item removedItem = __instance.buyableItemsList[removedItemsIndexes[i]];
-                __instance.buyableItemsList[removedItemsIndexes[i]] = __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1];
-                __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1] = removedItem;
-            }
+            //for (int i = 0; i < removedItemsIndexes.Count; i++)
+            //{
+            //    Item removedItem = __instance.buyableItemsList[removedItemsIndexes[i]];
+            //    __instance.buyableItemsList[removedItemsIndexes[i]] = __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1];
+            //    __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1] = removedItem;
+            //}
 
             System.Random random = new System.Random(StartOfRound.Instance.randomMapSeed + 90);
-            int num = Mathf.Clamp(random.Next(-10, 5), 0, 5);
-            num = 15;
 
-            if (num <= 0)
+            int randomNumber = random.Next(-5, 5);
+            int numberOfItemsInSale = Mathf.Clamp(randomNumber, 0, 5);
+            numberOfItemsInSale = 14;
+
+            if (numberOfItemsInSale <= 0)
             {
                 return;
             }
@@ -55,7 +58,7 @@ namespace GiantExtensionLaddersV2.Patches
                 __instance.itemSalesPercentages[i] = 100;
             }
 
-            for (int j = 0; j < num; j++)
+            for (int j = 0; j < numberOfItemsInSale; j++)
             {
                 if (list.Count <= 0)
                 {
@@ -74,6 +77,34 @@ namespace GiantExtensionLaddersV2.Patches
                     __instance.itemSalesPercentages[indexOfItemList] = salePercentage;
                 }
             }
+
+            for (int i = 0; i < __instance.buyableItemsList.Length; i++)
+            {
+                ShopItem currentShopItem = findShopItem(__instance.buyableItemsList[i]);
+
+                GiantExtensionLaddersV2.mls.LogInfo("index: " + i + 
+                    " item: " + __instance.buyableItemsList[i].itemName + 
+                    " item price: " + __instance.buyableItemsList[i].creditsWorth + 
+                    " sale percentage: " + __instance.itemSalesPercentages[i]);
+
+                if (currentShopItem != null)
+                {
+                    GiantExtensionLaddersV2.mls.LogInfo("shopItem: " + currentShopItem.item.itemName);
+                }
+            }
+        }
+
+        private static ShopItem findShopItem(Item item)
+        {
+
+            foreach (var shopItem in shopItems)
+            {
+                if (item.itemName == shopItem.item.itemName)
+                {
+                    return shopItem;
+                }
+            }
+            return null;
         }
     }
 }
