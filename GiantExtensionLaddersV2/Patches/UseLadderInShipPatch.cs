@@ -18,25 +18,25 @@ namespace GiantExtensionLaddersV2.Patches
         public static void PlayerIsInShipPatch(InteractTrigger __instance, ref Transform playerTransform)
         {
             LadderItemScript ladderItemScript = __instance.GetComponentInParent<LadderItemScript>();
-            PlayerControllerB component = playerTransform.GetComponent<PlayerControllerB>();
-            
+            PlayerControllerB player = playerTransform.GetComponent<PlayerControllerB>();
+
             //tiny ladder is climbable outside ship if player is small
-            if (ladderItemScript != null && component != null && !component.isInHangarShipRoom)
+            if (ladderItemScript != null && player != null && !player.isInHangarShipRoom)
             {
-                if (ladderItemScript.giantLadderType == GiantLadderType.TINY && component.thisPlayerBody.localScale.y > minPlayerSizeForTinyLadder)
+                if (ladderItemScript.giantLadderType == GiantLadderType.TINY && player.thisPlayerBody.localScale.y > minPlayerSizeForTinyLadder)
                 {
                     changedPlayerLocation = true;
-                    component.isInHangarShipRoom = true;
-                    playerWithChangedLocation = component;
+                    player.isInHangarShipRoom = true;
+                    playerWithChangedLocation = player;
                 }
             }       //tiny ladder is climbable in ship if player is small
-            else if (ladderItemScript != null && component != null && component.isInHangarShipRoom)
+            else if (ladderItemScript != null && player != null && player.isInHangarShipRoom)
             {
-                if (ladderItemScript.giantLadderType == GiantLadderType.TINY && component.thisPlayerBody.localScale.y <= minPlayerSizeForTinyLadder)
+                if (ladderItemScript.giantLadderType == GiantLadderType.TINY && player.thisPlayerBody.localScale.y <= minPlayerSizeForTinyLadder)
                 {
                     changedPlayerLocation = true;
-                    component.isInHangarShipRoom = false;
-                    playerWithChangedLocation = component;
+                    player.isInHangarShipRoom = false;
+                    playerWithChangedLocation = player;
                 }
             }
         }
