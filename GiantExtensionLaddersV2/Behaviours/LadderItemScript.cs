@@ -136,7 +136,6 @@ namespace GiantExtensionLaddersV2.Behaviours
                     {
                         if (!Physics.Linecast(linecastStart, linecastEnd, out var ladderCheckLinecast, layerMask, QueryTriggerInteraction.Ignore))
                         {
-                            GiantExtensionLaddersV2.mls.LogInfo("started ladder anim with: " + this.giantLadderType.ToString());
                             StartLadderAnimation(true, rotateAmount);
                             hasFallenOnALadder = false;
                         }
@@ -250,28 +249,28 @@ namespace GiantExtensionLaddersV2.Behaviours
 
         private IEnumerator LadderAnimation(bool isSkipExtension, float externalRotNormalTime)
         {
-            if (isSkipExtension)
-            {
-                GiantExtensionLaddersV2.mls.LogInfo("started anim with ext skip");
-                GiantExtensionLaddersV2.mls.LogInfo("externalRotNormalTime was: " + externalRotNormalTime);
-            }
-
             float ladderMaxExtension = GetLadderExtensionDistance();
             float ladderExtendAmountNormalized = ladderMaxExtension / maxExtension;
             float ladderRotateAmountNormalized = Mathf.Clamp(GetLadderRotationDegrees(90f) / -90f, 0f, 0.99f);
 
             if (externalRotNormalTime > 0)
             {
-                float ladderDegreeCheckStart = 90f * externalRotNormalTime;
-                float ladderRotDegrees = GetLadderRotationDegrees(ladderDegreeCheckStart);
-                GiantExtensionLaddersV2.mls.LogInfo("0. ladderRotDegrees: " + ladderRotDegrees);
-                ladderRotDegrees /= -ladderDegreeCheckStart;                           
-                GiantExtensionLaddersV2.mls.LogInfo("0.5 ladderRotDegrees div: " + ladderRotDegrees);
+                //float ladderDegreeCheckStart = 90f * externalRotNormalTime;
+                //float ladderRotDegrees = GetLadderRotationDegrees(ladderDegreeCheckStart);
 
-                ladderRotateAmountNormalized = Mathf.Clamp(ladderRotDegrees, 0f, 0.99f);
+                //GiantExtensionLaddersV2.mls.LogInfo("started anim with ext skip");
+                //GiantExtensionLaddersV2.mls.LogInfo("externalRotNormalTime was: " + externalRotNormalTime);
+                //GiantExtensionLaddersV2.mls.LogInfo("0. ladderRotDegrees: " + ladderRotDegrees);
+
+                //ladderRotDegrees /= -ladderDegreeCheckStart;   
+                //GiantExtensionLaddersV2.mls.LogInfo("0.5 ladderRotDegrees div: " + ladderRotDegrees);
+
+                //ladderRotateAmountNormalized = Mathf.Clamp(ladderRotDegrees, 0f, 0.99f);
+                //GiantExtensionLaddersV2.mls.LogInfo("1. ladderRotateAmountNormalized: " + ladderRotateAmountNormalized);
+
+                ladderRotateAmountNormalized = 0.99f;
             }
 
-            GiantExtensionLaddersV2.mls.LogInfo("1. ladderRotateAmountNormalized: " + ladderRotateAmountNormalized);
 
 
             float currentNormalizedTime = 0f;
@@ -306,8 +305,6 @@ namespace GiantExtensionLaddersV2.Behaviours
 
                 while (currentNormalizedTime < 2 && topCollisionNode.position.y < ladderMaxExtension)
                 {
-                    //GiantExtensionLaddersV2.mls.LogDebug("currentNormalizedTime2: " + currentNormalizedTime2 + " topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension pos y: " + ladderMaxExtension);
-
                     extensionSpeedMultiplier2 += Time.deltaTime * 2f;
                     currentNormalizedTime = Mathf.Min(currentNormalizedTime + Time.deltaTime * extensionSpeedMultiplier2, 2);
                     ladderAnimator.SetFloat("extensionAmount", currentNormalizedTime);
@@ -349,28 +346,22 @@ namespace GiantExtensionLaddersV2.Behaviours
                 currentNormalizedTime = externalRotNormalTime;
             }
 
-            GiantExtensionLaddersV2.mls.LogInfo("3. currentNormalizedTime: " + currentNormalizedTime + " ladderRotateAmountNormalized: " + ladderRotateAmountNormalized);
-
             while (currentNormalizedTime < ladderRotateAmountNormalized)
             {
 
                 extensionSpeedMultiplier2 += Time.deltaTime * 2f;
                 currentNormalizedTime = Mathf.Min(currentNormalizedTime + Time.deltaTime * extensionSpeedMultiplier2, ladderRotateAmountNormalized);
-                if (ladderExtendAmountNormalized > 0.6f && currentNormalizedTime > 0.5f)
+                if (ladderExtendAmountNormalized > 0.6f)
                 {
                     killTrigger.enabled = true;
                 }
                 ladderAudio.volume = Mathf.Min(ladderAudio.volume + Time.deltaTime * 1.75f, 1f);
                 ladderRotateAnimator.SetFloat("rotationAmount", currentNormalizedTime);
 
-                GiantExtensionLaddersV2.mls.LogInfo("4. loop: " + currentNormalizedTime);
-
                 yield return null;
             }
 
             rotateAmount = ladderRotateAmountNormalized;
-
-            GiantExtensionLaddersV2.mls.LogInfo("5. rotateAmount: " + rotateAmount);
 
             ladderAudio.volume = 1f;
             ladderAudio.Stop();
@@ -408,7 +399,7 @@ namespace GiantExtensionLaddersV2.Behaviours
             int amountOfLadderCheckpoints = (int) Math.Ceiling((maxExtension / 10) * checkpointsPerTenMeters);
             float ladderSectionsLength = maxExtension / amountOfLadderCheckpoints;
             int amountOfChecksPerCheckpoint;
-            float currentLowestDegree = startAt;                                       //lowest degree where collision occured
+            float currentLowestDegree = 90f;                                       //lowest degree where collision occured
             float rotationAmountBetweenChecks;
 
 
@@ -417,7 +408,7 @@ namespace GiantExtensionLaddersV2.Behaviours
             {
                 amountOfChecksPerCheckpoint = minAmountOfChecksPerCheckpoints;
                 amountOfChecksPerCheckpoint += (int) (amountOfChecksMulitplier * currentCheckPointNumber);
-                rotationAmountBetweenChecks = startAt / amountOfChecksPerCheckpoint;
+                rotationAmountBetweenChecks = 90f / amountOfChecksPerCheckpoint;
 
                 //sets current checkpoint position and resets the rotation of base node.
                 //MovableNode is a position along the ladder frame, base node is a parent of MovableNode located at the ladderbox
@@ -436,8 +427,8 @@ namespace GiantExtensionLaddersV2.Behaviours
                     //if collision between those points is detected, store previous rotation amount and go to next checkpoint
                     if (Physics.Linecast(checkpointPosition, checkpointPositionAfterOneRotationStep, out var hitInfo, layerMask, QueryTriggerInteraction.Ignore))
                     {
-                        float previousRotationAmount = (float)(i - 2) * rotationAmountBetweenChecks;
-                        if (previousRotationAmount < currentLowestDegree)
+                        float previousTotalRotation = (float)(i - 1.8f) * rotationAmountBetweenChecks;
+                        if (previousTotalRotation < currentLowestDegree)
                         {
 
                             LadderItemScript ladderItemScript = hitInfo.collider.GetComponentInParent<LadderItemScript>();
@@ -452,7 +443,7 @@ namespace GiantExtensionLaddersV2.Behaviours
                                 hasFallenOnALadder = false;
                             }
 
-                            currentLowestDegree = previousRotationAmount;
+                            currentLowestDegree = previousTotalRotation;
                         }
                         break;
                     }

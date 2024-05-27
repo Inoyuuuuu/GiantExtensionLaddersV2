@@ -88,7 +88,15 @@ namespace GiantExtensionLaddersV2.Patches
             if (isConfigSyncSuccess)
             {
                 GiantExtensionLaddersV2.mls.LogInfo("Config sync success! All settings should now be synced with the host's settings.");
+                GiantExtensionLaddersV2.mls.LogInfo("Updating sales...");
 
+                Terminal terminal = UnityEngine.Object.FindObjectOfType<Terminal>();
+                if (terminal != null)
+                {
+                    GiantExtensionLaddersV2.mls.LogInfo("found terminal!");
+
+                    terminal.SetItemSales();
+                }
             }
             else if (isFirstPatch)
             {
