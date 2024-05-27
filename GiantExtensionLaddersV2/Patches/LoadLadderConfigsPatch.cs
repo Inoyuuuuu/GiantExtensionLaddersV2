@@ -2,9 +2,6 @@ using GameNetcodeStuff;
 using GiantExtensionLaddersV2.ConfigStuff;
 using HarmonyLib;
 using LethalLib.Modules;
-using System;
-using System.Collections.Generic;
-using System.IO.IsolatedStorage;
 using UnityEngine;
 
 namespace GiantExtensionLaddersV2.Patches

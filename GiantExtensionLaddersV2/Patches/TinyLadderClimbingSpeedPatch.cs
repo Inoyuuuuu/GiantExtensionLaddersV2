@@ -1,8 +1,5 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GiantExtensionLaddersV2.Patches
 {

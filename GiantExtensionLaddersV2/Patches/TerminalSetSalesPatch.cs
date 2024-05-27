@@ -1,9 +1,6 @@
-﻿using GameNetcodeStuff;
-using HarmonyLib;
+﻿using HarmonyLib;
 using LethalLib.Modules;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace GiantExtensionLaddersV2.Patches

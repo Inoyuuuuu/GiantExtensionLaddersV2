@@ -1,12 +1,9 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using GameNetcodeStuff;
 using GiantExtensionLaddersV2.Behaviours;
 using GiantExtensionLaddersV2.ConfigStuff;
-using GiantExtensionLaddersV2.Patches;
 using HarmonyLib;
 using LethalLib.Modules;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
