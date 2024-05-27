@@ -75,20 +75,18 @@ namespace GiantExtensionLaddersV2.Behaviours
 
         private const float RAYCAST_DISTANCE_CORRECTION = 4f;
         private bool isOnAnotherLadder = false;
-        private bool isLeaningOnAnotherLadder = false;
-
-        //rotation collision detection
-        private float ladderExtendAmountNormalized = 0f;
-
-        private const int checkpointsPerTenMeters = 5;
-        private const int minAmountOfChecksPerCheckpoints = 50;
-        private const float amountOfChecksMulitplier = 1.2f;
-        private const float minDegrees = 9f;
-        private const int checkUntilCheckpointNumber = 2;
+        private bool hasFallenOnALadder = false;
+        private bool isLeaningAgainstALadder = false;
 
         private Vector3 linecastStart = Vector3.zero;
         private Vector3 linecastEnd = Vector3.zero;
 
+        //rotation collision detection
+        private const int checkpointsPerTenMeters = 10;
+        private const int minAmountOfChecksPerCheckpoints = 50;
+        private const float amountOfChecksMulitplier = 1.2f;
+        private const float minDegrees = 9f;
+        private const int startingCheckPointNumber = 2;
 
         public override void Update()
         {
@@ -129,21 +127,18 @@ namespace GiantExtensionLaddersV2.Behaviours
                 if (!ladderAnimationBegun)
                 {
                     ladderTimer = 0f;
-                    StartLadderAnimation();
+                    StartLadderAnimation(false, -1);
                 }
                 else if (ladderAnimationBegun)
                 {
 
-                    if (Physics.Linecast(linecastStart, linecastEnd, out var linecastHitInfo, layerMask, QueryTriggerInteraction.Ignore))
+                    if (hasFallenOnALadder)
                     {
-                        if (hitInfo.collider.GetComponentInParent<LadderItemScript>() != null)
+                        if (!Physics.Linecast(linecastStart, linecastEnd, out var ladderCheckLinecast, layerMask, QueryTriggerInteraction.Ignore))
                         {
-                            isLeaningOnAnotherLadder = true;
-                        } 
-                        else
-                        {
-                            isLeaningOnAnotherLadder = false;
-                            LadderRotateAnimation(ladderExtendAmountNormalized);
+                            GiantExtensionLaddersV2.mls.LogInfo("started ladder anim with: " + this.giantLadderType.ToString());
+                            StartLadderAnimation(true, rotateAmount);
+                            hasFallenOnALadder = false;
                         }
                     }
 
@@ -242,7 +237,7 @@ namespace GiantExtensionLaddersV2.Behaviours
             }
         }
 
-        private void StartLadderAnimation()
+        private void StartLadderAnimation(bool isSkipExtension, float externalRotNormalTime)
         {
             ladderAnimationBegun = true;
             ladderScript.interactable = false;
@@ -250,99 +245,133 @@ namespace GiantExtensionLaddersV2.Behaviours
             {
                 StopCoroutine(ladderAnimationCoroutine);
             }
-            ladderAnimationCoroutine = StartCoroutine(LadderAnimation());
+            ladderAnimationCoroutine = StartCoroutine(LadderAnimation(isSkipExtension, externalRotNormalTime));
         }
 
-        private IEnumerator LadderAnimation()
+        private IEnumerator LadderAnimation(bool isSkipExtension, float externalRotNormalTime)
         {
+            if (isSkipExtension)
+            {
+                GiantExtensionLaddersV2.mls.LogInfo("started anim with ext skip");
+                GiantExtensionLaddersV2.mls.LogInfo("externalRotNormalTime was: " + externalRotNormalTime);
+            }
+
+            float ladderMaxExtension = GetLadderExtensionDistance();
+            float ladderExtendAmountNormalized = ladderMaxExtension / maxExtension;
+            float ladderRotateAmountNormalized = Mathf.Clamp(GetLadderRotationDegrees(90f) / -90f, 0f, 0.99f);
+
+            if (externalRotNormalTime > 0)
+            {
+                float ladderDegreeCheckStart = 90f * externalRotNormalTime;
+                float ladderRotDegrees = GetLadderRotationDegrees(ladderDegreeCheckStart);
+                GiantExtensionLaddersV2.mls.LogInfo("0. ladderRotDegrees: " + ladderRotDegrees);
+                ladderRotDegrees /= -ladderDegreeCheckStart;                           
+                GiantExtensionLaddersV2.mls.LogInfo("0.5 ladderRotDegrees div: " + ladderRotDegrees);
+
+                ladderRotateAmountNormalized = Mathf.Clamp(ladderRotDegrees, 0f, 0.99f);
+            }
+
+            GiantExtensionLaddersV2.mls.LogInfo("1. ladderRotateAmountNormalized: " + ladderRotateAmountNormalized);
+
+
+            float currentNormalizedTime = 0f;
+            float extensionSpeedMultiplier2 = 0.1f;
+
             ladderAudio.volume = 1f;
             ladderScript.interactable = false;
             interactCollider.enabled = false;
             bridgeCollider.enabled = false;
             killTrigger.enabled = false;
 
-            ladderAnimator.SetBool("openLid", value: false);
-            ladderAnimator.SetBool("extend", value: false);
-            yield return null;
-
-            ladderAnimator.SetBool("openLid", value: true);
-            ladderAudio.transform.position = base.transform.position;
-            ladderAudio.PlayOneShot(lidOpenSFX, 1f);
-            RoundManager.Instance.PlayAudibleNoise(ladderAudio.transform.position, 18f, 0.8f, 0, isInShipRoom);
-            yield return new WaitForSeconds(1f);
-
-            ladderAnimator.SetBool("extend", value: true);
-            float ladderMaxExtension = GetLadderExtensionDistance();
-            ladderExtendAmountNormalized = ladderMaxExtension / maxExtension;
-
-            ladderAudio.clip = ladderExtendSFX;
-            ladderAudio.Play();
-
-            float currentNormalizedTime2 = 0f;
-            float speedMultiplier2 = 0.1f;
-
-            ladderMaxExtension += baseNode.transform.position.y + RAYCAST_DISTANCE_CORRECTION;
-
-            while (currentNormalizedTime2 < 2 && topCollisionNode.position.y < ladderMaxExtension)
+            if (!isSkipExtension)
             {
-                //GiantExtensionLaddersV2.mls.LogDebug("currentNormalizedTime2: " + currentNormalizedTime2 + " topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension pos y: " + ladderMaxExtension);
 
-                speedMultiplier2 += Time.deltaTime * 2f;
-                currentNormalizedTime2 = Mathf.Min(currentNormalizedTime2 + Time.deltaTime * speedMultiplier2, 2);
-                ladderAnimator.SetFloat("extensionAmount", currentNormalizedTime2);
+                ladderAnimator.SetBool("openLid", value: false);
+                ladderAnimator.SetBool("extend", value: false);
                 yield return null;
-            }
 
-            extendAmount = currentNormalizedTime2;
-            interactCollider.enabled = true;
-            bridgeCollider.enabled = false;
-            killTrigger.enabled = false;
-            ladderAudio.Stop();
+                ladderAnimator.SetBool("openLid", value: true);
+                ladderAudio.transform.position = base.transform.position;
+                ladderAudio.PlayOneShot(lidOpenSFX, 1f);
+                RoundManager.Instance.PlayAudibleNoise(ladderAudio.transform.position, 18f, 0.8f, 0, isInShipRoom);
+                yield return new WaitForSeconds(1f);
 
-            if (ladderExtendAmountNormalized == 1f)
-            {
-                ladderAudio.transform.position = baseNode.transform.position + baseNode.transform.up * maxExtension;
-                ladderAudio.PlayOneShot(fullExtend, 0.7f);
-                WalkieTalkie.TransmitOneShotAudio(ladderAudio, fullExtend, 0.7f);
-                RoundManager.Instance.PlayAudibleNoise(ladderAudio.transform.position, 8f, 0.5f, 0, isInShipRoom);
+                ladderAnimator.SetBool("extend", value: true);
+
+
+                ladderAudio.clip = ladderExtendSFX;
+                ladderAudio.Play();
+
+                ladderMaxExtension += baseNode.transform.position.y + RAYCAST_DISTANCE_CORRECTION;
+
+                while (currentNormalizedTime < 2 && topCollisionNode.position.y < ladderMaxExtension)
+                {
+                    //GiantExtensionLaddersV2.mls.LogDebug("currentNormalizedTime2: " + currentNormalizedTime2 + " topCollisionNode.position.y: " + topCollisionNode.position.y + " --- ladderMaxExtension pos y: " + ladderMaxExtension);
+
+                    extensionSpeedMultiplier2 += Time.deltaTime * 2f;
+                    currentNormalizedTime = Mathf.Min(currentNormalizedTime + Time.deltaTime * extensionSpeedMultiplier2, 2);
+                    ladderAnimator.SetFloat("extensionAmount", currentNormalizedTime);
+                    yield return null;
+                }
+                extendAmount = currentNormalizedTime;
+
+                interactCollider.enabled = true;
+                bridgeCollider.enabled = false;
+                killTrigger.enabled = false;
+                ladderAudio.Stop();
+
+                if (ladderExtendAmountNormalized == 1f)
+                {
+                    ladderAudio.transform.position = baseNode.transform.position + baseNode.transform.up * maxExtension;
+                    ladderAudio.PlayOneShot(fullExtend, 0.7f);
+                    WalkieTalkie.TransmitOneShotAudio(ladderAudio, fullExtend, 0.7f);
+                    RoundManager.Instance.PlayAudibleNoise(ladderAudio.transform.position, 8f, 0.5f, 0, isInShipRoom);
+                }
+                else
+                {
+                    ladderAudio.transform.position = baseNode.transform.position + baseNode.transform.up * (ladderExtendAmountNormalized * maxExtension);
+                    ladderAudio.PlayOneShot(hitRoof);
+                    WalkieTalkie.TransmitOneShotAudio(ladderAudio, hitRoof);
+                    RoundManager.Instance.PlayAudibleNoise(ladderAudio.transform.position, 17f, 0.8f, 0, isInShipRoom);
+                }
+                yield return new WaitForSeconds(0.4f);
             }
-            else
-            {
-                ladderAudio.transform.position = baseNode.transform.position + baseNode.transform.up * (ladderExtendAmountNormalized * maxExtension);
-                ladderAudio.PlayOneShot(hitRoof);
-                WalkieTalkie.TransmitOneShotAudio(ladderAudio, hitRoof);
-                RoundManager.Instance.PlayAudibleNoise(ladderAudio.transform.position, 17f, 0.8f, 0, isInShipRoom);
-            }
-            yield return new WaitForSeconds(0.4f);
 
             ladderAudio.clip = ladderFallSFX;
             ladderAudio.Play();
             ladderAudio.volume = 0f;
 
-            LadderRotateAnimation(ladderExtendAmountNormalized);
+            extensionSpeedMultiplier2 = ladderRotateSpeedMultiplier;
+            currentNormalizedTime = 0f;
 
-        }
-
-        private IEnumerator LadderRotateAnimation(float ladderExtendAmountNormalized)
-        {
-            float ladderRotateAmountNormalized = Mathf.Clamp(GetLadderRotationDegrees(ladderExtendAmountNormalized) / -90f, 0f, 0.99f);
-            float speedMultiplier2 = ladderRotateSpeedMultiplier;
-            float currentNormalizedTime2 = 0f;
-
-            while (currentNormalizedTime2 < ladderRotateAmountNormalized)
+            if (externalRotNormalTime > 0)
             {
-                speedMultiplier2 += Time.deltaTime * 2f;
-                currentNormalizedTime2 = Mathf.Min(currentNormalizedTime2 + Time.deltaTime * speedMultiplier2, ladderRotateAmountNormalized);
-                if (ladderExtendAmountNormalized > 0.6f && currentNormalizedTime2 > 0.5f)
+                currentNormalizedTime = externalRotNormalTime;
+            }
+
+            GiantExtensionLaddersV2.mls.LogInfo("3. currentNormalizedTime: " + currentNormalizedTime + " ladderRotateAmountNormalized: " + ladderRotateAmountNormalized);
+
+            while (currentNormalizedTime < ladderRotateAmountNormalized)
+            {
+
+                extensionSpeedMultiplier2 += Time.deltaTime * 2f;
+                currentNormalizedTime = Mathf.Min(currentNormalizedTime + Time.deltaTime * extensionSpeedMultiplier2, ladderRotateAmountNormalized);
+                if (ladderExtendAmountNormalized > 0.6f && currentNormalizedTime > 0.5f)
                 {
                     killTrigger.enabled = true;
                 }
                 ladderAudio.volume = Mathf.Min(ladderAudio.volume + Time.deltaTime * 1.75f, 1f);
-                ladderRotateAnimator.SetFloat("rotationAmount", currentNormalizedTime2);
+                ladderRotateAnimator.SetFloat("rotationAmount", currentNormalizedTime);
+
+                GiantExtensionLaddersV2.mls.LogInfo("4. loop: " + currentNormalizedTime);
+
                 yield return null;
             }
 
             rotateAmount = ladderRotateAmountNormalized;
+
+            GiantExtensionLaddersV2.mls.LogInfo("5. rotateAmount: " + rotateAmount);
+
             ladderAudio.volume = 1f;
             ladderAudio.Stop();
             ladderAudio.transform.position = moveableNode.transform.position;
@@ -359,8 +388,8 @@ namespace GiantExtensionLaddersV2.Behaviours
                 bridgeCollider.enabled = true;
             }
             killTrigger.enabled = false;
-        }
 
+        }
 
         private float GetLadderExtensionDistance()
         {
@@ -374,22 +403,21 @@ namespace GiantExtensionLaddersV2.Behaviours
             return maxExtension;
         }
 
-        private float GetLadderRotationDegrees(float topOfLadder)
+        private float GetLadderRotationDegrees(float startAt)
         {
             int amountOfLadderCheckpoints = (int) Math.Ceiling((maxExtension / 10) * checkpointsPerTenMeters);
             float ladderSectionsLength = maxExtension / amountOfLadderCheckpoints;
+            int amountOfChecksPerCheckpoint;
+            float currentLowestDegree = startAt;                                       //lowest degree where collision occured
+            float rotationAmountBetweenChecks;
 
-            int amountOfChecksPerCheckpoint = minAmountOfChecksPerCheckpoints;
-            float rotationAmountBetweenChecks = 90f / amountOfChecksPerCheckpoint;
 
-            float currentLowestDegree = 90f; //lowest degree where collision occured
-
-            //big for-loop is for checks on each checkpoint, starting from top to bottom
-            for (int currentCheckPointNumber = amountOfLadderCheckpoints; currentCheckPointNumber > checkUntilCheckpointNumber; currentCheckPointNumber--)
+            //big for-loop is for checks on each checkpoint, starting from bot to top
+            for (int currentCheckPointNumber = startingCheckPointNumber; currentCheckPointNumber < amountOfLadderCheckpoints; currentCheckPointNumber++)
             {
                 amountOfChecksPerCheckpoint = minAmountOfChecksPerCheckpoints;
                 amountOfChecksPerCheckpoint += (int) (amountOfChecksMulitplier * currentCheckPointNumber);
-                rotationAmountBetweenChecks = 90f / amountOfChecksPerCheckpoint;
+                rotationAmountBetweenChecks = startAt / amountOfChecksPerCheckpoint;
 
                 //sets current checkpoint position and resets the rotation of base node.
                 //MovableNode is a position along the ladder frame, base node is a parent of MovableNode located at the ladderbox
@@ -406,16 +434,25 @@ namespace GiantExtensionLaddersV2.Behaviours
                     Vector3 checkpointPositionAfterOneRotationStep = moveableNode.transform.position;
 
                     //if collision between those points is detected, store previous rotation amount and go to next checkpoint
-                    if (Physics.Linecast(checkpointPosition, checkpointPositionAfterOneRotationStep, layerMask, QueryTriggerInteraction.Ignore))
+                    if (Physics.Linecast(checkpointPosition, checkpointPositionAfterOneRotationStep, out var hitInfo, layerMask, QueryTriggerInteraction.Ignore))
                     {
-
                         float previousRotationAmount = (float)(i - 2) * rotationAmountBetweenChecks;
                         if (previousRotationAmount < currentLowestDegree)
                         {
-                            currentLowestDegree = previousRotationAmount;
 
-                            linecastStart = checkpointPosition;
-                            linecastEnd = checkpointPositionAfterOneRotationStep;
+                            LadderItemScript ladderItemScript = hitInfo.collider.GetComponentInParent<LadderItemScript>();
+                            if (ladderItemScript != null && ladderItemScript.GetInstanceID() != this.GetInstanceID())
+                            {
+                                linecastStart = checkpointPosition;
+                                linecastEnd = checkpointPositionAfterOneRotationStep;
+                                hasFallenOnALadder = true;
+                            }
+                            else
+                            {
+                                hasFallenOnALadder = false;
+                            }
+
+                            currentLowestDegree = previousRotationAmount;
                         }
                         break;
                     }
