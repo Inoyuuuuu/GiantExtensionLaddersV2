@@ -30,7 +30,6 @@ namespace GiantExtensionLaddersV2.Patches
                     if (__instance.buyableItemsList[i].itemName == shopItem.item.itemName && shopItem.wasRemoved)
                     {
                         removedItemsIndexes.Add(i);
-                        GiantExtensionLaddersV2.mls.LogInfo("found removed item: " + shopItem.item.itemName);
                         break;
                     }
                 }
@@ -39,19 +38,9 @@ namespace GiantExtensionLaddersV2.Patches
             for (int i = 0; i < removedItemsIndexes.Count; i++)
             {
                 Item removedItem = __instance.buyableItemsList[removedItemsIndexes[i]];
-                GiantExtensionLaddersV2.mls.LogInfo("current removed item is " + removedItem.itemName + " index: " + i);
-
                 __instance.buyableItemsList[removedItemsIndexes[i]] = __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1];
-                GiantExtensionLaddersV2.mls.LogInfo("__instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1] " + __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1].itemName);
-                GiantExtensionLaddersV2.mls.LogInfo("check 2. time: current removed item is " + removedItem.itemName);
-
                 __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1] = removedItem;
-                GiantExtensionLaddersV2.mls.LogInfo("check 2. time: __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1] " + __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1].itemName);
-
             }
-
-            GiantExtensionLaddersV2.mls.LogInfo("last item is " + __instance.buyableItemsList[__instance.buyableItemsList.Length - 1].itemName);
-            GiantExtensionLaddersV2.mls.LogInfo("second to last item is " + __instance.buyableItemsList[__instance.buyableItemsList.Length - 2].itemName);
 
             System.Random random = new System.Random(StartOfRound.Instance.randomMapSeed + 90);
             int num = Mathf.Clamp(random.Next(-10, 5), 0, 5);
@@ -68,13 +57,11 @@ namespace GiantExtensionLaddersV2.Patches
                 list.Add(i);
                 __instance.itemSalesPercentages[i] = 100;
             }
-            GiantExtensionLaddersV2.mls.LogInfo("list length: " + list.Count);
 
             for (int j = 0; j < num; j++)
             {
                 if (list.Count <= 0)
                 {
-                    GiantExtensionLaddersV2.mls.LogInfo("return bc of list length");
                     break;
                 }
 
@@ -88,29 +75,8 @@ namespace GiantExtensionLaddersV2.Patches
                     int salePercentage = 100 - random.Next(0, maxValue);
                     salePercentage = __instance.RoundToNearestTen(salePercentage);
                     __instance.itemSalesPercentages[indexOfItemList] = salePercentage;
-
-                    GiantExtensionLaddersV2.mls.LogInfo("set sale for: " + __instance.buyableItemsList[indexOfItemList].itemName + " to sale: " + salePercentage);
                 }
             }
-
-            for (int i = 0; i < __instance.buyableItemsList.Length; i++)
-            {
-                GiantExtensionLaddersV2.mls.LogInfo("index: " + i + " item: " + __instance.buyableItemsList[i].itemName  + " sp: " + __instance.itemSalesPercentages[i]);
-            }
-
-        }
-
-        private static int indexPositionAfterRemovedItems(List<int> removedItemIndexes, int index)
-        {
-            GiantExtensionLaddersV2.mls.LogInfo("index was: " + index);
-
-            while (removedItemIndexes.Contains(index))
-            {
-                index++;
-            }
-            GiantExtensionLaddersV2.mls.LogInfo("index is now: " + index);
-
-            return index;
         }
     }
 }

@@ -93,8 +93,6 @@ namespace GiantExtensionLaddersV2.Patches
                 Terminal terminal = UnityEngine.Object.FindObjectOfType<Terminal>();
                 if (terminal != null)
                 {
-                    GiantExtensionLaddersV2.mls.LogInfo("found terminal!");
-
                     terminal.SetItemSales();
                 }
             }
