@@ -12,7 +12,7 @@ namespace GiantExtensionLaddersV2.Patches
     [HarmonyPatch()]
     public class LoadLadderConfigsPatch
     {
-        internal const string DISABLED_LADDER_NAME = "                          ";
+        internal const string DISABLED_LADDER_NAME = " - - - (removed item)";
         internal const int DISABLED_LADDER_PRICE = 99999;
 
         private static float methodUptime = 10f;     //letting this patch run for couple of times since csync takes a bit to fully sync
@@ -116,64 +116,63 @@ namespace GiantExtensionLaddersV2.Patches
             {
                 Items.UpdateShopItemPrice(GiantExtensionLaddersV2.tinyLadderItem, MySyncedConfigs.Instance.tinyLadderPrice.Value);
             }
-            else if (MySyncedConfigs.Instance.isSalesFixEasyActive) 
-            {
-                Item item = FindBuyableItem(GiantExtensionLaddersV2.tinyLadderItem, terminal);
-                item.itemName = DISABLED_LADDER_NAME;
-                item.creditsWorth = DISABLED_LADDER_PRICE;
-            }
             else
             {
-                Items.RemoveShopItem(GiantExtensionLaddersV2.tinyLadderItem);
+                RemoveItem(GiantExtensionLaddersV2.tinyLadderItem, terminal);
             }
 
             if (MySyncedConfigs.Instance.isBigLadderEnabled)
             {
                 Items.UpdateShopItemPrice(GiantExtensionLaddersV2.bigLadderItem, MySyncedConfigs.Instance.bigLadderPrice.Value);
             }
-            else if (MySyncedConfigs.Instance.isSalesFixEasyActive)
-            {
-                Item item = FindBuyableItem(GiantExtensionLaddersV2.bigLadderItem, terminal);
-                item.itemName = DISABLED_LADDER_NAME;
-                item.creditsWorth = DISABLED_LADDER_PRICE;
-            }
             else
             {
-                Items.RemoveShopItem(GiantExtensionLaddersV2.bigLadderItem);
+                RemoveItem(GiantExtensionLaddersV2.bigLadderItem, terminal);
             }
 
             if (MySyncedConfigs.Instance.isHugeLadderEnabled)
             {
                 Items.UpdateShopItemPrice(GiantExtensionLaddersV2.hugeLadderItem, MySyncedConfigs.Instance.hugeLadderPrice.Value);
             }
-            else if (MySyncedConfigs.Instance.isSalesFixEasyActive)
-            {
-                Item item = FindBuyableItem(GiantExtensionLaddersV2.hugeLadderItem, terminal);
-                item.itemName = DISABLED_LADDER_NAME;
-                item.creditsWorth = DISABLED_LADDER_PRICE;
-            }
             else
             {
-                Items.RemoveShopItem(GiantExtensionLaddersV2.hugeLadderItem);
+                RemoveItem(GiantExtensionLaddersV2.hugeLadderItem, terminal);
             }
 
             if (MySyncedConfigs.Instance.isUltimateLadderEnabled)
             {
                 Items.UpdateShopItemPrice(GiantExtensionLaddersV2.ultimateLadderItem, MySyncedConfigs.Instance.ultimateLadderPrice.Value);
             }
-            else if (MySyncedConfigs.Instance.isSalesFixEasyActive)
-            {
-                Item item = FindBuyableItem(GiantExtensionLaddersV2.ultimateLadderItem, terminal);
-                item.itemName = DISABLED_LADDER_NAME;
-                item.creditsWorth = DISABLED_LADDER_PRICE;
-            }
             else
             {
-                Items.RemoveShopItem(GiantExtensionLaddersV2.ultimateLadderItem);
+                RemoveItem(GiantExtensionLaddersV2.ultimateLadderItem, terminal);
             }
         }
 
-        private static Item FindBuyableItem(Item item, Terminal terminal)
+        private static void RemoveItem(Item targetItem, Terminal terminal)
+        {
+            if (MySyncedConfigs.Instance.isSalesFixEasyActive)
+            {
+                Item buyableItem = FindBuyableItem(targetItem, terminal);
+                if (buyableItem != null)
+                {
+                    buyableItem.itemName = DISABLED_LADDER_NAME;
+                    buyableItem.creditsWorth = DISABLED_LADDER_PRICE;
+                    buyableItem.highestSalePercentage = 0;
+                }
+                else
+                {
+                    GiantExtensionLaddersV2.mls.LogWarning("Item to be removed could not be found. Will remove the item the old way, this can lead to sales being displayed falsely!");
+                    Items.RemoveShopItem(targetItem);
+                }
+            } 
+            else 
+            { 
+                Items.RemoveShopItem(targetItem);
+            }
+        }
+
+        private static Item? FindBuyableItem(Item item, Terminal terminal)
         {
             foreach (var buyableItem in terminal.buyableItemsList)
             {
