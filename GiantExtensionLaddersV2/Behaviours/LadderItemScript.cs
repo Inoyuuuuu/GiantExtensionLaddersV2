@@ -71,6 +71,7 @@ namespace GiantExtensionLaddersV2.Behaviours
         public float ladderRotateSpeedMultiplier;
         public bool isClimbable = true;
         public bool isClimbableInShip = false;
+        public bool isAlwaysExtended = false;
         public Transform topCollisionNode;
 
         private const float RAYCAST_DISTANCE_CORRECTION = 4f;
@@ -141,20 +142,23 @@ namespace GiantExtensionLaddersV2.Behaviours
                         }
                     }
 
-                    ladderTimer += Time.deltaTime;
-                    if (!ladderBlinkWarning && ladderTimer > ladderAlarmTime)
+                    if (!isAlwaysExtended)
                     {
-                        ladderBlinkWarning = true;
-                        ladderAnimator.SetBool("blinkWarning", value: true);
-                        ladderAudio.clip = blinkWarningSFX;
-                        ladderAudio.Play();
-                    }
-                    else if (ladderTimer >= ladderExtensionTime)
-                    {
-                        ladderActivated = false;
-                        ladderBlinkWarning = false;
-                        ladderAudio.Stop();
-                        ladderAnimator.SetBool("blinkWarning", value: false);
+                        ladderTimer += Time.deltaTime;
+                        if (!ladderBlinkWarning && ladderTimer > ladderAlarmTime)
+                        {
+                            ladderBlinkWarning = true;
+                            ladderAnimator.SetBool("blinkWarning", value: true);
+                            ladderAudio.clip = blinkWarningSFX;
+                            ladderAudio.Play();
+                        }
+                        else if (ladderTimer >= ladderExtensionTime)
+                        {
+                            ladderActivated = false;
+                            ladderBlinkWarning = false;
+                            ladderAudio.Stop();
+                            ladderAnimator.SetBool("blinkWarning", value: false);
+                        }
                     }
                 }
                 return;
@@ -214,22 +218,27 @@ namespace GiantExtensionLaddersV2.Behaviours
             switch (giantLadderType)
             {
                 case GiantLadderType.TINY:
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_EXT_TIME - 4;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.TINY_LADDER_EXT_TIME;
+                    isAlwaysExtended = ConfigStuff.MySyncedConfigs.Instance.isTinyLadderAlwaysActive;
+                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.tinyLadderExtTime - 4;
+                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.tinyLadderExtTime;
                     break;
                 case GiantLadderType.BIG:
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_EXT_TIME - 5;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.BIG_LADDER_EXT_TIME;
+                    isAlwaysExtended = ConfigStuff.MySyncedConfigs.Instance.isBigLadderAlwaysActive;
+                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.bigLadderExtTime - 5;
+                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.bigLadderExtTime;
                     break;
                 case GiantLadderType.HUGE:
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_EXT_TIME - 5;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.HUGE_LADDER_EXT_TIME;
+                    isAlwaysExtended = ConfigStuff.MySyncedConfigs.Instance.isHugeLadderAlwaysActive;
+                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.hugeLadderExtTime - 5;
+                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.hugeLadderExtTime;
                     break;
                 case GiantLadderType.ULTIMATE:
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.ULTIMATE_LADDER_EXT_TIME - 5;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.ULTIMATE_LADDER_EXT_TIME;
+                    isAlwaysExtended = ConfigStuff.MySyncedConfigs.Instance.isUltimateLadderAlwaysActive;
+                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.ultimateLadderExtTime - 5;
+                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.ultimateLadderExtTime;
                     break;
                 default:
+                    isAlwaysExtended = false;
                     ladderExtensionTime = 25;
                     ladderAlarmTime = 20;
                     break;
@@ -351,7 +360,7 @@ namespace GiantExtensionLaddersV2.Behaviours
 
                 extensionSpeedMultiplier2 += Time.deltaTime * 2f;
                 currentNormalizedTime = Mathf.Min(currentNormalizedTime + Time.deltaTime * extensionSpeedMultiplier2, ladderRotateAmountNormalized);
-                if (ladderExtendAmountNormalized > 0.6f)
+                if (currentNormalizedTime > 0.3f && ladderExtendAmountNormalized > 0.6f)
                 {
                     killTrigger.enabled = true;
                 }

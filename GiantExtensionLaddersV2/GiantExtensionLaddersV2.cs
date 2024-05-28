@@ -2,6 +2,7 @@
 using BepInEx.Logging;
 using GiantExtensionLaddersV2.Behaviours;
 using GiantExtensionLaddersV2.ConfigStuff;
+using GiantExtensionLaddersV2.Patches;
 using HarmonyLib;
 using LethalLib.Modules;
 using System.Collections.Generic;
@@ -43,6 +44,12 @@ namespace GiantExtensionLaddersV2
         internal static Item bigLadderItem;
         internal static Item hugeLadderItem;
         internal static Item ultimateLadderItem;
+
+        internal static TerminalNode tinyLadderNode;
+        internal static TerminalNode bigLadderNode;
+        internal static TerminalNode hugeLadderNode;
+        internal static TerminalNode ultimateLadderNode;
+
 
         internal static bool isBuildSuccess = true;
 
@@ -240,27 +247,36 @@ namespace GiantExtensionLaddersV2
             Utilities.FixMixerGroups(hugeLadderItem.spawnPrefab);
             Utilities.FixMixerGroups(ultimateLadderItem.spawnPrefab);
 
-            TerminalNode tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             tinyLadderNode.clearPreviousText = true;
             tinyLadderNode.displayText = "Awwww... tiny ladder! Can be used if the person climbing is also tiny!\n\n";
-            Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, MySyncedConfigs.Instance.TINY_LADDER_PRICE);
+            Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, MySyncedConfigs.Instance.tinyLadderPrice);
 
-            TerminalNode bigLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            bigLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             bigLadderNode.clearPreviousText = true;
             bigLadderNode.displayText = "This ladder is 17m high, thats about 1,75x height of the standard ladder.\n\n";
-            Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, MySyncedConfigs.Instance.BIG_LADDER_PRICE);
+            Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, MySyncedConfigs.Instance.bigLadderPrice);
 
-            TerminalNode hugeLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            hugeLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             hugeLadderNode.clearPreviousText = true;
             hugeLadderNode.displayText = "This ladder is 34m high, thats about 3,5x height of the standard ladder.\n\n";
-            Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, MySyncedConfigs.Instance.HUGE_LADDER_PRICE);
+            Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, MySyncedConfigs.Instance.hugeLadderPrice);
 
-            TerminalNode ultimateLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            ultimateLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             ultimateLadderNode.clearPreviousText = true;
             ultimateLadderNode.displayText = "This ladder is 68m high, thats about 7x height of the standard ladder.\n\n";
-            Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE);
+            Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, MySyncedConfigs.Instance.ultimateLadderPrice);
 
-            Harmony.PatchAll();
+            Harmony.PatchAll(typeof(LadderPlayerSnapPatch));
+            Harmony.PatchAll(typeof(LoadLadderConfigsPatch));
+            Harmony.PatchAll(typeof(NormalLadderFallPatch));
+            Harmony.PatchAll(typeof(TinyLadderClimbingSpeedPatch));
+            Harmony.PatchAll(typeof(UseLadderInShipPatch));
+
+            if (MySyncedConfigs.Instance.isSalesFixTerminalActive)
+            {
+                Harmony.PatchAll(typeof(TerminalSetSalesPatch));
+            }
 
             mls.LogInfo("builds completed and items should be in shop.");
             mls.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has fully loaded!");

@@ -2,19 +2,27 @@ using GameNetcodeStuff;
 using GiantExtensionLaddersV2.ConfigStuff;
 using HarmonyLib;
 using LethalLib.Modules;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using static LethalLib.Modules.Items;
 
 namespace GiantExtensionLaddersV2.Patches
 {
     [HarmonyPatch()]
     public class LoadLadderConfigsPatch
     {
-        private static float methodUptime = 10f; //letting this patch run for couple of times since csync takes a bit to fully sync
+        internal const string DISABLED_LADDER_NAME = "                          ";
+        internal const int DISABLED_LADDER_PRICE = 99999;
+
+        private static float methodUptime = 10f;     //letting this patch run for couple of times since csync takes a bit to fully sync
         private static float updateConfigStart = 4f; //start sync after 4 seconds
         private static bool isPatchActive = true;
 
         private static bool isFirstPatch = true;
         private static bool wasFirstPatchFail = false;
+
+        
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
@@ -64,19 +72,19 @@ namespace GiantExtensionLaddersV2.Patches
             foreach (var shopItem in Items.shopItems)
             {
 
-                if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.tinyLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.TINY_LADDER_PRICE.Value)
+                if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.tinyLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.tinyLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
-                else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.bigLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.BIG_LADDER_PRICE.Value)
+                else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.bigLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.bigLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
-                else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.hugeLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.HUGE_LADDER_PRICE.Value)
+                else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.hugeLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.hugeLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
-                else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.ultimateLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE.Value)
+                else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.ultimateLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.ultimateLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
@@ -102,41 +110,79 @@ namespace GiantExtensionLaddersV2.Patches
 
         private static void syncLadderPrices()
         {
-            if (MySyncedConfigs.Instance.IS_TINY_LADDER_ENABLED)
+            Terminal terminal = Object.FindObjectOfType<Terminal>();
+
+            if (MySyncedConfigs.Instance.isTinyLadderEnabled)
             {
-                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.tinyLadderItem, MySyncedConfigs.Instance.TINY_LADDER_PRICE.Value);
+                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.tinyLadderItem, MySyncedConfigs.Instance.tinyLadderPrice.Value);
+            }
+            else if (MySyncedConfigs.Instance.isSalesFixEasyActive) 
+            {
+                Item item = FindBuyableItem(GiantExtensionLaddersV2.tinyLadderItem, terminal);
+                item.itemName = DISABLED_LADDER_NAME;
+                item.creditsWorth = DISABLED_LADDER_PRICE;
             }
             else
             {
                 Items.RemoveShopItem(GiantExtensionLaddersV2.tinyLadderItem);
             }
 
-            if (MySyncedConfigs.Instance.IS_BIG_LADDER_ENABLED)
+            if (MySyncedConfigs.Instance.isBigLadderEnabled)
             {
-                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.bigLadderItem, MySyncedConfigs.Instance.BIG_LADDER_PRICE.Value);
+                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.bigLadderItem, MySyncedConfigs.Instance.bigLadderPrice.Value);
+            }
+            else if (MySyncedConfigs.Instance.isSalesFixEasyActive)
+            {
+                Item item = FindBuyableItem(GiantExtensionLaddersV2.bigLadderItem, terminal);
+                item.itemName = DISABLED_LADDER_NAME;
+                item.creditsWorth = DISABLED_LADDER_PRICE;
             }
             else
             {
                 Items.RemoveShopItem(GiantExtensionLaddersV2.bigLadderItem);
             }
 
-            if (MySyncedConfigs.Instance.IS_HUGE_LADDER_ENABLED)
+            if (MySyncedConfigs.Instance.isHugeLadderEnabled)
             {
-                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.hugeLadderItem, MySyncedConfigs.Instance.HUGE_LADDER_PRICE.Value);
+                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.hugeLadderItem, MySyncedConfigs.Instance.hugeLadderPrice.Value);
+            }
+            else if (MySyncedConfigs.Instance.isSalesFixEasyActive)
+            {
+                Item item = FindBuyableItem(GiantExtensionLaddersV2.hugeLadderItem, terminal);
+                item.itemName = DISABLED_LADDER_NAME;
+                item.creditsWorth = DISABLED_LADDER_PRICE;
             }
             else
             {
                 Items.RemoveShopItem(GiantExtensionLaddersV2.hugeLadderItem);
             }
 
-            if (MySyncedConfigs.Instance.IS_ULTIMATE_LADDER_ENABLED)
+            if (MySyncedConfigs.Instance.isUltimateLadderEnabled)
             {
-                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.ultimateLadderItem, MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE.Value);
+                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.ultimateLadderItem, MySyncedConfigs.Instance.ultimateLadderPrice.Value);
+            }
+            else if (MySyncedConfigs.Instance.isSalesFixEasyActive)
+            {
+                Item item = FindBuyableItem(GiantExtensionLaddersV2.ultimateLadderItem, terminal);
+                item.itemName = DISABLED_LADDER_NAME;
+                item.creditsWorth = DISABLED_LADDER_PRICE;
             }
             else
             {
                 Items.RemoveShopItem(GiantExtensionLaddersV2.ultimateLadderItem);
             }
+        }
+
+        private static Item FindBuyableItem(Item item, Terminal terminal)
+        {
+            foreach (var buyableItem in terminal.buyableItemsList)
+            {
+                if (buyableItem.itemName.Equals(item.itemName))
+                {
+                    return buyableItem;
+                }
+            }
+            return null;
         }
     }
 }
