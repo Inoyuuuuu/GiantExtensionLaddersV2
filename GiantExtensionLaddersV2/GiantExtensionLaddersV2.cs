@@ -273,10 +273,10 @@ namespace GiantExtensionLaddersV2
             Harmony.PatchAll(typeof(TinyLadderClimbingSpeedPatch));
             Harmony.PatchAll(typeof(UseLadderInShipPatch));
 
-            if (MySyncedConfigs.Instance.isSalesFixTerminalActive)
-            {
-                Harmony.PatchAll(typeof(TerminalSetSalesPatch));
-            }
+            //if (MySyncedConfigs.Instance.isSalesFixTerminalActive)
+            //{
+            //    Harmony.PatchAll(typeof(TerminalSetSalesPatch));
+            //}
 
             mls.LogInfo("builds completed and items should be in shop.");
             mls.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has fully loaded!");

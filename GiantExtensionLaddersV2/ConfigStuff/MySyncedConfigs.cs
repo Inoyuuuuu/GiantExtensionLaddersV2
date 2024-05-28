@@ -13,7 +13,7 @@ namespace GiantExtensionLaddersV2.ConfigStuff;
 internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
 {
     private const int MIN_LADDER_PRICE = 1;
-    private const int MAX_LADDER_PRICE = 99999;
+    private const int MAX_LADDER_PRICE = 999999;
     private const float MIN_EXT_TIME = 3f;
     private const float MAX_EXT_TIME = 999f;
 
@@ -83,10 +83,10 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
         isUltimateLadderAlwaysActive = cfg.BindSyncedEntry("LadderExtensionTime", "isUltimateLadderAlwaysActive", false, "Sets the ultimate ladder to always being extended.");
 
         //SalesFixes
-        salesFixHeader = cfg.Bind("SalesBugfixMethod", "SalesBugfixMethod", "(„• ᴗ •„)", "THE FOLLOWING CONFIGS ARE NOT INITIALLY SYNCED! So make sure you all have the same settings (or installed the mods through the same modmanager-code), or restart the game after all joining the same lobby once. " + Environment.NewLine +
+        salesFixHeader = cfg.Bind("SalesBugfixMethod", "SalesBugfixMethod", "(„• ᴗ •„) I'm a happy placeholder!", "THE FOLLOWING CONFIGS ARE NOT INITIALLY SYNCED! So make sure you all have the same settings (or installed the mods through the same modmanager-code), or restart the game after all joining the same lobby once. " + Environment.NewLine +
             "The three settings determine the method used for fixing the sales of the in-game store.");
         isSalesFixEasyActive = cfg.BindSyncedEntry("SalesBugfixMethod", "use_safe_sales_fix", true, "This will fix sales, but disabled ladders will appear as an item named " + '"' + LoadLadderConfigsPatch.DISABLED_LADDER_NAME + '"' + " in the shop.");
-        isSalesFixTerminalActive = cfg.BindSyncedEntry("SalesBugfixMethod", "use_experimental_sales_fix", false, "This will fix sales and fully remove disabled ladders. However, this might cause some store related bugs and could cause other mods to malfunction!");
+        isSalesFixTerminalActive = cfg.BindSyncedEntry("SalesBugfixMethod", "use_experimental_sales_fix", false, "This will fix sales and fully remove disabled ladders. This might cause some store related bugs and could cause other mods to malfunction!");
         isDontFix = cfg.BindSyncedEntry("SalesBugfixMethod", "dont_fix_sales", false, "This will not fix the sales, resulting in sales sometimes being displayed on a item which is not on sale.");
 
         fixConfigs();

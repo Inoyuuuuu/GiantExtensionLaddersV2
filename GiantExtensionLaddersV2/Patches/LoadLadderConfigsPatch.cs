@@ -12,7 +12,7 @@ namespace GiantExtensionLaddersV2.Patches
     [HarmonyPatch()]
     public class LoadLadderConfigsPatch
     {
-        internal const string DISABLED_LADDER_NAME = " - - - (removed item)";
+        internal const string DISABLED_LADDER_NAME = "- - - (removed item)";
         internal const int DISABLED_LADDER_PRICE = 99999;
 
         private static float methodUptime = 10f;     //letting this patch run for couple of times since csync takes a bit to fully sync
@@ -111,6 +111,7 @@ namespace GiantExtensionLaddersV2.Patches
         private static void syncLadderPrices()
         {
             Terminal terminal = Object.FindObjectOfType<Terminal>();
+            int amountOfRemovedItems = 0;
 
             if (MySyncedConfigs.Instance.isTinyLadderEnabled)
             {
@@ -118,7 +119,8 @@ namespace GiantExtensionLaddersV2.Patches
             }
             else
             {
-                RemoveItem(GiantExtensionLaddersV2.tinyLadderItem, terminal);
+                RemoveItem(GiantExtensionLaddersV2.tinyLadderItem, terminal, amountOfRemovedItems);
+                amountOfRemovedItems++;
             }
 
             if (MySyncedConfigs.Instance.isBigLadderEnabled)
@@ -127,7 +129,9 @@ namespace GiantExtensionLaddersV2.Patches
             }
             else
             {
-                RemoveItem(GiantExtensionLaddersV2.bigLadderItem, terminal);
+                RemoveItem(GiantExtensionLaddersV2.bigLadderItem, terminal, amountOfRemovedItems);
+                amountOfRemovedItems++;
+
             }
 
             if (MySyncedConfigs.Instance.isHugeLadderEnabled)
@@ -136,7 +140,8 @@ namespace GiantExtensionLaddersV2.Patches
             }
             else
             {
-                RemoveItem(GiantExtensionLaddersV2.hugeLadderItem, terminal);
+                RemoveItem(GiantExtensionLaddersV2.hugeLadderItem, terminal, amountOfRemovedItems);
+                amountOfRemovedItems++;
             }
 
             if (MySyncedConfigs.Instance.isUltimateLadderEnabled)
@@ -145,11 +150,12 @@ namespace GiantExtensionLaddersV2.Patches
             }
             else
             {
-                RemoveItem(GiantExtensionLaddersV2.ultimateLadderItem, terminal);
+                RemoveItem(GiantExtensionLaddersV2.ultimateLadderItem, terminal, amountOfRemovedItems);
+                amountOfRemovedItems++;
             }
         }
 
-        private static void RemoveItem(Item targetItem, Terminal terminal)
+        private static void RemoveItem(Item targetItem, Terminal terminal, int amountOfRemovedItems)
         {
             if (MySyncedConfigs.Instance.isSalesFixEasyActive)
             {
@@ -166,8 +172,31 @@ namespace GiantExtensionLaddersV2.Patches
                     Items.RemoveShopItem(targetItem);
                 }
             } 
-            else 
-            { 
+            else if (MySyncedConfigs.Instance.isSalesFixTerminalActive)
+            {
+                int index = 0;
+
+                for (int i = 0; i < terminal.buyableItemsList.Length; i++)
+                {
+                    if (terminal.buyableItemsList[i].itemName == targetItem.itemName)
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+
+                Item removedItem = terminal.buyableItemsList[index];
+                Item itemLastOnList = terminal.buyableItemsList[terminal.buyableItemsList.Length - amountOfRemovedItems - 1];
+
+                UpdateBuyItemIndex(removedItem, terminal.buyableItemsList.Length - amountOfRemovedItems - 1);
+                UpdateBuyItemIndex(itemLastOnList, index);
+                terminal.buyableItemsList[index] = itemLastOnList;
+                terminal.buyableItemsList[terminal.buyableItemsList.Length - amountOfRemovedItems - 1] = removedItem;
+
+                Items.RemoveShopItem(targetItem);
+            }
+            else
+            {
                 Items.RemoveShopItem(targetItem);
             }
         }
@@ -182,6 +211,58 @@ namespace GiantExtensionLaddersV2.Patches
                 }
             }
             return null;
+        }
+
+        private static void UpdateBuyItemIndex(Item item, int newIndex)
+        {
+            if (!(StartOfRound.Instance != null))
+            {
+                GiantExtensionLaddersV2.mls.LogInfo("early return: SoR == null");
+
+                return;
+            }
+
+            TerminalKeyword terminalKeyword = terminal.terminalNodes.allKeywords.First((TerminalKeyword keyword) => keyword.word == "buy");
+            TerminalNode itemTerminalNode = terminalKeyword.compatibleNouns[0].result.terminalOptions[1].result;
+            List<CompatibleNoun> source = terminalKeyword.compatibleNouns.ToList();
+
+            if (!buyableItemAssetInfos.Any((BuyableItemAssetInfo x) => x.itemAsset == item))
+            {
+                GiantExtensionLaddersV2.mls.LogInfo("early return: buyableItemAssetInfos not found?");
+
+                return;
+            }
+
+            BuyableItemAssetInfo asset = buyableItemAssetInfos.First((BuyableItemAssetInfo x) => x.itemAsset == item);
+
+            if (!source.Any((CompatibleNoun noun) => noun.noun == asset.keyword))
+            {
+                GiantExtensionLaddersV2.mls.LogInfo("early return: compatible noun not found?");
+
+                return;
+            }
+
+
+            TerminalNode result = source.First((CompatibleNoun noun) => noun.noun == asset.keyword).result;
+
+            GiantExtensionLaddersV2.mls.LogInfo("SUCCESS old buyItemIndex: " + result.buyItemIndex + " new buyItemIndex: " + newIndex);
+
+            result.buyItemIndex = newIndex;
+
+            if (result.terminalOptions.Length == 0)
+            {
+                GiantExtensionLaddersV2.mls.LogInfo("return: terminal options == 0");
+                return;
+            }
+
+            CompatibleNoun[] terminalOptions = result.terminalOptions;
+            foreach (CompatibleNoun compatibleNoun in terminalOptions)
+            {
+                if (compatibleNoun.result != null && compatibleNoun.result.buyItemIndex != -1)
+                {
+                    compatibleNoun.result.buyItemIndex = newIndex;
+                }
+            }
         }
     }
 }

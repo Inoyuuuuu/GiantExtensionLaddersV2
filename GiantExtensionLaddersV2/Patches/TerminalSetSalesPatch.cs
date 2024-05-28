@@ -61,26 +61,27 @@ namespace GiantExtensionLaddersV2.Patches
                         Item removedItem = __instance.buyableItemsList[removedItemsIndexes[i]];
                         Item itemLastOnList = __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1];
 
-                        int removedItemPrice = removedItem.creditsWorth;
-                        int itemLastOnListPrice = itemLastOnList.creditsWorth;
+                        //int removedItemPrice = removedItem.creditsWorth;
+                        //int itemLastOnListPrice = itemLastOnList.creditsWorth;
 
                         UpdateBuyItemIndex(removedItem, __instance.buyableItemsList.Length - i - 1);
                         UpdateBuyItemIndex(itemLastOnList, removedItemsIndexes[i]);
 
                         __instance.buyableItemsList[removedItemsIndexes[i]] = itemLastOnList;
-                        __instance.buyableItemsList[removedItemsIndexes[i]].creditsWorth = itemLastOnListPrice;
+                        //__instance.buyableItemsList[removedItemsIndexes[i]].creditsWorth = itemLastOnListPrice;
 
                         __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1] = removedItem;
-                        __instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1].creditsWorth = removedItemPrice;
+                        //__instance.buyableItemsList[__instance.buyableItemsList.Length - i - 1].creditsWorth = removedItemPrice;
 
-                        }
+                    }
                 }
+
+
 
                 System.Random random = new System.Random(StartOfRound.Instance.randomMapSeed + 90);
 
-                int randomNumber = random.Next(-5, 5);
+                int randomNumber = random.Next(-10, 5);
                 int numberOfItemsInSale = Mathf.Clamp(randomNumber, 0, 5);
-                //numberOfItemsInSale = 17;
 
                 if (numberOfItemsInSale <= 0)
                 {
