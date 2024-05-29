@@ -113,53 +113,6 @@ namespace GiantExtensionLaddersV2.Patches
             }
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PlayerControllerB), "Update")]
-        public static void UpdateSales(PlayerControllerB __instance)
-        {
-            if (__instance.isJumping)
-            {
-                UnityEngine.Object.FindObjectOfType<Terminal>().SetItemSales();
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPriority(Priority.Last)]
-        [HarmonyPatch(typeof(Terminal), nameof(Terminal.SetItemSales))]
-        public static void PatchSales(Terminal __instance)
-        {
-            if (__instance.itemSalesPercentages == null || __instance.itemSalesPercentages.Length == 0)
-            {
-                __instance.InitializeItemSalesPercentages();
-            }
-            System.Random random = new System.Random(StartOfRound.Instance.randomMapSeed + 90);
-
-            int numberOfItemsOnSale = __instance.buyableItemsList.Length;
-            if (numberOfItemsOnSale <= 0)
-            {
-                return;
-            }
-            List<int> list = new List<int>();
-            for (int i = 0; i < __instance.buyableItemsList.Length; i++)
-            {
-                list.Add(i);
-                __instance.itemSalesPercentages[i] = 100;
-            }
-            for (int j = 0; j < numberOfItemsOnSale; j++)
-            {
-                if (list.Count <= 0)
-                {
-                    break;
-                }
-                int num2 = random.Next(0, list.Count);
-                int maxValue = Mathf.Clamp(__instance.buyableItemsList[num2].highestSalePercentage, 0, 90);
-                int salePercentage = 100 - random.Next(0, maxValue);
-                salePercentage = __instance.RoundToNearestTen(salePercentage);
-                __instance.itemSalesPercentages[num2] = salePercentage;
-                list.RemoveAt(num2);
-            }
-        }
-
         private static void syncLadderPrices()
         {
             Terminal terminal = Object.FindObjectOfType<Terminal>();
