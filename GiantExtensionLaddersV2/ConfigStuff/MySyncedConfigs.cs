@@ -70,24 +70,24 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
         hugeLadderPrice = cfg.BindSyncedEntry("LadderPrices", "hugeLadderPrice", hugeLadderBasePrice, "Sets the price of the huge ladder");
         ultimateLadderPrice = cfg.BindSyncedEntry("LadderPrices", "ultimateLadderPrice", ultimateLadderBasePrice, "Sets the price of the ultimate ladder");
 
+        //ladderExtTime always active
+        isTinyLadderAlwaysActive = cfg.BindSyncedEntry("LadderAlwaysActive", "isTinyLadderAlwaysActive", false, "Sets the tiny ladder to always being extended.");
+        isBigLadderAlwaysActive = cfg.BindSyncedEntry("LadderAlwaysActive", "isBigLadderAlwaysActive", false, "Sets the big ladder to always being extended.");
+        isHugeLadderAlwaysActive = cfg.BindSyncedEntry("LadderAlwaysActive", "isHugeLadderAlwaysActive", false, "Sets the huge ladder to always being extended.");
+        isUltimateLadderAlwaysActive = cfg.BindSyncedEntry("LadderAlwaysActive", "isUltimateLadderAlwaysActive", false, "Sets the ultimate ladder to always being extended.");
+
         //ladderExtTime
         tinyLadderExtTime = cfg.BindSyncedEntry("LadderExtensionTime", "tinyLadderExtensionTime", tinyLadderExtensionTimeBase, "Sets the amount of seconds the tiny ladder stays extended.");
         bigLadderExtTime = cfg.BindSyncedEntry("LadderExtensionTime", "bigLadderExtensionTime", bigLadderExtensionTimeBase, "Sets the amount of seconds the big ladder stays extended.");
         hugeLadderExtTime = cfg.BindSyncedEntry("LadderExtensionTime", "hugeLadderExtensionTime", hugeLadderExtensionTimeBase, "Sets the amount of seconds the huge ladder stays extended");
         ultimateLadderExtTime = cfg.BindSyncedEntry("LadderExtensionTime", "ultimateLadderExtensionTime", ultimateLadderExtensionTimeBase, "Sets the amount of seconds the ultimate ladder stays extended");
-
-        //ladderExtTime always active
-        isTinyLadderAlwaysActive = cfg.BindSyncedEntry("LadderExtensionTime", "isTinyLadderAlwaysActive", false, "Sets the tiny ladder to always being extended.");
-        isBigLadderAlwaysActive = cfg.BindSyncedEntry("LadderExtensionTime", "isBigLadderAlwaysActive", false, "Sets the big ladder to always being extended.");
-        isHugeLadderAlwaysActive = cfg.BindSyncedEntry("LadderExtensionTime", "isHugeLadderAlwaysActive", false, "Sets the huge ladder to always being extended.");
-        isUltimateLadderAlwaysActive = cfg.BindSyncedEntry("LadderExtensionTime", "isUltimateLadderAlwaysActive", false, "Sets the ultimate ladder to always being extended.");
-
         //SalesFixes
-        salesFixHeader = cfg.Bind("SalesBugfixMethod", "SalesBugfixMethod", "(„• ᴗ •„) I'm a happy placeholder!", "THE FOLLOWING CONFIGS ARE NOT INITIALLY SYNCED! So make sure you all have the same settings (or installed the mods through the same modmanager-code), or restart the game after all joining the same lobby once. " + Environment.NewLine +
-            "The three settings determine the method used for fixing the sales of the in-game store.");
-        isSalesFixEasyActive = cfg.BindSyncedEntry("SalesBugfixMethod", "use_safe_sales_fix", true, "This will fix sales, but disabled ladders will appear as an item named " + '"' + LoadLadderConfigsPatch.DISABLED_LADDER_NAME + '"' + " in the shop.");
-        isSalesFixTerminalActive = cfg.BindSyncedEntry("SalesBugfixMethod", "use_experimental_sales_fix", false, "This will fix sales and fully remove disabled ladders. This might cause some store related bugs and could cause other mods to malfunction!");
-        isDontFix = cfg.BindSyncedEntry("SalesBugfixMethod", "dont_fix_sales", false, "This will not fix the sales, resulting in sales sometimes being displayed on a item which is not on sale.");
+        salesFixHeader = cfg.Bind("SalesBugfixMethod", "WhatIsThisConfigSection?", "(„• ᴗ •„) I am a happy placeholder!", "The sales bug is a relatively small bug that shifts sales by one slot occasionally. " + Environment.NewLine +
+            "To fix this I have two solutions: the safe one, which will most likely always work and the experimental one, which looks way nicer in the terminal but could cause some issues.");
+        isSalesFixEasyActive = cfg.BindSyncedEntry("SalesBugfixMethod", "safeSalesFix", true, "This will fix sales in a very safe way, but disabled ladders will appear as an item named " + '"' + LoadLadderConfigsPatch.DISABLED_LADDER_NAME + '"' + " in the store.");
+        isSalesFixTerminalActive = cfg.BindSyncedEntry("SalesBugfixMethod", "experimentalSalesFix", false, "This will fix sales and fully remove disabled ladders from the store without " + '"' + LoadLadderConfigsPatch.DISABLED_LADDER_NAME + '"' + " being displayed." + Environment.NewLine +
+            "WARNING: This might cause store related bugs or have influence on the compatibility with other mods!");
+        isDontFix = cfg.BindSyncedEntry("SalesBugfixMethod", "dontFixSales", false, "This will not fix the sales, resulting in sales sometimes being displayed on an item which is not on sale (or the opposite of that).");
 
         fixConfigs();
     }
@@ -103,7 +103,7 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
         else if (tinyLadderPrice.Value > MAX_LADDER_PRICE)
         {
             tinyLadderPrice.Value = MAX_LADDER_PRICE;
-            mlsConfig.LogWarning("big ladder price was too high, was set to max value: " + MAX_EXT_TIME);
+            mlsConfig.LogWarning("big ladder price was too high, was set to max value: " + MAX_LADDER_PRICE);
         }
 
         if (bigLadderPrice.Value < MIN_LADDER_PRICE)
@@ -114,7 +114,7 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
         else if (bigLadderPrice.Value > MAX_LADDER_PRICE)
         {
             bigLadderPrice.Value = MAX_LADDER_PRICE;
-            mlsConfig.LogWarning("big ladder price was too high, was set to max value: " + MAX_EXT_TIME);
+            mlsConfig.LogWarning("big ladder price was too high, was set to max value: " + MAX_LADDER_PRICE);
         }
 
         if (hugeLadderPrice.Value < MIN_LADDER_PRICE)

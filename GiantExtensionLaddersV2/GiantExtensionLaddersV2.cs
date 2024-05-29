@@ -26,14 +26,12 @@ namespace GiantExtensionLaddersV2
         private const string bigLadderAssetbundleName = "BigLadderAssets";
         private const string hugeLadderAssetbundleName = "HugeLadderAssets";
         private const string ultimateLadderAssetbundleName = "UltimateLadderAssets";
-        private const string tinyLadderItemPropertiesLocation = "Assets/extLadderTest/tinyLadder/ExtensionLadder_0.asset";
-        private const string bigLadderItemPropertiesLocation = "Assets/extLadderTest/lcLadder/ExtensionLadder_0.asset";
-        private const string hugeLadderItemPropertiesLocation = "Assets/extLadderTest/newLongerLadder/ExtensionLadder_0.asset";
-        private const string ultimateLadderItemPropertiesLocation = "Assets/extLadderTest/Gigantic ladder/ExtensionLadder_0.asset";
+        private const string tinyLadderItemPropertiesLocation = "Assets/extLadderTest/tinyLadder/TinyLadder.asset";
+        private const string bigLadderItemPropertiesLocation = "Assets/extLadderTest/BigLadder/BigLadder.asset";
+        private const string hugeLadderItemPropertiesLocation = "Assets/extLadderTest/HugeLadder/HugeLadder.asset";
+        private const string ultimateLadderItemPropertiesLocation = "Assets/extLadderTest/Gigantic ladder/UltimateLadderItem.asset";
         private const int MAX_PROPERTY_AMOUNT = 19;
         internal static int propertyCounter = 0;
-
-        private const float HEIGHT_DIVIDE_CONST = 2.43f;
 
         internal LadderObject tinyLadder = new LadderObject(10.3f, 75f, 0.15f, false, GiantLadderType.TINY);
         internal LadderObject bigLadder = new LadderObject(17f, 60f, 0.15f, true, GiantLadderType.BIG);
@@ -267,16 +265,7 @@ namespace GiantExtensionLaddersV2
             ultimateLadderNode.displayText = "This ladder is 68m high, thats about 7x height of the standard ladder.\n\n";
             Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, MySyncedConfigs.Instance.ultimateLadderPrice);
 
-            Harmony.PatchAll(typeof(LadderPlayerSnapPatch));
-            Harmony.PatchAll(typeof(LoadLadderConfigsPatch));
-            Harmony.PatchAll(typeof(NormalLadderFallPatch));
-            Harmony.PatchAll(typeof(TinyLadderClimbingSpeedPatch));
-            Harmony.PatchAll(typeof(UseLadderInShipPatch));
-
-            //if (MySyncedConfigs.Instance.isSalesFixTerminalActive)
-            //{
-            //    Harmony.PatchAll(typeof(TerminalSetSalesPatch));
-            //}
+            Harmony.PatchAll();
 
             mls.LogInfo("builds completed and items should be in shop.");
             mls.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has fully loaded!");
@@ -294,7 +283,7 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.mainObjectRenderer = meshRenderer;
-                    //mls.LogDebug("1. component: LadderBox");
+                    mls.LogMessage("1. component: LadderBox");
                     break;
                 }
             }
@@ -304,13 +293,13 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.ladderAnimator = animator;
-                    //mls.LogDebug("2.  AnimContainer");
+                    mls.LogMessage("2.  AnimContainer");
                 }
                 if (animator.name.Equals("MeshContainer"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderRotateAnimator = animator;
-                    //mls.LogDebug("3. component: MeshContainer");
+                    mls.LogMessage("3. component: MeshContainer");
                 }
             }
             foreach (Transform transform in transforms)
@@ -319,25 +308,25 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.baseNode = transform;
-                    //mls.LogDebug("4. component: Base");
+                    mls.LogMessage("4. component: Base");
                 }
                 if (transform.name.Equals("TopPosition"))
                 {
                     propertyCounter++;
                     ladderItemScript.topNode = transform;
-                    //mls.LogDebug("5.component: TopPosition");
+                    mls.LogMessage("5.component: TopPosition");
                 }
                 if (transform.name.Equals("TopCollisionNode"))
                 {
                     propertyCounter++;
                     ladderItemScript.topCollisionNode = transform;
-                    //mls.LogDebug("19.component: TopCollisionNode");
+                    mls.LogMessage("19.component: TopCollisionNode");
                 }
                 if (transform.name.Equals("MovableNode"))
                 {
                     propertyCounter++;
                     ladderItemScript.moveableNode = transform;
-                    //mls.LogDebug("6. component: MovableNode");
+                    mls.LogMessage("6. component: MovableNode");
                 }
             }
             foreach (AudioClip audioClip in audioClips)
@@ -346,39 +335,39 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.hitRoof = audioClip;
-                    //mls.LogDebug("7. component: ExtensionLadderHitWall");
+                    mls.LogMessage("7. component: ExtensionLadderHitWall");
                 }
                 if (audioClip.name.Equals("ExtensionLadderHitWall2"))
                 {
                     propertyCounter += 2;
                     ladderItemScript.fullExtend = audioClip;
                     ladderItemScript.hitWall = audioClip;
-                    //mls.LogDebug("8. component: ExtensionLadderHitWall2");
-                    //mls.LogDebug("9. component: ExtensionLadderHitWall2 (for 2nd audio clip)");
+                    mls.LogMessage("8. component: ExtensionLadderHitWall2");
+                    mls.LogMessage("9. component: ExtensionLadderHitWall2 (for 2nd audio clip)");
                 }
                 if (audioClip.name.Equals("ExtensionLadderExtend"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderExtendSFX = audioClip;
-                    //mls.LogDebug("10. component: ExtensionLadderExtend");
+                    mls.LogMessage("10. component: ExtensionLadderExtend");
                 }
                 if (audioClip.name.Equals("ExtensionLadderShrink"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderShrinkSFX = audioClip;
-                    //mls.LogDebug("11. component: ExtensionLadderShrink");
+                    mls.LogMessage("11. component: ExtensionLadderShrink");
                 }
                 if (audioClip.name.Equals("ExtensionLadderAlarm"))
                 {
                     propertyCounter++;
                     ladderItemScript.blinkWarningSFX = audioClip;
-                    //mls.LogDebug("12. component: ExtensionLadderAlarm");
+                    mls.LogMessage("12. component: ExtensionLadderAlarm");
                 }
                 if (audioClip.name.Equals("ExtensionLadderLidOpen"))
                 {
                     propertyCounter++;
                     ladderItemScript.lidOpenSFX = audioClip;
-                    //mls.LogDebug("13. component: ExtensionLadderLidOpen");
+                    mls.LogMessage("13. component: ExtensionLadderLidOpen");
                 }
             }
             foreach (AudioSource audioSource in audioSources)
@@ -387,7 +376,7 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.ladderAudio = audioSource;
-                    //mls.LogDebug("14. component: LadderAudio");
+                    mls.LogMessage("14. component: LadderAudio");
                     break;
                 }
             }
@@ -397,7 +386,7 @@ namespace GiantExtensionLaddersV2
                 {
                     ladderItemScript.ladderScript = interactTrigger;
                     propertyCounter++;
-                    //mls.LogDebug("15. component: ExtLadderTrigger (interactTrigger)");
+                    mls.LogMessage("15. component: ExtLadderTrigger (interactTrigger)");
                     break;
                 }
             }
@@ -407,25 +396,25 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.interactCollider = boxCollider;
-                    //mls.LogDebug("16. component: ExtLadderTrigger (boxCollider)");
+                    mls.LogMessage("16. component: ExtLadderTrigger (boxCollider)");
                 }
                 if (boxCollider.name.Equals("LadderBridgeCollider"))
                 {
                     propertyCounter++;
                     ladderItemScript.bridgeCollider = boxCollider;
-                    //mls.LogDebug("17. component: LadderBridgeCollider");
+                    mls.LogMessage("17. component: LadderBridgeCollider");
                 }
                 if (boxCollider.name.Equals("KillTrigger"))
                 {
                     propertyCounter++;
                     ladderItemScript.killTrigger = boxCollider;
-                    //mls.LogDebug("18. component: KillTrigger");
+                    mls.LogMessage("18. component: KillTrigger");
                 }
             }
 
             if (propertyCounter == MAX_PROPERTY_AMOUNT)
             {
-                mls.LogDebug("every component was found for item script: " + ladderItemScript.name);
+                mls.LogMessage("every component was found for item script: " + ladderItemScript.name);
             }
             else
             {

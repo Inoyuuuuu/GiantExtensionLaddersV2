@@ -12,8 +12,11 @@ namespace GiantExtensionLaddersV2.Patches
     [HarmonyPatch()]
     public class LoadLadderConfigsPatch
     {
-        internal const string DISABLED_LADDER_NAME = "- - - (removed item)";
+        internal const string DISABLED_LADDER_PREFIX = "- - - ";
+        internal const string DISABLED_LADDER_NAME = DISABLED_LADDER_PREFIX + "(removed item: {0})";
         internal const int DISABLED_LADDER_PRICE = 99999;
+        private static List<Item> removedItemsTerminalFix = new List<Item>();
+        private static List<Item> removedItemsSafeFix = new List<Item>();
 
         private static float methodUptime = 10f;     //letting this patch run for couple of times since csync takes a bit to fully sync
         private static float updateConfigStart = 4f; //start sync after 4 seconds
@@ -22,7 +25,6 @@ namespace GiantExtensionLaddersV2.Patches
         private static bool isFirstPatch = true;
         private static bool wasFirstPatchFail = false;
 
-        
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
@@ -47,6 +49,7 @@ namespace GiantExtensionLaddersV2.Patches
                     GiantExtensionLaddersV2.mls.LogWarning("Initial config sync failed, trying again...");
                     isFirstPatch = false;
                     methodUptime = 10f;
+                    removedItemsTerminalFix = new List<Item>();
                 } else
                 {
                     isPatchActive = false;
@@ -58,8 +61,10 @@ namespace GiantExtensionLaddersV2.Patches
         [HarmonyPatch(typeof(GameNetworkManager), "StartDisconnect")]
         public static void PlayerLeave()
         {
+            removedItemsTerminalFix = new List<Item>();
+            removedItemsSafeFix = new List<Item>();
             methodUptime = 10f;
-            updateConfigStart = 4f; 
+            updateConfigStart = 4f;
             isPatchActive = true;
             isFirstPatch = true;
             wasFirstPatchFail = false;
@@ -72,19 +77,19 @@ namespace GiantExtensionLaddersV2.Patches
             foreach (var shopItem in Items.shopItems)
             {
 
-                if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.tinyLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.tinyLadderPrice.Value)
+                if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.tinyLadderItem.itemName) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.tinyLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
-                else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.bigLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.bigLadderPrice.Value)
+                else if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.bigLadderItem.itemName) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.bigLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
-                else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.hugeLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.hugeLadderPrice.Value)
+                else if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.hugeLadderItem.itemName) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.hugeLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
-                else if (shopItem.item.spawnPrefab.name.Equals(GiantExtensionLaddersV2.ultimateLadderItem.spawnPrefab.name) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.ultimateLadderPrice.Value)
+                else if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.ultimateLadderItem.itemName) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.ultimateLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
@@ -108,6 +113,53 @@ namespace GiantExtensionLaddersV2.Patches
             }
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerControllerB), "Update")]
+        public static void UpdateSales(PlayerControllerB __instance)
+        {
+            if (__instance.isJumping)
+            {
+                UnityEngine.Object.FindObjectOfType<Terminal>().SetItemSales();
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPriority(Priority.Last)]
+        [HarmonyPatch(typeof(Terminal), nameof(Terminal.SetItemSales))]
+        public static void PatchSales(Terminal __instance)
+        {
+            if (__instance.itemSalesPercentages == null || __instance.itemSalesPercentages.Length == 0)
+            {
+                __instance.InitializeItemSalesPercentages();
+            }
+            System.Random random = new System.Random(StartOfRound.Instance.randomMapSeed + 90);
+
+            int numberOfItemsOnSale = __instance.buyableItemsList.Length;
+            if (numberOfItemsOnSale <= 0)
+            {
+                return;
+            }
+            List<int> list = new List<int>();
+            for (int i = 0; i < __instance.buyableItemsList.Length; i++)
+            {
+                list.Add(i);
+                __instance.itemSalesPercentages[i] = 100;
+            }
+            for (int j = 0; j < numberOfItemsOnSale; j++)
+            {
+                if (list.Count <= 0)
+                {
+                    break;
+                }
+                int num2 = random.Next(0, list.Count);
+                int maxValue = Mathf.Clamp(__instance.buyableItemsList[num2].highestSalePercentage, 0, 90);
+                int salePercentage = 100 - random.Next(0, maxValue);
+                salePercentage = __instance.RoundToNearestTen(salePercentage);
+                __instance.itemSalesPercentages[num2] = salePercentage;
+                list.RemoveAt(num2);
+            }
+        }
+
         private static void syncLadderPrices()
         {
             Terminal terminal = Object.FindObjectOfType<Terminal>();
@@ -119,8 +171,8 @@ namespace GiantExtensionLaddersV2.Patches
             }
             else
             {
-                RemoveItem(GiantExtensionLaddersV2.tinyLadderItem, terminal, amountOfRemovedItems);
                 amountOfRemovedItems++;
+                RemoveItem(GiantExtensionLaddersV2.tinyLadderItem, terminal, amountOfRemovedItems);
             }
 
             if (MySyncedConfigs.Instance.isBigLadderEnabled)
@@ -129,9 +181,8 @@ namespace GiantExtensionLaddersV2.Patches
             }
             else
             {
-                RemoveItem(GiantExtensionLaddersV2.bigLadderItem, terminal, amountOfRemovedItems);
                 amountOfRemovedItems++;
-
+                RemoveItem(GiantExtensionLaddersV2.bigLadderItem, terminal, amountOfRemovedItems);
             }
 
             if (MySyncedConfigs.Instance.isHugeLadderEnabled)
@@ -140,8 +191,8 @@ namespace GiantExtensionLaddersV2.Patches
             }
             else
             {
-                RemoveItem(GiantExtensionLaddersV2.hugeLadderItem, terminal, amountOfRemovedItems);
                 amountOfRemovedItems++;
+                RemoveItem(GiantExtensionLaddersV2.hugeLadderItem, terminal, amountOfRemovedItems);
             }
 
             if (MySyncedConfigs.Instance.isUltimateLadderEnabled)
@@ -150,8 +201,8 @@ namespace GiantExtensionLaddersV2.Patches
             }
             else
             {
-                RemoveItem(GiantExtensionLaddersV2.ultimateLadderItem, terminal, amountOfRemovedItems);
                 amountOfRemovedItems++;
+                RemoveItem(GiantExtensionLaddersV2.ultimateLadderItem, terminal, amountOfRemovedItems);
             }
         }
 
@@ -162,9 +213,14 @@ namespace GiantExtensionLaddersV2.Patches
                 Item buyableItem = FindBuyableItem(targetItem, terminal);
                 if (buyableItem != null)
                 {
-                    buyableItem.itemName = DISABLED_LADDER_NAME;
-                    buyableItem.creditsWorth = DISABLED_LADDER_PRICE;
-                    buyableItem.highestSalePercentage = 0;
+                    if (!removedItemsSafeFix.Contains(buyableItem))
+                    {
+                        removedItemsSafeFix.Add(buyableItem);
+
+                        buyableItem.itemName = string.Format(DISABLED_LADDER_NAME, removedItemsSafeFix.Count);
+                        buyableItem.creditsWorth = DISABLED_LADDER_PRICE;
+                        buyableItem.highestSalePercentage = 0;
+                    }
                 }
                 else
                 {
@@ -174,26 +230,30 @@ namespace GiantExtensionLaddersV2.Patches
             } 
             else if (MySyncedConfigs.Instance.isSalesFixTerminalActive)
             {
-                int index = 0;
+                int removedItemIndex = 0;
 
                 for (int i = 0; i < terminal.buyableItemsList.Length; i++)
                 {
                     if (terminal.buyableItemsList[i].itemName == targetItem.itemName)
                     {
-                        index = i;
+                        removedItemIndex = i;
                         break;
                     }
                 }
 
-                Item removedItem = terminal.buyableItemsList[index];
-                Item itemLastOnList = terminal.buyableItemsList[terminal.buyableItemsList.Length - amountOfRemovedItems - 1];
+                Item removedItem = terminal.buyableItemsList[removedItemIndex];
+                Item itemLastOnList = terminal.buyableItemsList[terminal.buyableItemsList.Length - amountOfRemovedItems];
 
-                UpdateBuyItemIndex(removedItem, terminal.buyableItemsList.Length - amountOfRemovedItems - 1);
-                UpdateBuyItemIndex(itemLastOnList, index);
-                terminal.buyableItemsList[index] = itemLastOnList;
-                terminal.buyableItemsList[terminal.buyableItemsList.Length - amountOfRemovedItems - 1] = removedItem;
+                UpdateBuyItemIndex(removedItem, terminal.buyableItemsList.Length - amountOfRemovedItems);
+                UpdateBuyItemIndex(itemLastOnList, removedItemIndex);
+                terminal.buyableItemsList[removedItemIndex] = itemLastOnList;
+                terminal.buyableItemsList[terminal.buyableItemsList.Length - amountOfRemovedItems] = removedItem;
 
-                Items.RemoveShopItem(targetItem);
+                if (!removedItemsTerminalFix.Contains(targetItem))
+                {
+                    removedItemsTerminalFix.Add(targetItem);
+                    Items.RemoveShopItem(targetItem);
+                }
             }
             else
             {
