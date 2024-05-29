@@ -1,12 +1,10 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using GameNetcodeStuff;
 using GiantExtensionLaddersV2.Behaviours;
 using GiantExtensionLaddersV2.ConfigStuff;
 using GiantExtensionLaddersV2.Patches;
 using HarmonyLib;
 using LethalLib.Modules;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,24 +26,28 @@ namespace GiantExtensionLaddersV2
         private const string bigLadderAssetbundleName = "BigLadderAssets";
         private const string hugeLadderAssetbundleName = "HugeLadderAssets";
         private const string ultimateLadderAssetbundleName = "UltimateLadderAssets";
-        private const string tinyLadderItemPropertiesLocation = "Assets/extLadderTest/tinyLadder/ExtensionLadder_0.asset";
-        private const string bigLadderItemPropertiesLocation = "Assets/extLadderTest/lcLadder/ExtensionLadder_0.asset";
-        private const string hugeLadderItemPropertiesLocation = "Assets/extLadderTest/newLongerLadder/ExtensionLadder_0.asset";
-        private const string ultimateLadderItemPropertiesLocation = "Assets/extLadderTest/Gigantic ladder/ExtensionLadder_0.asset";
+        private const string tinyLadderItemPropertiesLocation = "Assets/extLadderTest/tinyLadder/TinyLadder.asset";
+        private const string bigLadderItemPropertiesLocation = "Assets/extLadderTest/BigLadder/BigLadder.asset";
+        private const string hugeLadderItemPropertiesLocation = "Assets/extLadderTest/HugeLadder/HugeLadder.asset";
+        private const string ultimateLadderItemPropertiesLocation = "Assets/extLadderTest/Gigantic ladder/UltimateLadderItem.asset";
         private const int MAX_PROPERTY_AMOUNT = 19;
         internal static int propertyCounter = 0;
 
-        private const float HEIGHT_DIVIDE_CONST = 2.43f;
-
-        internal LadderObject tinyLadder = new LadderObject(10.3f, 75f, 2, 2, 10.3f / HEIGHT_DIVIDE_CONST, 0.15f, false, GiantLadderType.TINY);
-        internal LadderObject bigLadder = new LadderObject(17f, 60f, 3, 7, 7f, 0.15f, true, GiantLadderType.BIG);
-        internal LadderObject hugeLadder = new LadderObject(34.4f, 60f, 4, 8, 14.15f, 0.2f, true, GiantLadderType.HUGE);
-        internal LadderObject ultimateLadder = new LadderObject(68f, 60f, 5, 9, 27.98f, 0.25f, true, GiantLadderType.ULTIMATE);
+        internal LadderObject tinyLadder = new LadderObject(10.3f, 75f, 0.15f, false, GiantLadderType.TINY);
+        internal LadderObject bigLadder = new LadderObject(17f, 60f, 0.15f, true, GiantLadderType.BIG);
+        internal LadderObject hugeLadder = new LadderObject(34.4f, 60f, 0.2f, true, GiantLadderType.HUGE);
+        internal LadderObject ultimateLadder = new LadderObject(68f, 60f, 0.25f, true, GiantLadderType.ULTIMATE);
 
         internal static Item tinyLadderItem;
         internal static Item bigLadderItem;
         internal static Item hugeLadderItem;
         internal static Item ultimateLadderItem;
+
+        internal static TerminalNode tinyLadderNode;
+        internal static TerminalNode bigLadderNode;
+        internal static TerminalNode hugeLadderNode;
+        internal static TerminalNode ultimateLadderNode;
+
 
         internal static bool isBuildSuccess = true;
 
@@ -117,9 +119,6 @@ namespace GiantExtensionLaddersV2
 
             tinyLadderScript.maxExtension = tinyLadder.LADDER_MAX_EXTENSION;
             tinyLadderScript.minInteractableRotation = tinyLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
-            tinyLadderScript.linecastChecksMultiplier = tinyLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
-            tinyLadderScript.linecastMinCheckHeight = tinyLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
-            tinyLadderScript.ladderHeightMultiplier = tinyLadder.LADDER_HEIGHT_MULTIPLIER;
             tinyLadderScript.ladderRotateSpeedMultiplier = tinyLadder.LADDER_ROTATE_SPEED;
             tinyLadderScript.isClimbable = true;
             tinyLadderScript.isClimbableInShip = true;
@@ -156,9 +155,6 @@ namespace GiantExtensionLaddersV2
 
             bigLadderScript.maxExtension = bigLadder.LADDER_MAX_EXTENSION;
             bigLadderScript.minInteractableRotation = bigLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
-            bigLadderScript.linecastChecksMultiplier = bigLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
-            bigLadderScript.linecastMinCheckHeight = bigLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
-            bigLadderScript.ladderHeightMultiplier = bigLadder.LADDER_HEIGHT_MULTIPLIER;
             bigLadderScript.ladderRotateSpeedMultiplier = bigLadder.LADDER_ROTATE_SPEED;
             bigLadderScript.isClimbable = bigLadder.LADDER_IS_CLIMBABLE;
             bigLadderScript.giantLadderType = bigLadder.ladderType;
@@ -192,9 +188,6 @@ namespace GiantExtensionLaddersV2
 
             hugeLadderScript.maxExtension = hugeLadder.LADDER_MAX_EXTENSION;
             hugeLadderScript.minInteractableRotation = hugeLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
-            hugeLadderScript.linecastChecksMultiplier = hugeLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
-            hugeLadderScript.linecastMinCheckHeight = hugeLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
-            hugeLadderScript.ladderHeightMultiplier = hugeLadder.LADDER_HEIGHT_MULTIPLIER;
             hugeLadderScript.ladderRotateSpeedMultiplier = hugeLadder.LADDER_ROTATE_SPEED;
             hugeLadderScript.isClimbable = hugeLadder.LADDER_IS_CLIMBABLE;
             hugeLadderScript.giantLadderType = hugeLadder.ladderType;
@@ -228,9 +221,6 @@ namespace GiantExtensionLaddersV2
 
             ultimateLadderScript.maxExtension = ultimateLadder.LADDER_MAX_EXTENSION;
             ultimateLadderScript.minInteractableRotation = ultimateLadder.LADDER_MIN_ROTATION_FOR_INTERACTION;
-            ultimateLadderScript.linecastChecksMultiplier = ultimateLadder.LADDER_LINECAST_CHECKS_MULTIPLIER;
-            ultimateLadderScript.linecastMinCheckHeight = ultimateLadder.LADDER_LINECAST_MIN_CHECK_HEIGHT;
-            ultimateLadderScript.ladderHeightMultiplier = ultimateLadder.LADDER_HEIGHT_MULTIPLIER;
             ultimateLadderScript.ladderRotateSpeedMultiplier = ultimateLadder.LADDER_ROTATE_SPEED;
             ultimateLadderScript.isClimbable = ultimateLadder.LADDER_IS_CLIMBABLE;
             ultimateLadderScript.giantLadderType = ultimateLadder.ladderType;
@@ -255,25 +245,25 @@ namespace GiantExtensionLaddersV2
             Utilities.FixMixerGroups(hugeLadderItem.spawnPrefab);
             Utilities.FixMixerGroups(ultimateLadderItem.spawnPrefab);
 
-            TerminalNode tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             tinyLadderNode.clearPreviousText = true;
             tinyLadderNode.displayText = "Awwww... tiny ladder! Can be used if the person climbing is also tiny!\n\n";
-            Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, MySyncedConfigs.Instance.TINY_LADDER_PRICE);
+            Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, MySyncedConfigs.Instance.tinyLadderPrice);
 
-            TerminalNode bigLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            bigLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             bigLadderNode.clearPreviousText = true;
             bigLadderNode.displayText = "This ladder is 17m high, thats about 1,75x height of the standard ladder.\n\n";
-            Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, MySyncedConfigs.Instance.BIG_LADDER_PRICE);
+            Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, MySyncedConfigs.Instance.bigLadderPrice);
 
-            TerminalNode hugeLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            hugeLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             hugeLadderNode.clearPreviousText = true;
             hugeLadderNode.displayText = "This ladder is 34m high, thats about 3,5x height of the standard ladder.\n\n";
-            Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, MySyncedConfigs.Instance.HUGE_LADDER_PRICE);
+            Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, MySyncedConfigs.Instance.hugeLadderPrice);
 
-            TerminalNode ultimateLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
+            ultimateLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             ultimateLadderNode.clearPreviousText = true;
             ultimateLadderNode.displayText = "This ladder is 68m high, thats about 7x height of the standard ladder.\n\n";
-            Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, MySyncedConfigs.Instance.ULTIMATE_LADDER_PRICE);
+            Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, MySyncedConfigs.Instance.ultimateLadderPrice);
 
             Harmony.PatchAll();
 
@@ -293,7 +283,7 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.mainObjectRenderer = meshRenderer;
-                    //mls.LogDebug("1. component: LadderBox");
+                    mls.LogMessage("1. component: LadderBox");
                     break;
                 }
             }
@@ -303,13 +293,13 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.ladderAnimator = animator;
-                    //mls.LogDebug("2.  AnimContainer");
+                    mls.LogMessage("2.  AnimContainer");
                 }
                 if (animator.name.Equals("MeshContainer"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderRotateAnimator = animator;
-                    //mls.LogDebug("3. component: MeshContainer");
+                    mls.LogMessage("3. component: MeshContainer");
                 }
             }
             foreach (Transform transform in transforms)
@@ -318,25 +308,25 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.baseNode = transform;
-                    //mls.LogDebug("4. component: Base");
+                    mls.LogMessage("4. component: Base");
                 }
                 if (transform.name.Equals("TopPosition"))
                 {
                     propertyCounter++;
                     ladderItemScript.topNode = transform;
-                    //mls.LogDebug("5.component: TopPosition");
+                    mls.LogMessage("5.component: TopPosition");
                 }
                 if (transform.name.Equals("TopCollisionNode"))
                 {
                     propertyCounter++;
                     ladderItemScript.topCollisionNode = transform;
-                    //mls.LogDebug("19.component: TopCollisionNode");
+                    mls.LogMessage("19.component: TopCollisionNode");
                 }
                 if (transform.name.Equals("MovableNode"))
                 {
                     propertyCounter++;
                     ladderItemScript.moveableNode = transform;
-                    //mls.LogDebug("6. component: MovableNode");
+                    mls.LogMessage("6. component: MovableNode");
                 }
             }
             foreach (AudioClip audioClip in audioClips)
@@ -345,39 +335,39 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.hitRoof = audioClip;
-                    //mls.LogDebug("7. component: ExtensionLadderHitWall");
+                    mls.LogMessage("7. component: ExtensionLadderHitWall");
                 }
                 if (audioClip.name.Equals("ExtensionLadderHitWall2"))
                 {
                     propertyCounter += 2;
                     ladderItemScript.fullExtend = audioClip;
                     ladderItemScript.hitWall = audioClip;
-                    //mls.LogDebug("8. component: ExtensionLadderHitWall2");
-                    //mls.LogDebug("9. component: ExtensionLadderHitWall2 (for 2nd audio clip)");
+                    mls.LogMessage("8. component: ExtensionLadderHitWall2");
+                    mls.LogMessage("9. component: ExtensionLadderHitWall2 (for 2nd audio clip)");
                 }
                 if (audioClip.name.Equals("ExtensionLadderExtend"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderExtendSFX = audioClip;
-                    //mls.LogDebug("10. component: ExtensionLadderExtend");
+                    mls.LogMessage("10. component: ExtensionLadderExtend");
                 }
                 if (audioClip.name.Equals("ExtensionLadderShrink"))
                 {
                     propertyCounter++;
                     ladderItemScript.ladderShrinkSFX = audioClip;
-                    //mls.LogDebug("11. component: ExtensionLadderShrink");
+                    mls.LogMessage("11. component: ExtensionLadderShrink");
                 }
                 if (audioClip.name.Equals("ExtensionLadderAlarm"))
                 {
                     propertyCounter++;
                     ladderItemScript.blinkWarningSFX = audioClip;
-                    //mls.LogDebug("12. component: ExtensionLadderAlarm");
+                    mls.LogMessage("12. component: ExtensionLadderAlarm");
                 }
                 if (audioClip.name.Equals("ExtensionLadderLidOpen"))
                 {
                     propertyCounter++;
                     ladderItemScript.lidOpenSFX = audioClip;
-                    //mls.LogDebug("13. component: ExtensionLadderLidOpen");
+                    mls.LogMessage("13. component: ExtensionLadderLidOpen");
                 }
             }
             foreach (AudioSource audioSource in audioSources)
@@ -386,7 +376,7 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.ladderAudio = audioSource;
-                    //mls.LogDebug("14. component: LadderAudio");
+                    mls.LogMessage("14. component: LadderAudio");
                     break;
                 }
             }
@@ -396,7 +386,7 @@ namespace GiantExtensionLaddersV2
                 {
                     ladderItemScript.ladderScript = interactTrigger;
                     propertyCounter++;
-                    //mls.LogDebug("15. component: ExtLadderTrigger (interactTrigger)");
+                    mls.LogMessage("15. component: ExtLadderTrigger (interactTrigger)");
                     break;
                 }
             }
@@ -406,25 +396,25 @@ namespace GiantExtensionLaddersV2
                 {
                     propertyCounter++;
                     ladderItemScript.interactCollider = boxCollider;
-                    //mls.LogDebug("16. component: ExtLadderTrigger (boxCollider)");
+                    mls.LogMessage("16. component: ExtLadderTrigger (boxCollider)");
                 }
                 if (boxCollider.name.Equals("LadderBridgeCollider"))
                 {
                     propertyCounter++;
                     ladderItemScript.bridgeCollider = boxCollider;
-                    //mls.LogDebug("17. component: LadderBridgeCollider");
+                    mls.LogMessage("17. component: LadderBridgeCollider");
                 }
                 if (boxCollider.name.Equals("KillTrigger"))
                 {
                     propertyCounter++;
                     ladderItemScript.killTrigger = boxCollider;
-                    //mls.LogDebug("18. component: KillTrigger");
+                    mls.LogMessage("18. component: KillTrigger");
                 }
             }
 
             if (propertyCounter == MAX_PROPERTY_AMOUNT)
             {
-                mls.LogDebug("every component was found for item script: " + ladderItemScript.name);
+                mls.LogMessage("every component was found for item script: " + ladderItemScript.name);
             }
             else
             {

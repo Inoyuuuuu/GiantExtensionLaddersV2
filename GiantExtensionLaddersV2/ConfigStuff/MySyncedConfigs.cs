@@ -2,6 +2,7 @@
 using BepInEx.Logging;
 using CSync.Lib;
 using CSync.Util;
+using GiantExtensionLaddersV2.Patches;
 using System;
 using System.Runtime.Serialization;
 
@@ -11,9 +12,8 @@ namespace GiantExtensionLaddersV2.ConfigStuff;
 [DataContract]
 internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
 {
-
     private const int MIN_LADDER_PRICE = 1;
-    private const int MAX_LADDER_PRICE = 99999;
+    private const int MAX_LADDER_PRICE = 999999;
     private const float MIN_EXT_TIME = 3f;
     private const float MAX_EXT_TIME = 999f;
 
@@ -40,11 +40,17 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
     internal static float preSyncUltimateLadderExtTime;
 
     [DataMember]
-    internal SyncedEntry<bool> IS_TINY_LADDER_ENABLED, IS_BIG_LADDER_ENABLED, IS_HUGE_LADDER_ENABLED, IS_ULTIMATE_LADDER_ENABLED;
+    internal SyncedEntry<bool> isTinyLadderEnabled, isBigLadderEnabled, isHugeLadderEnabled, isUltimateLadderEnabled;
     [DataMember]
-    internal SyncedEntry<float> TINY_LADDER_EXT_TIME, BIG_LADDER_EXT_TIME, HUGE_LADDER_EXT_TIME, ULTIMATE_LADDER_EXT_TIME;
+    internal SyncedEntry<float> tinyLadderExtTime, bigLadderExtTime, hugeLadderExtTime, ultimateLadderExtTime;
     [DataMember]
-    internal SyncedEntry<int> TINY_LADDER_PRICE, BIG_LADDER_PRICE, HUGE_LADDER_PRICE, ULTIMATE_LADDER_PRICE;
+    internal SyncedEntry<int> tinyLadderPrice, bigLadderPrice, hugeLadderPrice, ultimateLadderPrice;
+    [DataMember]
+    internal SyncedEntry<bool> isTinyLadderAlwaysActive, isBigLadderAlwaysActive, isHugeLadderAlwaysActive, isUltimateLadderAlwaysActive;
+
+    [DataMember]
+    internal SyncedEntry<bool> isSalesFixEasyActive, isSalesFixTerminalActive, isDontFix;
+    internal ConfigEntry<string> salesFixHeader;
 
     private static ManualLogSource mlsConfig = Logger.CreateLogSource(MyPluginInfo.PLUGIN_GUID + ".Config");
 
@@ -53,26 +59,35 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
         ConfigManager.Register(this);
 
         //laddersActive
-        IS_TINY_LADDER_ENABLED = cfg.BindSyncedEntry("DeactivateLadders", "isTinyLadderEnabled", true, "Tiny ladder doesn't appear in the shop if this is set to false.");
-        IS_BIG_LADDER_ENABLED = cfg.BindSyncedEntry("DeactivateLadders", "isBigLadderEnabled", true, "Big ladder doesn't appear in the shop if this is set to false.");
-        IS_HUGE_LADDER_ENABLED = cfg.BindSyncedEntry("DeactivateLadders", "isHugeLadderEnabled", true, "Huge ladder doesn't appear in the shop if this is set to false.");
-        IS_ULTIMATE_LADDER_ENABLED = cfg.BindSyncedEntry("DeactivateLadders", "isUltimateLadderEnabled", true, "Ultimate ladder doesn't appear in the shop if this is set to false.");
-
+        isTinyLadderEnabled = cfg.BindSyncedEntry("DeactivateLadders", "isTinyLadderEnabled", true, "Tiny ladder doesn't appear in the shop if this is set to false.");
+        isBigLadderEnabled = cfg.BindSyncedEntry("DeactivateLadders", "isBigLadderEnabled", true, "Big ladder doesn't appear in the shop if this is set to false.");
+        isHugeLadderEnabled = cfg.BindSyncedEntry("DeactivateLadders", "isHugeLadderEnabled", true, "Huge ladder doesn't appear in the shop if this is set to false.");
+        isUltimateLadderEnabled = cfg.BindSyncedEntry("DeactivateLadders", "isUltimateLadderEnabled", true, "Ultimate ladder doesn't appear in the shop if this is set to false.");
 
         //ladderPrices
-        TINY_LADDER_PRICE = cfg.BindSyncedEntry("LadderPrices", "tinyLadderPrice", tinyLadderBasePrice, "Sets the price of the tiny ladder");
-        BIG_LADDER_PRICE = cfg.BindSyncedEntry("LadderPrices", "bigLadderPrice", bigLadderBasePrice, "Sets the price of the big ladder");
-        HUGE_LADDER_PRICE = cfg.BindSyncedEntry("LadderPrices", "hugeLadderPrice", hugeLadderBasePrice, "Sets the price of the huge ladder");
-        ULTIMATE_LADDER_PRICE = cfg.BindSyncedEntry("LadderPrices", "ultimateLadderPrice", ultimateLadderBasePrice, "Sets the price of the ultimate ladder");
+        tinyLadderPrice = cfg.BindSyncedEntry("LadderPrices", "tinyLadderPrice", tinyLadderBasePrice, "Sets the price of the tiny ladder");
+        bigLadderPrice = cfg.BindSyncedEntry("LadderPrices", "bigLadderPrice", bigLadderBasePrice, "Sets the price of the big ladder");
+        hugeLadderPrice = cfg.BindSyncedEntry("LadderPrices", "hugeLadderPrice", hugeLadderBasePrice, "Sets the price of the huge ladder");
+        ultimateLadderPrice = cfg.BindSyncedEntry("LadderPrices", "ultimateLadderPrice", ultimateLadderBasePrice, "Sets the price of the ultimate ladder");
+
+        //ladderExtTime always active
+        isTinyLadderAlwaysActive = cfg.BindSyncedEntry("LadderAlwaysActive", "isTinyLadderAlwaysActive", false, "Sets the tiny ladder to always being extended.");
+        isBigLadderAlwaysActive = cfg.BindSyncedEntry("LadderAlwaysActive", "isBigLadderAlwaysActive", false, "Sets the big ladder to always being extended.");
+        isHugeLadderAlwaysActive = cfg.BindSyncedEntry("LadderAlwaysActive", "isHugeLadderAlwaysActive", false, "Sets the huge ladder to always being extended.");
+        isUltimateLadderAlwaysActive = cfg.BindSyncedEntry("LadderAlwaysActive", "isUltimateLadderAlwaysActive", false, "Sets the ultimate ladder to always being extended.");
 
         //ladderExtTime
-        TINY_LADDER_EXT_TIME = cfg.BindSyncedEntry("LadderExtensionTime", "tinyLadderExtensionTime", tinyLadderExtensionTimeBase, "RULES THAT APPLY FOR ALL LADDER TIME CONFIGS:" + Environment.NewLine
-        + "Values above 660s last longer than a whole day." + Environment.NewLine
-        + "Values below 8 seconds have audio issues!" + Environment.NewLine + Environment.NewLine
-        + "Sets the amount of seconds the tiny ladder stays extended.");
-        BIG_LADDER_EXT_TIME = cfg.BindSyncedEntry("LadderExtensionTime", "bigLadderExtensionTime", bigLadderExtensionTimeBase, "Sets the amount of seconds the big ladder stays extended.");
-        HUGE_LADDER_EXT_TIME = cfg.BindSyncedEntry("LadderExtensionTime", "hugeLadderExtensionTime", hugeLadderExtensionTimeBase, "Sets the amount of seconds the huge ladder stays extended");
-        ULTIMATE_LADDER_EXT_TIME = cfg.BindSyncedEntry("LadderExtensionTime", "ultimateLadderExtensionTime", ultimateLadderExtensionTimeBase, "Sets the amount of seconds the ultimate ladder stays extended");
+        tinyLadderExtTime = cfg.BindSyncedEntry("LadderExtensionTime", "tinyLadderExtensionTime", tinyLadderExtensionTimeBase, "Sets the amount of seconds the tiny ladder stays extended.");
+        bigLadderExtTime = cfg.BindSyncedEntry("LadderExtensionTime", "bigLadderExtensionTime", bigLadderExtensionTimeBase, "Sets the amount of seconds the big ladder stays extended.");
+        hugeLadderExtTime = cfg.BindSyncedEntry("LadderExtensionTime", "hugeLadderExtensionTime", hugeLadderExtensionTimeBase, "Sets the amount of seconds the huge ladder stays extended");
+        ultimateLadderExtTime = cfg.BindSyncedEntry("LadderExtensionTime", "ultimateLadderExtensionTime", ultimateLadderExtensionTimeBase, "Sets the amount of seconds the ultimate ladder stays extended");
+        //SalesFixes
+        salesFixHeader = cfg.Bind("SalesBugfixMethod", "WhatIsThisConfigSection?", "(„• ᴗ •„) I am a happy placeholder!", "The sales bug is a relatively small bug that shifts sales by one slot occasionally. " + Environment.NewLine +
+            "To fix this I have two solutions: the safe one, which will most likely always work and the experimental one, which looks way nicer in the terminal but could cause some issues.");
+        isSalesFixEasyActive = cfg.BindSyncedEntry("SalesBugfixMethod", "safeSalesFix", true, "This will fix sales in a very safe way, but disabled ladders will appear as an item named " + '"' + LoadLadderConfigsPatch.DISABLED_LADDER_NAME + '"' + " in the store.");
+        isSalesFixTerminalActive = cfg.BindSyncedEntry("SalesBugfixMethod", "experimentalSalesFix", false, "This will fix sales and fully remove disabled ladders from the store without " + '"' + LoadLadderConfigsPatch.DISABLED_LADDER_NAME + '"' + " being displayed." + Environment.NewLine +
+            "WARNING: This might cause store related bugs or have influence on the compatibility with other mods!");
+        isDontFix = cfg.BindSyncedEntry("SalesBugfixMethod", "dontFixSales", false, "This will not fix the sales, resulting in sales sometimes being displayed on an item which is not on sale (or the opposite of that).");
 
         fixConfigs();
     }
@@ -80,91 +95,109 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
     private void fixConfigs()
     {
         //prices
-        if (TINY_LADDER_PRICE.Value < MIN_LADDER_PRICE)
+        if (tinyLadderPrice.Value < MIN_LADDER_PRICE)
         {
-            TINY_LADDER_PRICE.Value = tinyLadderBasePrice;
+            tinyLadderPrice.Value = tinyLadderBasePrice;
             mlsConfig.LogWarning("big ladder price was too low, was set to basic value: " + tinyLadderBasePrice);
-        } else if (TINY_LADDER_PRICE.Value > MAX_LADDER_PRICE)
+        }
+        else if (tinyLadderPrice.Value > MAX_LADDER_PRICE)
         {
-            TINY_LADDER_PRICE.Value = MAX_LADDER_PRICE;
-            mlsConfig.LogWarning("big ladder price was too high, was set to max value: " + MAX_EXT_TIME);
+            tinyLadderPrice.Value = MAX_LADDER_PRICE;
+            mlsConfig.LogWarning("big ladder price was too high, was set to max value: " + MAX_LADDER_PRICE);
         }
 
-        if (BIG_LADDER_PRICE.Value < MIN_LADDER_PRICE)
+        if (bigLadderPrice.Value < MIN_LADDER_PRICE)
         {
-            BIG_LADDER_PRICE.Value = bigLadderBasePrice;
+            bigLadderPrice.Value = bigLadderBasePrice;
             mlsConfig.LogWarning("big ladder price was too low, was set to basic value: " + bigLadderBasePrice);
-        } else if (BIG_LADDER_PRICE.Value > MAX_LADDER_PRICE)
+        }
+        else if (bigLadderPrice.Value > MAX_LADDER_PRICE)
         {
-            BIG_LADDER_PRICE.Value = MAX_LADDER_PRICE;
-            mlsConfig.LogWarning("big ladder price was too high, was set to max value: " + MAX_EXT_TIME);
+            bigLadderPrice.Value = MAX_LADDER_PRICE;
+            mlsConfig.LogWarning("big ladder price was too high, was set to max value: " + MAX_LADDER_PRICE);
         }
 
-        if (HUGE_LADDER_PRICE.Value < MIN_LADDER_PRICE)
+        if (hugeLadderPrice.Value < MIN_LADDER_PRICE)
         {
-            HUGE_LADDER_PRICE.Value = hugeLadderBasePrice;
+            hugeLadderPrice.Value = hugeLadderBasePrice;
             mlsConfig.LogWarning("huge ladder price was too low, was set to basic value: " + hugeLadderBasePrice);
-        } else if (HUGE_LADDER_PRICE.Value > MAX_LADDER_PRICE)
+        }
+        else if (hugeLadderPrice.Value > MAX_LADDER_PRICE)
         {
-            HUGE_LADDER_PRICE.Value = MAX_LADDER_PRICE;
+            hugeLadderPrice.Value = MAX_LADDER_PRICE;
             mlsConfig.LogWarning("huge ladder price was too high, was set to max value: " + MAX_LADDER_PRICE);
         }
 
-        if (ULTIMATE_LADDER_PRICE.Value < MIN_LADDER_PRICE)
+        if (ultimateLadderPrice.Value < MIN_LADDER_PRICE)
         {
-            ULTIMATE_LADDER_PRICE.Value = ultimateLadderBasePrice;
+            ultimateLadderPrice.Value = ultimateLadderBasePrice;
             mlsConfig.LogWarning("ultimate ladder price was too low, was set to basic value: " + ultimateLadderBasePrice);
         }
-        else if (ULTIMATE_LADDER_PRICE.Value > MAX_LADDER_PRICE)
+        else if (ultimateLadderPrice.Value > MAX_LADDER_PRICE)
         {
-            ULTIMATE_LADDER_PRICE.Value = MAX_LADDER_PRICE;
+            ultimateLadderPrice.Value = MAX_LADDER_PRICE;
             mlsConfig.LogWarning("ultimate ladder price was too high, was set to max value: " + MAX_LADDER_PRICE);
         }
 
         //ext-time
-        if (TINY_LADDER_EXT_TIME < MIN_EXT_TIME)
+        if (tinyLadderExtTime < MIN_EXT_TIME)
         {
-            TINY_LADDER_EXT_TIME.Value = tinyLadderExtensionTimeBase;
+            tinyLadderExtTime.Value = tinyLadderExtensionTimeBase;
             mlsConfig.LogWarning("big ladder extension time was too low, was set to basic value: " + tinyLadderExtensionTimeBase);
-        } else if (TINY_LADDER_EXT_TIME.Value > MAX_EXT_TIME)
+        }
+        else if (tinyLadderExtTime.Value > MAX_EXT_TIME)
         {
-            TINY_LADDER_EXT_TIME.Value = MAX_EXT_TIME;
+            tinyLadderExtTime.Value = MAX_EXT_TIME;
             mlsConfig.LogWarning("big ladder extension time was too high, was set to max value: " + MAX_EXT_TIME);
             mlsConfig.LogWarning("Values over 660 already last longer than a day");
         }
 
-        if (BIG_LADDER_EXT_TIME.Value < MIN_EXT_TIME)
+        if (bigLadderExtTime.Value < MIN_EXT_TIME)
         {
-            BIG_LADDER_EXT_TIME.Value = bigLadderExtensionTimeBase;
+            bigLadderExtTime.Value = bigLadderExtensionTimeBase;
             mlsConfig.LogWarning("big ladder extension time was too low, was set to basic value: " + bigLadderExtensionTimeBase);
-        } else if (BIG_LADDER_EXT_TIME.Value > MAX_EXT_TIME)
+        }
+        else if (bigLadderExtTime.Value > MAX_EXT_TIME)
         {
-            BIG_LADDER_EXT_TIME.Value = MAX_EXT_TIME;
+            bigLadderExtTime.Value = MAX_EXT_TIME;
             mlsConfig.LogWarning("big ladder extension time was too high, was set to max value: " + MAX_EXT_TIME);
             mlsConfig.LogWarning("Values over 660 already last longer than a day");
         }
 
-        if (HUGE_LADDER_EXT_TIME.Value < MIN_EXT_TIME)
+        if (hugeLadderExtTime.Value < MIN_EXT_TIME)
         {
-            HUGE_LADDER_EXT_TIME.Value = hugeLadderExtensionTimeBase;
+            hugeLadderExtTime.Value = hugeLadderExtensionTimeBase;
             mlsConfig.LogWarning("huge ladder extension time was too low, was set to basic value: " + hugeLadderExtensionTimeBase);
-        } else if (HUGE_LADDER_EXT_TIME.Value > MAX_EXT_TIME)
+        }
+        else if (hugeLadderExtTime.Value > MAX_EXT_TIME)
         {
-            HUGE_LADDER_EXT_TIME.Value = MAX_EXT_TIME;
+            hugeLadderExtTime.Value = MAX_EXT_TIME;
             mlsConfig.LogWarning("huge ladder extension time was too high, was set to max value: " + MAX_EXT_TIME);
             mlsConfig.LogWarning("Values over 660 already last longer than a day");
         }
 
-        if (ULTIMATE_LADDER_EXT_TIME.Value < MIN_EXT_TIME)
+        if (ultimateLadderExtTime.Value < MIN_EXT_TIME)
         {
-            ULTIMATE_LADDER_EXT_TIME.Value = ultimateLadderExtensionTimeBase;
+            ultimateLadderExtTime.Value = ultimateLadderExtensionTimeBase;
             mlsConfig.LogWarning("huge ladder extension time was too low, was set to basic value: " + ultimateLadderExtensionTimeBase);
         }
-        else if (ULTIMATE_LADDER_EXT_TIME.Value > MAX_EXT_TIME)
+        else if (ultimateLadderExtTime.Value > MAX_EXT_TIME)
         {
-            ULTIMATE_LADDER_EXT_TIME.Value = MAX_EXT_TIME;
+            ultimateLadderExtTime.Value = MAX_EXT_TIME;
             mlsConfig.LogWarning("huge ladder extension time was too high, was set to max value: " + MAX_EXT_TIME);
             mlsConfig.LogWarning("Values over 660 already last longer than a day");
+        }
+
+        //sales fix
+        if (isDontFix)
+        {
+            isSalesFixEasyActive.Value = false;
+            isSalesFixTerminalActive.Value = false;
+        }
+
+        if (isSalesFixEasyActive && isSalesFixTerminalActive)
+        {
+            isSalesFixTerminalActive.Value = false;
         }
     }
 }

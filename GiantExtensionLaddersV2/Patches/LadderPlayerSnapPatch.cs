@@ -1,12 +1,7 @@
 using GameNetcodeStuff;
 using GiantExtensionLaddersV2.Behaviours;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace GiantExtensionLaddersV2.Patches
 {

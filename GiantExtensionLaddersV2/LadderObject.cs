@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace GiantExtensionLaddersV2
@@ -25,15 +23,11 @@ namespace GiantExtensionLaddersV2
         internal float LADDER_ROTATE_SPEED { get; private set; }
         internal bool LADDER_IS_CLIMBABLE { get; private set; }
 
-        public LadderObject(float ladderMaxExtension, float ladderMinRotationForInteraction, int ladderLinecastChecksMultiplier,
-            int ladderLinecastMinCheckHeight, float ladderHeightMultiplier, float ladderRotateSpeed, bool ladderIsClimbable, 
+        public LadderObject(float ladderMaxExtension, float ladderMinRotationForInteraction, float ladderRotateSpeed, bool ladderIsClimbable, 
             GiantLadderType type)
         {
             LADDER_MAX_EXTENSION = ladderMaxExtension;
             LADDER_MIN_ROTATION_FOR_INTERACTION = ladderMinRotationForInteraction;
-            LADDER_LINECAST_CHECKS_MULTIPLIER = ladderLinecastChecksMultiplier;
-            LADDER_LINECAST_MIN_CHECK_HEIGHT = ladderLinecastMinCheckHeight;
-            LADDER_HEIGHT_MULTIPLIER = ladderHeightMultiplier;
             LADDER_ROTATE_SPEED = ladderRotateSpeed;
             LADDER_IS_CLIMBABLE = ladderIsClimbable;
             this.ladderType = type;
