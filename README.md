@@ -16,20 +16,7 @@ For this you'll need mods that can shrink players to 0.25 and lower of their siz
 - Tiny ladder to play with  _...could be deadly!_
 
 ## How do they look in game?
-![ladder on facility](https://i.imgur.com/tjoY2Tk.png)
-![huge ladder](https://i.imgur.com/MwAOsH9.png)
-![ladders on rock](https://i.imgur.com/9lWD6Ef.png)
-![tiny ladder](https://i.imgur.com/oo7RxWu.png)
-![tiny ladder with player](https://i.imgur.com/4yjLZWs.png)
-
-![ladder comparison](https://i.imgur.com/qnhr69a.png)
-
-
-🟨&nbsp; Normal Extension Ladder \
-🟦&nbsp; Big Extension Ladder \
-🟧&nbsp; Huge Extension Ladder \
-🟥&nbsp; Ultimate Extension Ladder
-
+You can look at the pictures on the [thunderstore page](https://thunderstore.io/c/lethal-company/p/Inoyu/Giant_Extension_Ladders/) if you're interested. c:
 
 ## Configs (synced with lobby-host's configs!)
 - set ladder prices
