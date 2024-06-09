@@ -12,24 +12,27 @@ namespace GiantExtensionLaddersV2.Patches
     [HarmonyPatch()]
     public class LoadLadderConfigsPatch
     {
+        private const bool debugLogsActive = false;
         internal const string DISABLED_LADDER_PREFIX = "- - - ";
         internal const string DISABLED_LADDER_NAME = DISABLED_LADDER_PREFIX + "(removed item: {0})";
         internal const int DISABLED_LADDER_PRICE = 99999;
         private static List<Item> removedItemsTerminalFix = new List<Item>();
         private static List<Item> removedItemsSafeFix = new List<Item>();
 
-        private static float methodUptime = 10f;     //letting this patch run for couple of times since csync takes a bit to fully sync
-        private static float updateConfigStart = 4f; //start sync after 4 seconds
+        private static float methodUptime = 10f;     //letting this patch run in loop for couple of seconds since csync takes a bit to fully sync
+        private static float updateConfigStart = 3.5f; //start sync after this (in seconds)
         private static bool isPatchActive = true;
 
         private static bool isFirstPatch = true;
         private static bool wasFirstPatchFail = false;
 
+        private static int amountOfRemovedItems = 0;
+
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
         [HarmonyPriority(Priority.Last)]
-        public static void PatchLaddersConfigs(PlayerControllerB __instance)
+        public static void PatchLaddersConfigs()
         {
             if (isPatchActive && methodUptime > 0)
             {
@@ -101,6 +104,9 @@ namespace GiantExtensionLaddersV2.Patches
                 GiantExtensionLaddersV2.mls.LogInfo("Updating sales...");
 
                 UnityEngine.Object.FindObjectOfType<Terminal>().SetItemSales();
+
+                GiantExtensionLaddersV2.mls.LogInfo("done!");
+
             }
             else if (isFirstPatch)
             {
@@ -116,46 +122,37 @@ namespace GiantExtensionLaddersV2.Patches
         private static void syncLadderPrices()
         {
             Terminal terminal = Object.FindObjectOfType<Terminal>();
-            int amountOfRemovedItems = 0;
-
-            if (MySyncedConfigs.Instance.isTinyLadderEnabled)
+            if (terminal == null)
             {
-                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.tinyLadderItem, MySyncedConfigs.Instance.tinyLadderPrice.Value);
-            }
-            else
-            {
-                amountOfRemovedItems++;
-                RemoveItem(GiantExtensionLaddersV2.tinyLadderItem, terminal, amountOfRemovedItems);
+                GiantExtensionLaddersV2.mls.LogWarning("Terminal was not found in scene!");
+                return;
             }
 
-            if (MySyncedConfigs.Instance.isBigLadderEnabled)
-            {
-                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.bigLadderItem, MySyncedConfigs.Instance.bigLadderPrice.Value);
-            }
-            else
-            {
-                amountOfRemovedItems++;
-                RemoveItem(GiantExtensionLaddersV2.bigLadderItem, terminal, amountOfRemovedItems);
-            }
+            amountOfRemovedItems = 0;
 
-            if (MySyncedConfigs.Instance.isHugeLadderEnabled)
-            {
-                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.hugeLadderItem, MySyncedConfigs.Instance.hugeLadderPrice.Value);
-            }
-            else
-            {
-                amountOfRemovedItems++;
-                RemoveItem(GiantExtensionLaddersV2.hugeLadderItem, terminal, amountOfRemovedItems);
-            }
+            UpdatePriceOrRemove(GiantExtensionLaddersV2.tinyLadderItem, MySyncedConfigs.Instance.isTinyLadderEnabled, MySyncedConfigs.Instance.tinyLadderPrice);
+            UpdatePriceOrRemove(GiantExtensionLaddersV2.bigLadderItem, MySyncedConfigs.Instance.isBigLadderEnabled, MySyncedConfigs.Instance.bigLadderPrice);
+            UpdatePriceOrRemove(GiantExtensionLaddersV2.hugeLadderItem, MySyncedConfigs.Instance.isHugeLadderEnabled, MySyncedConfigs.Instance.hugeLadderPrice);
+            UpdatePriceOrRemove(GiantExtensionLaddersV2.ultimateLadderItem, MySyncedConfigs.Instance.isUltimateLadderEnabled, MySyncedConfigs.Instance.ultimateLadderPrice);
 
-            if (MySyncedConfigs.Instance.isUltimateLadderEnabled)
+        }
+
+        private static void UpdatePriceOrRemove(Item ladderItem, bool isLadderEnabled, int updatedPrice)
+        {
+            if (ladderItem != null)
             {
-                Items.UpdateShopItemPrice(GiantExtensionLaddersV2.ultimateLadderItem, MySyncedConfigs.Instance.ultimateLadderPrice.Value);
-            }
-            else
+                if (isLadderEnabled)
+                {
+                    Items.UpdateShopItemPrice(ladderItem, updatedPrice);
+                }
+                else
+                {
+                    amountOfRemovedItems++;
+                    RemoveItem(ladderItem, terminal, amountOfRemovedItems);
+                }
+            } else
             {
-                amountOfRemovedItems++;
-                RemoveItem(GiantExtensionLaddersV2.ultimateLadderItem, terminal, amountOfRemovedItems);
+                GiantExtensionLaddersV2.mls.LogDebug("ladder was null");
             }
         }
 
@@ -163,7 +160,7 @@ namespace GiantExtensionLaddersV2.Patches
         {
             if (MySyncedConfigs.Instance.isSalesFixEasyActive)
             {
-                Item buyableItem = FindBuyableItem(targetItem, terminal);
+                Item? buyableItem = FindBuyableItem(targetItem, terminal);
                 if (buyableItem != null)
                 {
                     if (!removedItemsSafeFix.Contains(buyableItem))
@@ -230,7 +227,7 @@ namespace GiantExtensionLaddersV2.Patches
         {
             if (!(StartOfRound.Instance != null))
             {
-                GiantExtensionLaddersV2.mls.LogInfo("early return: SoR == null");
+                if (debugLogsActive) GiantExtensionLaddersV2.mls.LogDebug("early return: StartOfRound was null? Dafuq how did that happen??");
 
                 return;
             }
@@ -241,7 +238,7 @@ namespace GiantExtensionLaddersV2.Patches
 
             if (!buyableItemAssetInfos.Any((BuyableItemAssetInfo x) => x.itemAsset == item))
             {
-                GiantExtensionLaddersV2.mls.LogInfo("early return: buyableItemAssetInfos not found?");
+                if (debugLogsActive) GiantExtensionLaddersV2.mls.LogDebug("early return: buyableItemAssetInfos not found");
 
                 return;
             }
@@ -250,7 +247,7 @@ namespace GiantExtensionLaddersV2.Patches
 
             if (!source.Any((CompatibleNoun noun) => noun.noun == asset.keyword))
             {
-                GiantExtensionLaddersV2.mls.LogInfo("early return: compatible noun not found?");
+                if (debugLogsActive) GiantExtensionLaddersV2.mls.LogDebug("early return: compatible noun not found");
 
                 return;
             }
@@ -258,13 +255,13 @@ namespace GiantExtensionLaddersV2.Patches
 
             TerminalNode result = source.First((CompatibleNoun noun) => noun.noun == asset.keyword).result;
 
-            GiantExtensionLaddersV2.mls.LogInfo("SUCCESS old buyItemIndex: " + result.buyItemIndex + " new buyItemIndex: " + newIndex);
+            if (debugLogsActive) GiantExtensionLaddersV2.mls.LogDebug("SUCCESS old buyItemIndex: " + result.buyItemIndex + " new buyItemIndex: " + newIndex);
 
             result.buyItemIndex = newIndex;
 
             if (result.terminalOptions.Length == 0)
             {
-                GiantExtensionLaddersV2.mls.LogInfo("return: terminal options == 0");
+                if (debugLogsActive) GiantExtensionLaddersV2.mls.LogDebug("return: terminal options == 0");
                 return;
             }
 
