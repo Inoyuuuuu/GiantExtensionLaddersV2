@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 
 namespace GiantExtensionLaddersV2
 {
@@ -26,10 +27,12 @@ namespace GiantExtensionLaddersV2
         private const string bigLadderAssetbundleName = "BigLadderAssets";
         private const string hugeLadderAssetbundleName = "HugeLadderAssets";
         private const string ultimateLadderAssetbundleName = "UltimateLadderAssets";
+        private const string ladderCollectorAssetBundleName = "laddercollector";
         private const string tinyLadderItemPropertiesLocation = "Assets/extLadderTest/tinyLadder/TinyLadder.asset";
         private const string bigLadderItemPropertiesLocation = "Assets/extLadderTest/BigLadder/BigLadder.asset";
         private const string hugeLadderItemPropertiesLocation = "Assets/extLadderTest/HugeLadder/HugeLadder.asset";
         private const string ultimateLadderItemPropertiesLocation = "Assets/extLadderTest/Gigantic ladder/UltimateLadderItem.asset";
+        private const string ladderCollectorItemLocation = "Assets/LethalCompany/Mods/Items/LadderCollector/LadderCollectorItem.asset";
         private const int MAX_PROPERTY_AMOUNT = 19;
         internal static int propertyCounter = 0;
 
@@ -42,12 +45,15 @@ namespace GiantExtensionLaddersV2
         internal static Item bigLadderItem;
         internal static Item hugeLadderItem;
         internal static Item ultimateLadderItem;
+        internal static Item ladderCollectorItem;
 
         internal static TerminalNode tinyLadderNode;
         internal static TerminalNode bigLadderNode;
         internal static TerminalNode hugeLadderNode;
         internal static TerminalNode ultimateLadderNode;
+        internal static TerminalNode ladderCollectorNode;
 
+        internal static Dictionary<Item, string> originalItemNames = new Dictionary<Item, string>();
 
         internal static bool isBuildSuccess = true;
 
@@ -70,13 +76,15 @@ namespace GiantExtensionLaddersV2
             string bigLadderAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), bigLadderAssetbundleName);
             string hugeLadderAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), hugeLadderAssetbundleName);
             string ultimateLadderAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ultimateLadderAssetbundleName);
-            
+            string ladderCollectorAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ladderCollectorAssetBundleName);
+
             AssetBundle tinyLadderBundle = AssetBundle.LoadFromFile(tinyLadderAssetDir);
             AssetBundle bigLadderBundle = AssetBundle.LoadFromFile(bigLadderAssetDir);
             AssetBundle hugeLadderBundle = AssetBundle.LoadFromFile(hugeLadderAssetDir);
             AssetBundle ultimateLadderBundle = AssetBundle.LoadFromFile(ultimateLadderAssetDir);
+            AssetBundle ladderCollectorAssetBundle = AssetBundle.LoadFromFile(ladderCollectorAssetDir);
 
-            if (bigLadderBundle == null || hugeLadderBundle == null || tinyLadderBundle == null || ultimateLadderBundle == null)
+            if (bigLadderBundle == null || hugeLadderBundle == null || tinyLadderBundle == null || ultimateLadderBundle == null || ladderCollectorAssetBundleName == null)
             {
                 mls.LogError("failed to load assetbundles");
                 return;
@@ -86,8 +94,9 @@ namespace GiantExtensionLaddersV2
             bigLadderItem = bigLadderBundle.LoadAsset<Item>(bigLadderItemPropertiesLocation);
             hugeLadderItem = hugeLadderBundle.LoadAsset<Item>(hugeLadderItemPropertiesLocation);
             ultimateLadderItem = ultimateLadderBundle.LoadAsset<Item>(ultimateLadderItemPropertiesLocation);
+            ladderCollectorItem = ladderCollectorAssetBundle.LoadAsset<Item>(ladderCollectorItemLocation);
 
-            if (bigLadderItem == null || hugeLadderItem == null || tinyLadderItem == null || ultimateLadderItem == null)
+            if (bigLadderItem == null || hugeLadderItem == null || tinyLadderItem == null || ultimateLadderItem == null || ladderCollectorItem == null)
             {
                 mls.LogError("failed to load items from item assetbundles");
                 return;
@@ -124,7 +133,7 @@ namespace GiantExtensionLaddersV2
             tinyLadderScript.isClimbableInShip = true;
             tinyLadderScript.giantLadderType = tinyLadder.ladderType;
 
-            buildLadderItem(tinyLadder.meshRenderers, tinyLadder.animators, tinyLadder.transforms, tinyLadder.audioClips, tinyLadder.audioSources,
+            buildLadderItemScript(tinyLadder.meshRenderers, tinyLadder.animators, tinyLadder.transforms, tinyLadder.audioClips, tinyLadder.audioSources,
                 tinyLadder.interactTriggers, tinyLadder.boxColliders, tinyLadderScript);
 
             tinyLadderItem.canBeGrabbedBeforeGameStart = true;
@@ -159,7 +168,7 @@ namespace GiantExtensionLaddersV2
             bigLadderScript.isClimbable = bigLadder.LADDER_IS_CLIMBABLE;
             bigLadderScript.giantLadderType = bigLadder.ladderType;
 
-            buildLadderItem(bigLadder.meshRenderers, bigLadder.animators, bigLadder.transforms, bigLadder.audioClips, bigLadder.audioSources,
+            buildLadderItemScript(bigLadder.meshRenderers, bigLadder.animators, bigLadder.transforms, bigLadder.audioClips, bigLadder.audioSources,
                 bigLadder.interactTriggers, bigLadder.boxColliders, bigLadderScript);
 
             //----- build huge ladder item
@@ -192,7 +201,7 @@ namespace GiantExtensionLaddersV2
             hugeLadderScript.isClimbable = hugeLadder.LADDER_IS_CLIMBABLE;
             hugeLadderScript.giantLadderType = hugeLadder.ladderType;
 
-            buildLadderItem(hugeLadder.meshRenderers, hugeLadder.animators, hugeLadder.transforms, hugeLadder.audioClips, hugeLadder.audioSources,
+            buildLadderItemScript(hugeLadder.meshRenderers, hugeLadder.animators, hugeLadder.transforms, hugeLadder.audioClips, hugeLadder.audioSources,
                 hugeLadder.interactTriggers, hugeLadder.boxColliders, hugeLadderScript);
 
             //----- build ultimate ladder item
@@ -225,7 +234,7 @@ namespace GiantExtensionLaddersV2
             ultimateLadderScript.isClimbable = ultimateLadder.LADDER_IS_CLIMBABLE;
             ultimateLadderScript.giantLadderType = ultimateLadder.ladderType;
 
-            buildLadderItem(ultimateLadder.meshRenderers, ultimateLadder.animators, ultimateLadder.transforms, ultimateLadder.audioClips, ultimateLadder.audioSources,
+            buildLadderItemScript(ultimateLadder.meshRenderers, ultimateLadder.animators, ultimateLadder.transforms, ultimateLadder.audioClips, ultimateLadder.audioSources,
                 ultimateLadder.interactTriggers, ultimateLadder.boxColliders, ultimateLadderScript);
 
             if (!isBuildSuccess)
@@ -234,16 +243,61 @@ namespace GiantExtensionLaddersV2
                 return;
             }
 
+            //-------- build ladder collector
+            LadderCollectorScript ladderCollectorScript = ladderCollectorItem.spawnPrefab.AddComponent<LadderCollectorScript>();
+            if (ladderCollectorScript == null)
+            {
+                mls.LogError("ladderCollectorScript failed");
+                return;
+            }
+            ladderCollectorScript.grabbable = true;
+            ladderCollectorScript.grabbableToEnemies = false;
+            ladderCollectorScript.itemProperties = ladderCollectorItem;
+
+            ladderCollectorScript.lcAudioSource = ladderCollectorItem.spawnPrefab.GetComponent<AudioSource>();
+            ladderCollectorScript.teleportationLight = ladderCollectorItem.spawnPrefab.GetComponentInChildren<Light>();
+            List<Transform> ladderCollectorTransforms = ladderCollectorItem.spawnPrefab.GetComponentsInChildren<Transform>().ToList();
+            List<AudioClip> ladderCollectorAudioClips = ladderCollectorAssetBundle.LoadAllAssets<AudioClip>().ToList();
+
+            foreach (Transform transform in ladderCollectorTransforms)
+            {
+                if (transform.name.Equals("BaseNode"))
+                {
+                    ladderCollectorScript.baseNode = transform;
+                } 
+                else if (transform.name.Equals("LadderSpawnNode"))
+                {
+                    ladderCollectorScript.ladderSpawnNode = transform;
+                }
+            }
+
+            foreach (AudioClip audio in ladderCollectorAudioClips)
+            {
+                if (audio.name.Equals("spawnSFX3"))
+                {
+                    ladderCollectorScript.spawnAudio = audio;
+                }
+            }
+
+            if (ladderCollectorScript.baseNode == null  || ladderCollectorScript.ladderSpawnNode == null || ladderCollectorScript.spawnAudio == null || ladderCollectorScript.lcAudioSource == null || ladderCollectorScript.teleportationLight == null)
+            {
+                mls.LogError("some components for ladderCollector couldn't be found!");
+                return;
+            }
+
+
             //-------- register items
             NetworkPrefabs.RegisterNetworkPrefab(tinyLadderItem.spawnPrefab);
             NetworkPrefabs.RegisterNetworkPrefab(bigLadderItem.spawnPrefab);
             NetworkPrefabs.RegisterNetworkPrefab(hugeLadderItem.spawnPrefab);
             NetworkPrefabs.RegisterNetworkPrefab(ultimateLadderItem.spawnPrefab);
+            NetworkPrefabs.RegisterNetworkPrefab(ladderCollectorItem.spawnPrefab);
 
             Utilities.FixMixerGroups(tinyLadderItem.spawnPrefab);
             Utilities.FixMixerGroups(bigLadderItem.spawnPrefab);
             Utilities.FixMixerGroups(hugeLadderItem.spawnPrefab);
             Utilities.FixMixerGroups(ultimateLadderItem.spawnPrefab);
+            Utilities.FixMixerGroups(ladderCollectorItem.spawnPrefab);
 
             tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             tinyLadderNode.clearPreviousText = true;
@@ -265,13 +319,24 @@ namespace GiantExtensionLaddersV2
             ultimateLadderNode.displayText = "This ladder is 68m high, thats about 7x height of the standard ladder.\n\n";
             Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, MySyncedConfigs.Instance.ultimateLadderPrice);
 
+            ladderCollectorNode = ScriptableObject.CreateInstance<TerminalNode>();
+            ladderCollectorNode.clearPreviousText = true;
+            ladderCollectorNode.displayText = "This device somehow detects and attracts ladders within an huge range.\n\n";
+            Items.RegisterShopItem(ladderCollectorItem, null, null, ladderCollectorNode, 75);
+
+            originalItemNames.Add(tinyLadderItem, tinyLadderItem.itemName);
+            originalItemNames.Add(bigLadderItem, bigLadderItem.itemName);
+            originalItemNames.Add(hugeLadderItem, hugeLadderItem.itemName);
+            originalItemNames.Add(ultimateLadderItem, ultimateLadderItem.itemName);
+            originalItemNames.Add(ladderCollectorItem, ladderCollectorItem.itemName);
+
             Harmony.PatchAll();
 
             mls.LogInfo("builds completed and items should be in shop.");
             mls.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has fully loaded!");
         }
 
-        private void buildLadderItem(List<MeshRenderer> meshRenderers, List<Animator> animators, List<Transform> transforms,
+        private void buildLadderItemScript(List<MeshRenderer> meshRenderers, List<Animator> animators, List<Transform> transforms,
             List<AudioClip> audioClips, List<AudioSource> audioSources, List<InteractTrigger> interactTriggers, List<BoxCollider> boxColliders,
             LadderItemScript ladderItemScript)
         {

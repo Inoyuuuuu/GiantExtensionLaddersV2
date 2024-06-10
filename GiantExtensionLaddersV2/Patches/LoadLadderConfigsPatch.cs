@@ -5,6 +5,7 @@ using LethalLib.Modules;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements.Collections;
 using static LethalLib.Modules.Items;
 
 namespace GiantExtensionLaddersV2.Patches
@@ -14,8 +15,8 @@ namespace GiantExtensionLaddersV2.Patches
     {
         private const bool debugLogsActive = false;
         internal const string DISABLED_LADDER_PREFIX = "- - - ";
-        internal const string DISABLED_LADDER_NAME = DISABLED_LADDER_PREFIX + "(removed item: {0})";
-        internal const int DISABLED_LADDER_PRICE = 99999;
+        internal const string DISABLED_ITEM_NAME = DISABLED_LADDER_PREFIX + "(removed item: {0})";
+        internal const int DISABLED_ITEM_PRICE = 99999;
         private static List<Item> removedItemsTerminalFix = new List<Item>();
         private static List<Item> removedItemsSafeFix = new List<Item>();
 
@@ -134,25 +135,36 @@ namespace GiantExtensionLaddersV2.Patches
             UpdatePriceOrRemove(GiantExtensionLaddersV2.bigLadderItem, MySyncedConfigs.Instance.isBigLadderEnabled, MySyncedConfigs.Instance.bigLadderPrice);
             UpdatePriceOrRemove(GiantExtensionLaddersV2.hugeLadderItem, MySyncedConfigs.Instance.isHugeLadderEnabled, MySyncedConfigs.Instance.hugeLadderPrice);
             UpdatePriceOrRemove(GiantExtensionLaddersV2.ultimateLadderItem, MySyncedConfigs.Instance.isUltimateLadderEnabled, MySyncedConfigs.Instance.ultimateLadderPrice);
-
+            UpdatePriceOrRemove(GiantExtensionLaddersV2.ladderCollectorItem, MySyncedConfigs.Instance.isLadderCollectorEnabled, MySyncedConfigs.Instance.ladderCollectorPrice);
         }
 
-        private static void UpdatePriceOrRemove(Item ladderItem, bool isLadderEnabled, int updatedPrice)
+        private static void UpdatePriceOrRemove(Item item, bool isItemEnabled, int updatedPrice)
         {
-            if (ladderItem != null)
+            if (item != null)
             {
-                if (isLadderEnabled)
+                if (isItemEnabled)
                 {
-                    Items.UpdateShopItemPrice(ladderItem, updatedPrice);
+                    if (item.itemName.StartsWith(DISABLED_LADDER_PREFIX))
+                    {
+                        try
+                        {
+                            item.itemName = GiantExtensionLaddersV2.originalItemNames.Get(item);
+                        }
+                        catch (System.Exception)
+                        {
+                            GiantExtensionLaddersV2.mls.LogError("There was an error with resetting a removed item name. If you are not the host, please restart your game.");
+                        }
+                    }
+                    Items.UpdateShopItemPrice(item, updatedPrice);
                 }
                 else
                 {
                     amountOfRemovedItems++;
-                    RemoveItem(ladderItem, terminal, amountOfRemovedItems);
+                    RemoveItem(item, terminal, amountOfRemovedItems);
                 }
             } else
             {
-                GiantExtensionLaddersV2.mls.LogDebug("ladder was null");
+                GiantExtensionLaddersV2.mls.LogDebug("item was null");
             }
         }
 
@@ -167,8 +179,8 @@ namespace GiantExtensionLaddersV2.Patches
                     {
                         removedItemsSafeFix.Add(buyableItem);
 
-                        buyableItem.itemName = string.Format(DISABLED_LADDER_NAME, removedItemsSafeFix.Count);
-                        buyableItem.creditsWorth = DISABLED_LADDER_PRICE;
+                        buyableItem.itemName = string.Format(DISABLED_ITEM_NAME, removedItemsSafeFix.Count);
+                        buyableItem.creditsWorth = DISABLED_ITEM_PRICE;
                         buyableItem.highestSalePercentage = 0;
                     }
                 }

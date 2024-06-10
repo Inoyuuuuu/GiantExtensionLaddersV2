@@ -8,7 +8,7 @@ namespace GiantExtensionLaddersV2.Behaviours
     {
         private bool ladderActivated;
 
-        private bool ladderAnimationBegun;
+        internal bool ladderAnimationBegun;
 
         private Coroutine ladderAnimationCoroutine;
 
