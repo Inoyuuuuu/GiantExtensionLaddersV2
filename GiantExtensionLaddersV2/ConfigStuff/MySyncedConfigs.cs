@@ -38,7 +38,7 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
     [DataMember]
     internal SyncedEntry<bool> isTinyLadderAlwaysActive, isBigLadderAlwaysActive, isHugeLadderAlwaysActive, isUltimateLadderAlwaysActive;
     [DataMember]
-    internal SyncedEntry<bool> isAutoCollectLaddersEnabled;
+    internal SyncedEntry<bool> isAutoCollectLaddersEnabled, isTeleportFromShipRoomEnabled;
     [DataMember]
     internal SyncedEntry<float> teleportFrequency;
 
@@ -89,6 +89,7 @@ internal class MySyncedConfigs : SyncedConfig<MySyncedConfigs>
 
         //ladder collector specific
         isAutoCollectLaddersEnabled = cfg.BindSyncedEntry("LadderCollector", "enableAutoCollectLadders", false, "This will try to teleport all remaining ladders on the map to the ship when pulling the lever to leave the planet");
+        isTeleportFromShipRoomEnabled = cfg.BindSyncedEntry("LadderCollector", "allowTeleportFromShipRoom", false, "This allows the ladder collector to teleport ladders that are in the ship room (or very close to it)");
         teleportFrequency = cfg.BindSyncedEntry("LadderCollector", "ladderTeleportFrequency", teleportFrequencyBase, "Time between ladder-teleports (in seconds)");
 
         fixConfigs();

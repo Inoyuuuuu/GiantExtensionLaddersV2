@@ -69,7 +69,7 @@ namespace GiantExtensionLaddersV2.Behaviours
             // Filter ladders to teleport
             foreach (var ladder in ladders)
             {
-                if (ladder.isInFactory == StartOfRound.Instance.localPlayerController.isInsideFactory && !ladder.isInShipRoom)
+                if (ladder.isInFactory == StartOfRound.Instance.localPlayerController.isInsideFactory && (!ladder.isInShipRoom || MySyncedConfigs.Instance.isTeleportFromShipRoomEnabled))
                 {
                     laddersToTeleport.Add(ladder);
                 }

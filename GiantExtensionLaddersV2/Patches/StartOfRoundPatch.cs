@@ -20,20 +20,11 @@ namespace GiantExtensionLaddersV2.Patches
 
             List<GrabbableObject> grabableObjectsInScene = [.. Object.FindObjectsOfType<LadderItemScript>()];
             grabableObjectsInScene.AddRange([.. Object.FindObjectsOfType<ExtensionLadderItem>()]);
-            List<GrabbableObject> laddersToTeleport = new List<GrabbableObject>();
 
-            foreach (var ladder in grabableObjectsInScene)
+            for (int i = 0; i < grabableObjectsInScene.Count; i++)
             {
-                if (!ladder.isInShipRoom)
-                {
-                    laddersToTeleport.Add(ladder);
-                }
-            }
-
-            for (int i = 0; i < laddersToTeleport.Count; i++)
-            {
-                LadderItemScript? ladder = laddersToTeleport[i] as LadderItemScript;
-                ExtensionLadderItem? normalLadder = laddersToTeleport[i] as ExtensionLadderItem;
+                LadderItemScript? ladder = grabableObjectsInScene[i] as LadderItemScript;
+                ExtensionLadderItem? normalLadder = grabableObjectsInScene[i] as ExtensionLadderItem;
 
                 if (!(ladder == null && normalLadder == null))
                 {
