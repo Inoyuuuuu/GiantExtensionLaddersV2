@@ -78,6 +78,7 @@ namespace GiantExtensionLaddersV2.Behaviours
         private bool isOnAnotherLadder = false;
         private bool hasFallenOnALadder = false;
         private bool isLeaningAgainstALadder = false;
+        private bool hasHitRoof = false;
 
         private Vector3 linecastStart = Vector3.zero;
         private Vector3 linecastEnd = Vector3.zero;
@@ -88,6 +89,15 @@ namespace GiantExtensionLaddersV2.Behaviours
         private const float amountOfChecksMulitplier = 1.2f;
         private const float minDegrees = 9f;
         private const int startingCheckPointNumber = 2;
+
+        public override void Start()
+        {
+            base.Start();
+            for (int i = 0; i < this.propColliders.Length; i++)
+            {
+                this.propColliders[i].excludeLayers = 0;
+            }
+        }
 
         public override void Update()
         {
@@ -106,7 +116,7 @@ namespace GiantExtensionLaddersV2.Behaviours
                 }
             }
 
-            if (playerHeldBy == null && !isHeld && !isHeldByEnemy && reachedFloorTarget && ladderActivated)
+            if (this.playerHeldBy == null && !this.isHeld && !this.isHeldByEnemy && this.reachedFloorTarget && this.ladderActivated)
             {
 
                 if (Physics.Raycast(base.transform.position, Vector3.down, out var hitInfo, 80f, 268437760, QueryTriggerInteraction.Ignore))
@@ -191,6 +201,7 @@ namespace GiantExtensionLaddersV2.Behaviours
             {
                 ladderScript.CancelAnimationExternally();
             }
+
             if (rotateAmount > 0f)
             {
                 rotateAmount = Mathf.Max(rotateAmount - Time.deltaTime * 2f, 0f);
@@ -200,6 +211,7 @@ namespace GiantExtensionLaddersV2.Behaviours
             {
                 ladderRotateAnimator.SetFloat("rotationAmount", 0f);
             }
+
             if (extendAmount > 0f)
             {
                 extendAmount = Mathf.Max(extendAmount - Time.deltaTime * 2f, 0f);
@@ -260,27 +272,7 @@ namespace GiantExtensionLaddersV2.Behaviours
         {
             float ladderMaxExtension = GetLadderExtensionDistance();
             float ladderExtendAmountNormalized = ladderMaxExtension / maxExtension;
-            float ladderRotateAmountNormalized = Mathf.Clamp(GetLadderRotationDegrees(90f) / -90f, 0f, 0.99f);
-
-            if (externalRotNormalTime > 0)
-            {
-                //float ladderDegreeCheckStart = 90f * externalRotNormalTime;
-                //float ladderRotDegrees = GetLadderRotationDegrees(ladderDegreeCheckStart);
-
-                //GiantExtensionLaddersV2.mls.LogInfo("started anim with ext skip");
-                //GiantExtensionLaddersV2.mls.LogInfo("externalRotNormalTime was: " + externalRotNormalTime);
-                //GiantExtensionLaddersV2.mls.LogInfo("0. ladderRotDegrees: " + ladderRotDegrees);
-
-                //ladderRotDegrees /= -ladderDegreeCheckStart;   
-                //GiantExtensionLaddersV2.mls.LogInfo("0.5 ladderRotDegrees div: " + ladderRotDegrees);
-
-                //ladderRotateAmountNormalized = Mathf.Clamp(ladderRotDegrees, 0f, 0.99f);
-                //GiantExtensionLaddersV2.mls.LogInfo("1. ladderRotateAmountNormalized: " + ladderRotateAmountNormalized);
-
-                ladderRotateAmountNormalized = 0.99f;
-            }
-
-
+            float ladderRotateAmountNormalized = 1; //calculated later on
 
             float currentNormalizedTime = 0f;
             float extensionSpeedMultiplier2 = 0.1f;
@@ -319,6 +311,15 @@ namespace GiantExtensionLaddersV2.Behaviours
                     ladderAnimator.SetFloat("extensionAmount", currentNormalizedTime);
                     yield return null;
                 }
+
+                if (topCollisionNode.position.y >= ladderMaxExtension)
+                {
+                    hasHitRoof = true;
+                } else
+                {
+                    hasHitRoof = false;
+                }
+
                 extendAmount = currentNormalizedTime;
 
                 interactCollider.enabled = true;
@@ -349,6 +350,26 @@ namespace GiantExtensionLaddersV2.Behaviours
 
             extensionSpeedMultiplier2 = ladderRotateSpeedMultiplier;
             currentNormalizedTime = 0f;
+
+            ladderRotateAmountNormalized = Mathf.Clamp(GetLadderRotationDegrees(90f) / -90f, 0f, 0.99f);
+
+            if (externalRotNormalTime > 0.01f)
+            {
+                //float ladderDegreeCheckStart = 90f * externalRotNormalTime;
+                //float ladderRotDegrees = GetLadderRotationDegrees(ladderDegreeCheckStart);
+
+                //GiantExtensionLaddersV2.mls.LogInfo("started anim with ext skip");
+                //GiantExtensionLaddersV2.mls.LogInfo("externalRotNormalTime was: " + externalRotNormalTime);
+                //GiantExtensionLaddersV2.mls.LogInfo("0. ladderRotDegrees: " + ladderRotDegrees);
+
+                //ladderRotDegrees /= -ladderDegreeCheckStart;   
+                //GiantExtensionLaddersV2.mls.LogInfo("0.5 ladderRotDegrees div: " + ladderRotDegrees);
+
+                //ladderRotateAmountNormalized = Mathf.Clamp(ladderRotDegrees, 0f, 0.99f);
+                //GiantExtensionLaddersV2.mls.LogInfo("1. ladderRotateAmountNormalized: " + ladderRotateAmountNormalized);
+
+                ladderRotateAmountNormalized = 0.99f;
+            }
 
             if (externalRotNormalTime > 0)
             {
@@ -389,6 +410,23 @@ namespace GiantExtensionLaddersV2.Behaviours
             }
             killTrigger.enabled = false;
 
+            if (hasHitRoof)
+            {
+                float newColliderScale = (((100 - maxExtension) / 100) * 5.16f) / 6;
+                interactCollider.transform.localScale = new Vector3(interactCollider.transform.localScale.x, newColliderScale, interactCollider.transform.localScale.z);
+                bridgeCollider.transform.localScale = new Vector3(bridgeCollider.transform.localScale.x, newColliderScale, bridgeCollider.transform.localScale.z);
+                
+                interactCollider.transform.localPosition = new Vector3(interactCollider.transform.localPosition.x, 1, interactCollider.transform.localPosition.z);
+                bridgeCollider.transform.localPosition = new Vector3(bridgeCollider.transform.localPosition.x, 1, bridgeCollider.transform.localPosition.z);
+            } else
+            {
+                interactCollider.transform.localScale = new Vector3(interactCollider.transform.localScale.x, 5.15892f, interactCollider.transform.localScale.z);
+                bridgeCollider.transform.localScale = new Vector3(bridgeCollider.transform.localScale.x, 5.15892f, bridgeCollider.transform.localScale.z);
+
+                interactCollider.transform.localPosition = new Vector3(interactCollider.transform.localPosition.x, 3.8f, interactCollider.transform.localPosition.z);
+                bridgeCollider.transform.localPosition = new Vector3(bridgeCollider.transform.localPosition.x, 3.29f, bridgeCollider.transform.localPosition.z);
+
+            }
         }
 
         private float GetLadderExtensionDistance()
@@ -473,18 +511,36 @@ namespace GiantExtensionLaddersV2.Behaviours
 
         public override void EquipItem()
         {
+            if (ladderAnimationCoroutine != null)
+            {
+                StopCoroutine(ladderAnimationCoroutine);
+            }
+
             base.EquipItem();
         }
 
         public override void DiscardItemFromEnemy()
         {
             base.DiscardItemFromEnemy();
-            ladderActivated = true;
+            this.ladderActivated = true;
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
+            isOnAnotherLadder = false;
+            hasFallenOnALadder = false;
+            isLeaningAgainstALadder = false;
+            hasHitRoof = false;
+            rotateAmount = -1;
+            linecastStart = Vector3.zero;
+            linecastEnd = Vector3.zero;
+            if (ladderAnimationCoroutine != null)
+            {
+                StopCoroutine(ladderAnimationCoroutine);
+            }
+
             base.ItemActivate(used, buttonDown);
+
             ladderActivated = true;
             if (base.IsOwner)
             {
