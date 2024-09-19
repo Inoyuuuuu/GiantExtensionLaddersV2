@@ -115,7 +115,7 @@ internal class MySyncedConfigs : SyncedConfig2<MySyncedConfigs>
         //ladder collector specific
         isAutoCollectLaddersEnabled = cfg.BindSyncedEntry("LadderCollector", "enableAutoCollectLadders", false, 
             "This will try to teleport all remaining ladders on the map to the ship when pulling the lever to leave the planet.");
-        isTeleportFromShipRoomEnabled = cfg.BindSyncedEntry("LadderCollector", "allowTeleportFromShipRoom", false, 
+        isTeleportFromShipRoomEnabled = cfg.BindSyncedEntry("LadderCollector", "allowTeleportFromShipRoom", true, 
             "This allows the ladder collector to teleport ladders that are in the ship room (or very close to it).");
         teleportFrequency = cfg.BindSyncedEntry("LadderCollector", "ladderTeleportFrequency", teleportFrequencyBase, 
             new ConfigDescription("Time between ladder-teleports (in seconds)", new AcceptableValueRange<float>(MIN_TP_FREQ, MAX_TP_FREQ)));
