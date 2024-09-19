@@ -16,13 +16,15 @@ namespace GiantExtensionLaddersV2
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency("evaisa.lethallib", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("io.github.CSync", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("com.sigurd.csync", "5.0.0")]
     public class GiantExtensionLaddersV2 : BaseUnityPlugin
     {
         //------- configs
         internal static MySyncedConfigs mySyncedConfigs;
 
         //------- constants
+        private const string ladderAssetbundleName = "allLadderAssets";
+
         private const string tinyLadderAssetbundleName = "TinyLadderAssets";
         private const string bigLadderAssetbundleName = "BigLadderAssets";
         private const string hugeLadderAssetbundleName = "HugeLadderAssets";
@@ -41,17 +43,17 @@ namespace GiantExtensionLaddersV2
         internal LadderObject hugeLadder = new LadderObject(34.4f, 60f, 0.2f, true, GiantLadderType.HUGE);
         internal LadderObject ultimateLadder = new LadderObject(68f, 60f, 0.25f, true, GiantLadderType.ULTIMATE);
 
-        internal static Item tinyLadderItem;
-        internal static Item bigLadderItem;
-        internal static Item hugeLadderItem;
-        internal static Item ultimateLadderItem;
-        internal static Item ladderCollectorItem;
+        internal static Item? tinyLadderItem;
+        internal static Item? bigLadderItem;
+        internal static Item? hugeLadderItem;
+        internal static Item? ultimateLadderItem;
+        internal static Item? ladderCollectorItem;
 
-        internal static TerminalNode tinyLadderNode;
-        internal static TerminalNode bigLadderNode;
-        internal static TerminalNode hugeLadderNode;
-        internal static TerminalNode ultimateLadderNode;
-        internal static TerminalNode ladderCollectorNode;
+        internal static TerminalNode? tinyLadderNode;
+        internal static TerminalNode? bigLadderNode;
+        internal static TerminalNode? hugeLadderNode;
+        internal static TerminalNode? ultimateLadderNode;
+        internal static TerminalNode? ladderCollectorNode;
 
         internal static Dictionary<Item, string> originalItemNames = new Dictionary<Item, string>();
 
@@ -133,7 +135,7 @@ namespace GiantExtensionLaddersV2
             tinyLadderScript.isClimbableInShip = true;
             tinyLadderScript.giantLadderType = tinyLadder.ladderType;
 
-            buildLadderItemScript(tinyLadder.meshRenderers, tinyLadder.animators, tinyLadder.transforms, tinyLadder.audioClips, tinyLadder.audioSources,
+            BuildLadderItemScript(tinyLadder.meshRenderers, tinyLadder.animators, tinyLadder.transforms, tinyLadder.audioClips, tinyLadder.audioSources,
                 tinyLadder.interactTriggers, tinyLadder.boxColliders, tinyLadderScript);
 
             tinyLadderItem.canBeGrabbedBeforeGameStart = true;
@@ -168,7 +170,7 @@ namespace GiantExtensionLaddersV2
             bigLadderScript.isClimbable = bigLadder.LADDER_IS_CLIMBABLE;
             bigLadderScript.giantLadderType = bigLadder.ladderType;
 
-            buildLadderItemScript(bigLadder.meshRenderers, bigLadder.animators, bigLadder.transforms, bigLadder.audioClips, bigLadder.audioSources,
+            BuildLadderItemScript(bigLadder.meshRenderers, bigLadder.animators, bigLadder.transforms, bigLadder.audioClips, bigLadder.audioSources,
                 bigLadder.interactTriggers, bigLadder.boxColliders, bigLadderScript);
 
             //----- build huge ladder item
@@ -201,7 +203,7 @@ namespace GiantExtensionLaddersV2
             hugeLadderScript.isClimbable = hugeLadder.LADDER_IS_CLIMBABLE;
             hugeLadderScript.giantLadderType = hugeLadder.ladderType;
 
-            buildLadderItemScript(hugeLadder.meshRenderers, hugeLadder.animators, hugeLadder.transforms, hugeLadder.audioClips, hugeLadder.audioSources,
+            BuildLadderItemScript(hugeLadder.meshRenderers, hugeLadder.animators, hugeLadder.transforms, hugeLadder.audioClips, hugeLadder.audioSources,
                 hugeLadder.interactTriggers, hugeLadder.boxColliders, hugeLadderScript);
 
             //----- build ultimate ladder item
@@ -234,7 +236,7 @@ namespace GiantExtensionLaddersV2
             ultimateLadderScript.isClimbable = ultimateLadder.LADDER_IS_CLIMBABLE;
             ultimateLadderScript.giantLadderType = ultimateLadder.ladderType;
 
-            buildLadderItemScript(ultimateLadder.meshRenderers, ultimateLadder.animators, ultimateLadder.transforms, ultimateLadder.audioClips, ultimateLadder.audioSources,
+            BuildLadderItemScript(ultimateLadder.meshRenderers, ultimateLadder.animators, ultimateLadder.transforms, ultimateLadder.audioClips, ultimateLadder.audioSources,
                 ultimateLadder.interactTriggers, ultimateLadder.boxColliders, ultimateLadderScript);
 
             if (!isBuildSuccess)
@@ -250,6 +252,7 @@ namespace GiantExtensionLaddersV2
                 mls.LogError("ladderCollectorScript failed");
                 return;
             }
+
             ladderCollectorScript.grabbable = true;
             ladderCollectorScript.grabbableToEnemies = false;
             ladderCollectorScript.itemProperties = ladderCollectorItem;
@@ -302,22 +305,22 @@ namespace GiantExtensionLaddersV2
             tinyLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             tinyLadderNode.clearPreviousText = true;
             tinyLadderNode.displayText = "Awwww... tiny ladder! Can be used if the person climbing is also tiny!\n\n";
-            Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, MySyncedConfigs.Instance.tinyLadderPrice);
+            Items.RegisterShopItem(tinyLadderItem, null, null, tinyLadderNode, GiantExtensionLaddersV2.mySyncedConfigs.tinyLadderPrice);
 
             bigLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             bigLadderNode.clearPreviousText = true;
             bigLadderNode.displayText = "This ladder is 17m high, thats about 1,75x height of the standard ladder.\n\n";
-            Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, MySyncedConfigs.Instance.bigLadderPrice);
+            Items.RegisterShopItem(bigLadderItem, null, null, bigLadderNode, GiantExtensionLaddersV2.mySyncedConfigs.bigLadderPrice);
 
             hugeLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             hugeLadderNode.clearPreviousText = true;
             hugeLadderNode.displayText = "This ladder is 34m high, thats about 3,5x height of the standard ladder.\n\n";
-            Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, MySyncedConfigs.Instance.hugeLadderPrice);
+            Items.RegisterShopItem(hugeLadderItem, null, null, hugeLadderNode, GiantExtensionLaddersV2.mySyncedConfigs.hugeLadderPrice);
 
             ultimateLadderNode = ScriptableObject.CreateInstance<TerminalNode>();
             ultimateLadderNode.clearPreviousText = true;
             ultimateLadderNode.displayText = "This ladder is 68m high, thats about 7x height of the standard ladder.\n\n";
-            Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, MySyncedConfigs.Instance.ultimateLadderPrice);
+            Items.RegisterShopItem(ultimateLadderItem, null, null, ultimateLadderNode, GiantExtensionLaddersV2.mySyncedConfigs.ultimateLadderPrice);
 
             ladderCollectorNode = ScriptableObject.CreateInstance<TerminalNode>();
             ladderCollectorNode.clearPreviousText = true;
@@ -336,7 +339,7 @@ namespace GiantExtensionLaddersV2
             mls.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has fully loaded!");
         }
 
-        private void buildLadderItemScript(List<MeshRenderer> meshRenderers, List<Animator> animators, List<Transform> transforms,
+        private void BuildLadderItemScript(List<MeshRenderer> meshRenderers, List<Animator> animators, List<Transform> transforms,
             List<AudioClip> audioClips, List<AudioSource> audioSources, List<InteractTrigger> interactTriggers, List<BoxCollider> boxColliders,
             LadderItemScript ladderItemScript)
         {

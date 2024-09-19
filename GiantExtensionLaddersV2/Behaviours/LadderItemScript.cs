@@ -90,14 +90,14 @@ namespace GiantExtensionLaddersV2.Behaviours
         private const float minDegrees = 9f;
         private const int startingCheckPointNumber = 2;
 
-        public override void Start()
-        {
-            base.Start();
-            for (int i = 0; i < this.propColliders.Length; i++)
-            {
-                this.propColliders[i].excludeLayers = 0;
-            }
-        }
+        //public override void Start()
+        //{
+        //    base.Start();
+        //    for (int i = 0; i < this.propColliders.Length; i++)
+        //    {
+        //        this.propColliders[i].excludeLayers = 0;
+        //    }
+        //}
 
         public override void Update()
         {
@@ -230,24 +230,24 @@ namespace GiantExtensionLaddersV2.Behaviours
             switch (giantLadderType)
             {
                 case GiantLadderType.TINY:
-                    isAlwaysExtended = ConfigStuff.MySyncedConfigs.Instance.isTinyLadderAlwaysActive;
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.tinyLadderExtTime - 4;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.tinyLadderExtTime;
+                    isAlwaysExtended = GiantExtensionLaddersV2.mySyncedConfigs.isTinyLadderAlwaysActive;
+                    ladderAlarmTime = GiantExtensionLaddersV2.mySyncedConfigs.tinyLadderExtTime - 4;
+                    ladderExtensionTime = GiantExtensionLaddersV2.mySyncedConfigs.tinyLadderExtTime;
                     break;
                 case GiantLadderType.BIG:
-                    isAlwaysExtended = ConfigStuff.MySyncedConfigs.Instance.isBigLadderAlwaysActive;
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.bigLadderExtTime - 5;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.bigLadderExtTime;
+                    isAlwaysExtended = GiantExtensionLaddersV2.mySyncedConfigs.isBigLadderAlwaysActive;
+                    ladderAlarmTime = GiantExtensionLaddersV2.mySyncedConfigs.bigLadderExtTime - 5;
+                    ladderExtensionTime = GiantExtensionLaddersV2.mySyncedConfigs.bigLadderExtTime;
                     break;
                 case GiantLadderType.HUGE:
-                    isAlwaysExtended = ConfigStuff.MySyncedConfigs.Instance.isHugeLadderAlwaysActive;
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.hugeLadderExtTime - 5;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.hugeLadderExtTime;
+                    isAlwaysExtended = GiantExtensionLaddersV2.mySyncedConfigs.isHugeLadderAlwaysActive;
+                    ladderAlarmTime = GiantExtensionLaddersV2.mySyncedConfigs.hugeLadderExtTime - 5;
+                    ladderExtensionTime = GiantExtensionLaddersV2.mySyncedConfigs.hugeLadderExtTime;
                     break;
                 case GiantLadderType.ULTIMATE:
-                    isAlwaysExtended = ConfigStuff.MySyncedConfigs.Instance.isUltimateLadderAlwaysActive;
-                    ladderAlarmTime = ConfigStuff.MySyncedConfigs.Instance.ultimateLadderExtTime - 5;
-                    ladderExtensionTime = ConfigStuff.MySyncedConfigs.Instance.ultimateLadderExtTime;
+                    isAlwaysExtended = GiantExtensionLaddersV2.mySyncedConfigs.isUltimateLadderAlwaysActive;
+                    ladderAlarmTime = GiantExtensionLaddersV2.mySyncedConfigs.ultimateLadderExtTime - 5;
+                    ladderExtensionTime = GiantExtensionLaddersV2.mySyncedConfigs.ultimateLadderExtTime;
                     break;
                 default:
                     isAlwaysExtended = false;

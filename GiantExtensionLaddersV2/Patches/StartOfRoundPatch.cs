@@ -13,7 +13,7 @@ namespace GiantExtensionLaddersV2.Patches
         [HarmonyPrefix]
         public static void CollectLadders(StartOfRound __instance)
         {
-            if (!MySyncedConfigs.Instance.isAutoCollectLaddersEnabled)
+            if (!GiantExtensionLaddersV2.mySyncedConfigs.isAutoCollectLaddersEnabled)
             {
                 return;
             }
@@ -47,7 +47,7 @@ namespace GiantExtensionLaddersV2.Patches
             bool isHeldByEnemy = ladder?.isHeldByEnemy ?? normalLadder?.isHeldByEnemy ?? false;
             bool isBeingUsed = ladder?.isBeingUsed ?? normalLadder?.isBeingUsed ?? false;
 
-            if (!isPocketed && !isHeld && !isHeldByEnemy && !isBeingUsed)
+            if (!isPocketed && !isHeld && !isHeldByEnemy && (!isBeingUsed || GiantExtensionLaddersV2.mySyncedConfigs.isCollectExtendedLaddersEnabled))
             {
                 item.transform.position = position;
                 item.FallToGround();

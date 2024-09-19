@@ -8,24 +8,24 @@ namespace GiantExtensionLaddersV2.Behaviours
 {
     internal class LadderCollectorScript : GrabbableObject
     {
-        public Transform baseNode;
-        public Transform ladderSpawnNode;
-        public AudioSource lcAudioSource;
-        public AudioClip spawnAudio;
-        public Light teleportationLight;
+        public Transform? baseNode;
+        public Transform? ladderSpawnNode;
+        public AudioSource? lcAudioSource;
+        public AudioClip? spawnAudio;
+        public Light? teleportationLight;
         private bool wasPlayerInShipRoom = false;
         private float teleportTimer = 0;
         private bool isTimerActive = false;
         private float waitBetweenTeleport = 0.8f;
 
-        public override void Start()
-        {
-            base.Start();
-            for (int i = 0; i < this.propColliders.Length; i++)
-            {
-                this.propColliders[i].excludeLayers = 0;
-            }
-        }
+        //public override void Start()
+        //{
+        //    base.Start();
+        //    for (int i = 0; i < this.propColliders.Length; i++)
+        //    {
+        //        this.propColliders[i].excludeLayers = 0;
+        //    }
+        //}
 
         public override void Update()
         {
@@ -44,7 +44,7 @@ namespace GiantExtensionLaddersV2.Behaviours
         {
             base.ItemActivate(used, buttonDown);
 
-            waitBetweenTeleport = MySyncedConfigs.Instance.teleportFrequency;
+            waitBetweenTeleport = GiantExtensionLaddersV2.mySyncedConfigs.teleportFrequency.Value;
 
             if (!StartOfRound.Instance.inShipPhase && !isTimerActive)
             {
@@ -78,7 +78,8 @@ namespace GiantExtensionLaddersV2.Behaviours
             // Filter ladders to teleport
             foreach (var ladder in ladders)
             {
-                if (ladder.isInFactory == StartOfRound.Instance.localPlayerController.isInsideFactory && (!ladder.isInShipRoom || MySyncedConfigs.Instance.isTeleportFromShipRoomEnabled))
+                bool areLadderTeleportConditionsMet = (ladder.isInFactory == StartOfRound.Instance.localPlayerController.isInsideFactory) && (!ladder.isInShipRoom || GiantExtensionLaddersV2.mySyncedConfigs.isTeleportFromShipRoomEnabled);
+                if (areLadderTeleportConditionsMet)
                 {
                     laddersToTeleport.Add(ladder);
                 }
@@ -122,7 +123,7 @@ namespace GiantExtensionLaddersV2.Behaviours
             bool isBeingUsed = ladder?.isBeingUsed ?? normalLadder?.isBeingUsed ?? false;
             bool ladderAnimationBegun = ladder?.ladderAnimationBegun ?? normalLadder?.ladderAnimationBegun ?? false;
 
-            if (!isPocketed && !isHeld && !isHeldByEnemy && !isBeingUsed && !ladderAnimationBegun)
+            if (!isPocketed && !isHeld && !isHeldByEnemy && !isBeingUsed && (!ladderAnimationBegun || GiantExtensionLaddersV2.mySyncedConfigs.isCollectExtendedLaddersEnabled))
             {
                 teleportationLight.intensity = 0;
                 StartCoroutine(TeleportLightAnim());

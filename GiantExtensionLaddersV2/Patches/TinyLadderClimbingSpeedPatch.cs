@@ -14,7 +14,7 @@ namespace GiantExtensionLaddersV2.Patches
         [HarmonyPatch("Update")]
         [HarmonyPriority(Priority.Low)]
         [HarmonyPostfix]
-        static void crankThatClimbingSpeed(PlayerControllerB __instance)
+        static void CrankThatClimbingSpeed(PlayerControllerB __instance)
         {
             if (!isDefaultClimbSpeedSet)
             {

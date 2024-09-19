@@ -41,12 +41,12 @@ namespace GiantExtensionLaddersV2.Patches
 
                 if (methodUptime < updateConfigStart)
                 {
-                    syncLadderPrices();
+                    SyncLadderPrices();
                 }
             }
             else if (isPatchActive && methodUptime <= 0)
             {
-                evaluateConfigSync();
+                EvaluateConfigSync();
 
                 if (isFirstPatch && wasFirstPatchFail)
                 {
@@ -74,26 +74,26 @@ namespace GiantExtensionLaddersV2.Patches
             wasFirstPatchFail = false;
         }
 
-        private static void evaluateConfigSync()
+        private static void EvaluateConfigSync()
         {
             bool isConfigSyncSuccess = true;
 
             foreach (var shopItem in Items.shopItems)
             {
 
-                if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.tinyLadderItem.itemName) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.tinyLadderPrice.Value)
+                if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.tinyLadderItem.itemName) && shopItem.item.creditsWorth != GiantExtensionLaddersV2.mySyncedConfigs.tinyLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
-                else if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.bigLadderItem.itemName) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.bigLadderPrice.Value)
+                else if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.bigLadderItem.itemName) && shopItem.item.creditsWorth != GiantExtensionLaddersV2.mySyncedConfigs.bigLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
-                else if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.hugeLadderItem.itemName) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.hugeLadderPrice.Value)
+                else if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.hugeLadderItem.itemName) && shopItem.item.creditsWorth != GiantExtensionLaddersV2.mySyncedConfigs.hugeLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
-                else if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.ultimateLadderItem.itemName) && shopItem.item.creditsWorth != MySyncedConfigs.Instance.ultimateLadderPrice.Value)
+                else if (!shopItem.item.itemName.StartsWith(DISABLED_LADDER_PREFIX) && shopItem.item.itemName.Equals(GiantExtensionLaddersV2.ultimateLadderItem.itemName) && shopItem.item.creditsWorth != GiantExtensionLaddersV2.mySyncedConfigs.ultimateLadderPrice.Value)
                 {
                     isConfigSyncSuccess = false;
                 }
@@ -120,7 +120,7 @@ namespace GiantExtensionLaddersV2.Patches
             }
         }
 
-        private static void syncLadderPrices()
+        private static void SyncLadderPrices()
         {
             Terminal terminal = Object.FindObjectOfType<Terminal>();
             if (terminal == null)
@@ -131,11 +131,11 @@ namespace GiantExtensionLaddersV2.Patches
 
             amountOfRemovedItems = 0;
 
-            UpdatePriceOrRemove(GiantExtensionLaddersV2.tinyLadderItem, MySyncedConfigs.Instance.isTinyLadderEnabled, MySyncedConfigs.Instance.tinyLadderPrice);
-            UpdatePriceOrRemove(GiantExtensionLaddersV2.bigLadderItem, MySyncedConfigs.Instance.isBigLadderEnabled, MySyncedConfigs.Instance.bigLadderPrice);
-            UpdatePriceOrRemove(GiantExtensionLaddersV2.hugeLadderItem, MySyncedConfigs.Instance.isHugeLadderEnabled, MySyncedConfigs.Instance.hugeLadderPrice);
-            UpdatePriceOrRemove(GiantExtensionLaddersV2.ultimateLadderItem, MySyncedConfigs.Instance.isUltimateLadderEnabled, MySyncedConfigs.Instance.ultimateLadderPrice);
-            UpdatePriceOrRemove(GiantExtensionLaddersV2.ladderCollectorItem, MySyncedConfigs.Instance.isLadderCollectorEnabled, MySyncedConfigs.Instance.ladderCollectorPrice);
+            UpdatePriceOrRemove(GiantExtensionLaddersV2.tinyLadderItem, GiantExtensionLaddersV2.mySyncedConfigs.isTinyLadderEnabled, GiantExtensionLaddersV2.mySyncedConfigs.tinyLadderPrice);
+            UpdatePriceOrRemove(GiantExtensionLaddersV2.bigLadderItem, GiantExtensionLaddersV2.mySyncedConfigs.isBigLadderEnabled, GiantExtensionLaddersV2.mySyncedConfigs.bigLadderPrice);
+            UpdatePriceOrRemove(GiantExtensionLaddersV2.hugeLadderItem, GiantExtensionLaddersV2.mySyncedConfigs.isHugeLadderEnabled, GiantExtensionLaddersV2.mySyncedConfigs.hugeLadderPrice);
+            UpdatePriceOrRemove(GiantExtensionLaddersV2.ultimateLadderItem, GiantExtensionLaddersV2.mySyncedConfigs.isUltimateLadderEnabled, GiantExtensionLaddersV2.mySyncedConfigs.ultimateLadderPrice);
+            UpdatePriceOrRemove(GiantExtensionLaddersV2.ladderCollectorItem, GiantExtensionLaddersV2.mySyncedConfigs.isLadderCollectorEnabled, GiantExtensionLaddersV2.mySyncedConfigs.ladderCollectorPrice);
         }
 
         private static void UpdatePriceOrRemove(Item item, bool isItemEnabled, int updatedPrice)
@@ -170,7 +170,8 @@ namespace GiantExtensionLaddersV2.Patches
 
         private static void RemoveItem(Item targetItem, Terminal terminal, int amountOfRemovedItems)
         {
-            if (MySyncedConfigs.Instance.isSalesFixEasyActive)
+            if (GiantExtensionLaddersV2.mySyncedConfigs.isSalesFixEasyActive 
+                && !GiantExtensionLaddersV2.mySyncedConfigs.isDontFix)
             {
                 Item? buyableItem = FindBuyableItem(targetItem, terminal);
                 if (buyableItem != null)
@@ -190,7 +191,9 @@ namespace GiantExtensionLaddersV2.Patches
                     Items.RemoveShopItem(targetItem);
                 }
             } 
-            else if (MySyncedConfigs.Instance.isSalesFixTerminalActive)
+            else if (GiantExtensionLaddersV2.mySyncedConfigs.isSalesFixTerminalActive 
+                && !GiantExtensionLaddersV2.mySyncedConfigs.isSalesFixEasyActive 
+                && !GiantExtensionLaddersV2.mySyncedConfigs.isDontFix)
             {
                 int removedItemIndex = 0;
 
@@ -237,13 +240,6 @@ namespace GiantExtensionLaddersV2.Patches
 
         private static void UpdateBuyItemIndex(Item item, int newIndex)
         {
-            if (!(StartOfRound.Instance != null))
-            {
-                if (debugLogsActive) GiantExtensionLaddersV2.mls.LogDebug("early return: StartOfRound was null? Dafuq how did that happen??");
-
-                return;
-            }
-
             TerminalKeyword terminalKeyword = terminal.terminalNodes.allKeywords.First((TerminalKeyword keyword) => keyword.word == "buy");
             TerminalNode itemTerminalNode = terminalKeyword.compatibleNouns[0].result.terminalOptions[1].result;
             List<CompatibleNoun> source = terminalKeyword.compatibleNouns.ToList();
