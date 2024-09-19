@@ -90,15 +90,6 @@ namespace GiantExtensionLaddersV2.Behaviours
         private const float minDegrees = 9f;
         private const int startingCheckPointNumber = 2;
 
-        //public override void Start()
-        //{
-        //    base.Start();
-        //    for (int i = 0; i < this.propColliders.Length; i++)
-        //    {
-        //        this.propColliders[i].excludeLayers = 0;
-        //    }
-        //}
-
         public override void Update()
         {
             base.Update();

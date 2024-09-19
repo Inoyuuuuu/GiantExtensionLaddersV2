@@ -18,15 +18,6 @@ namespace GiantExtensionLaddersV2.Behaviours
         private bool isTimerActive = false;
         private float waitBetweenTeleport = 0.8f;
 
-        //public override void Start()
-        //{
-        //    base.Start();
-        //    for (int i = 0; i < this.propColliders.Length; i++)
-        //    {
-        //        this.propColliders[i].excludeLayers = 0;
-        //    }
-        //}
-
         public override void Update()
         {
             base.Update();
