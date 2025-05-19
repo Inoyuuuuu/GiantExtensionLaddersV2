@@ -2,15 +2,14 @@
 using BepInEx.Logging;
 using GiantExtensionLaddersV2.Behaviours;
 using GiantExtensionLaddersV2.ConfigStuff;
-using GiantExtensionLaddersV2.Patches;
 using HarmonyLib;
 using LethalLib.Modules;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
 
 namespace GiantExtensionLaddersV2
 {
@@ -458,8 +457,16 @@ namespace GiantExtensionLaddersV2
                     break;
                 }
             }
+
+            //LayerMask mask = LayerMask.NameToLayer("Player");
+            //mls.LogInfo("MASK IS: " + mask.m_Mask);
+
             foreach (BoxCollider boxCollider in boxColliders)
             {
+                //boxCollider.set_excludeLayers_Injected(ref mask);
+                
+                mls.LogInfo(boxCollider.name + " has mask: " + boxCollider.excludeLayers.m_Mask);
+
                 if (boxCollider.name.Equals("ExtLadderTrigger"))
                 {
                     propertyCounter++;
@@ -478,6 +485,56 @@ namespace GiantExtensionLaddersV2
                     ladderItemScript.killTrigger = boxCollider;
                     //mls.LogMessage("18. component: KillTrigger");
                 }
+
+
+
+                //removing collision
+                //if (boxCollider.name.Equals("BoxPart"))
+                //{
+                //    mls.LogMessage("found boxpart boxC");
+
+                //    GameObject boxPart = boxCollider.gameObject;
+
+                //    if (boxPart != null)
+                //    {
+                //        mls.LogMessage("found boxpart parent");
+
+                //        MeshCollider meshCollider = boxPart.GetComponent<MeshCollider>();
+
+                //        if (meshCollider != null)
+                //        {
+                //            mls.LogMessage("found boxpart meshC");
+
+                //            Destroy(meshCollider);
+
+                //            mls.LogMessage("destroyed mesh collider");
+                //        }
+                //    }
+                //}
+
+                //if (boxCollider.name.Equals("BaseLadder"))
+                //{
+                //    //propertyCounter++;
+                //    ladderItemScript.anotherExtendedLadderCollider = boxCollider;
+                //    //ladderItemScript.anotherExtendedLadderCollider.enabled = false;
+
+                //    //ladderItemScript.anotherExtendedLadderCollider.set_excludeLayers_Injected(ref mask);
+                //}
+
+                //if (boxCollider.name.Equals(tinyLadderItem.spawnPrefab.name) 
+                //    || boxCollider.name.Equals(bigLadderItem.spawnPrefab.name) 
+                //    || boxCollider.name.Equals(hugeLadderItem.spawnPrefab.name) 
+                //    || boxCollider.name.Equals(ultimateLadderItem.spawnPrefab.name))
+                //{
+                //    boxCollider.set_excludeLayers_Injected(ref mask);
+                //}
+
+                //boxCollider.get_excludeLayers_Injected(out LayerMask maskout);
+                //if (maskout.m_Mask != 3)
+                //{
+                //    mls.LogInfo("LM not set! was: " + maskout.m_Mask + " mask is: " + mask.m_Mask);
+                //}
+                
             }
 
             if (propertyCounter == MAX_PROPERTY_AMOUNT)

@@ -73,6 +73,7 @@ namespace GiantExtensionLaddersV2.Behaviours
         public bool isClimbableInShip = false;
         public bool isAlwaysExtended = false;
         public Transform topCollisionNode;
+        public Collider anotherExtendedLadderCollider;
 
         private const float RAYCAST_DISTANCE_CORRECTION = 4f;
         private bool isOnAnotherLadder = false;
@@ -110,7 +111,7 @@ namespace GiantExtensionLaddersV2.Behaviours
             if (this.playerHeldBy == null && !this.isHeld && !this.isHeldByEnemy && this.reachedFloorTarget && this.ladderActivated)
             {
 
-                if (Physics.Raycast(base.transform.position, Vector3.down, out var hitInfo, 80f, 268437760, QueryTriggerInteraction.Ignore))
+                if (Physics.Raycast(base.transform.position, Vector3.down, out var hitInfo, 80f, 0, QueryTriggerInteraction.Ignore))
                 {
                     if (hitInfo.collider.GetComponentInParent<LadderItemScript>() != null)
                     {
@@ -133,7 +134,6 @@ namespace GiantExtensionLaddersV2.Behaviours
                 }
                 else if (ladderAnimationBegun)
                 {
-
                     if (hasFallenOnALadder)
                     {
                         if (!Physics.Linecast(linecastStart, linecastEnd, out var ladderCheckLinecast, layerMask, QueryTriggerInteraction.Ignore))
